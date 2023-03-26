@@ -1,6 +1,6 @@
 import { NestFactory } from "@nestjs/core";
 import { ApiGatewayModule } from "./api-gateway.module";
-import { ConfigService } from "@tipe/common";
+import { ConfigService } from "@pihe/common";
 
 const bootstrap = async () => {
   const app = await NestFactory.create(ApiGatewayModule);

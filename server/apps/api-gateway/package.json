@@ -14,6 +14,7 @@
     "@nestjs/core": "^9.3.9",
     "@nestjs/microservices": "^9.3.9",
     "@nestjs/platform-express": "^9.3.9",
+    "@pihe/common": "^0.0.1-alpha.0",
     "amqp-connection-manager": "^4.1.11",
     "amqplib": "^0.10.3",
     "reflect-metadata": "^0.1.13",

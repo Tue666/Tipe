@@ -1,0 +1,16 @@
+{
+  "name": "@pihe/server",
+  "author": "Pihe",
+  "license": "MIT",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "lerna run build",
+    "dev": "lerna run dev",
+    "start": "lerna run start"
+  },
+  "devDependencies": {
+    "lerna": "^6.5.1"
+  }
+}

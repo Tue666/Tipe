@@ -1,0 +1,22 @@
+{
+  "name": "@pihe/api-gateway",
+  "version": "0.0.0",
+  "main": "dist/main.js",
+  "author": "Pihe",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc && node dist/main.js",
+    "start": "node dist/main.js"
+  },
+  "dependencies": {
+    "@nestjs/common": "^9.3.9",
+    "@nestjs/core": "^9.3.9",
+    "@nestjs/microservices": "^9.3.9",
+    "@nestjs/platform-express": "^9.3.9",
+    "amqp-connection-manager": "^4.1.11",
+    "amqplib": "^0.10.3",
+    "reflect-metadata": "^0.1.13",
+    "rxjs": "^7.8.0"
+  }
+}

@@ -1,0 +1,1 @@
+Core Module for Tipe Application

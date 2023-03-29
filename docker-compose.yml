@@ -1,0 +1,21 @@
+version: "3.9"
+name: "pihe-app"
+services:
+  rabbitmq:
+    image: rabbitmq:3.10-management
+    container_name: rabbitmq
+    ports:
+      - 5672:5672
+      - 15672:15672
+    networks:
+      - pihe-network
+    volumes:
+      - rabbitmq:/var/lib/rabbitmq
+    env_file:
+      - .env.rabbitmq
+
+networks:
+  pihe-network:
+    driver: bridge
+volumes:
+  rabbitmq:

@@ -1,13 +1,12 @@
-import { Module } from "@nestjs/common";
-import { ClientsModule } from "@nestjs/microservices";
-import { AuthConfig } from "./auth/auth.config";
-import { AuthController } from "./auth/auth.controller";
-import { AuthService } from "./auth/auth.service";
-import { CommonModule } from "@pihe/common";
+import { Module } from '@nestjs/common';
+import { ClientsModule } from '@nestjs/microservices';
+import { CommonModule } from '@pihe/common';
+import { AuthConfig, AuthController, AuthService } from './auth';
+import { UserConfig, UserController, UserService } from './user';
 
 @Module({
-  imports: [CommonModule, ClientsModule.registerAsync([AuthConfig])],
-  controllers: [AuthController],
-  providers: [AuthService],
+  imports: [CommonModule, ClientsModule.registerAsync([AuthConfig, UserConfig])],
+  controllers: [AuthController, UserController],
+  providers: [AuthService, UserService],
 })
 export class ApiGatewayModule {}

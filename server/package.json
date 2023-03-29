@@ -1,5 +1,6 @@
 {
   "name": "@pihe/server",
+  "private": true,
   "author": "Pihe",
   "license": "MIT",
   "workspaces": [

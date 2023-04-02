@@ -4,6 +4,7 @@ services:
   rabbitmq:
     image: rabbitmq:3.10-management
     container_name: rabbitmq
+    restart: always
     ports:
       - 5672:5672
       - 15672:15672
@@ -14,8 +15,22 @@ services:
     env_file:
       - .env.rabbitmq
 
+  mongo:
+    image: mongo
+    container_name: mongo
+    restart: always
+    ports:
+      - 27018:27017
+    networks:
+      - pihe-network
+    volumes:
+      - mongo:/data/db
+    env_file:
+      - .env.mongo
+
 networks:
   pihe-network:
     driver: bridge
 volumes:
   rabbitmq:
+  mongo:

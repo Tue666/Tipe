@@ -1,5 +1,5 @@
 {
-  "name": "@pihe/auth-service",
+  "name": "@pihe-server/auth-service",
   "version": "0.0.0",
   "main": "dist/main.js",
   "author": "Pihe",

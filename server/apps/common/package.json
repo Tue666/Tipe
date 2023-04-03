@@ -1,5 +1,5 @@
 {
-  "name": "@pihe-server/user-service",
+  "name": "@pihe-server/common",
   "version": "0.0.0",
   "main": "dist/main.js",
   "author": "Pihe",
@@ -11,7 +11,9 @@
   },
   "dependencies": {
     "@nestjs/common": "^9.3.12",
-    "@nestjs/core": "^9.3.12",
-    "@nestjs/microservices": "^9.3.12"
+    "@nestjs/config": "^2.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^18.15.11"
   }
 }

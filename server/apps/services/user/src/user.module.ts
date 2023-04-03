@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { CommonModule } from '@pihe/common';
+import { CommonModule } from '@pihe-server/common';
 import { UserController } from './user.controller';
 
 @Module({

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule } from '@nestjs/microservices';
-import { CommonModule } from '@pihe/common';
+import { CommonModule } from '@pihe-server/common';
 import { AuthConfig, AuthController, AuthService } from './auth';
 import { UserConfig, UserController, UserService } from './user';
 

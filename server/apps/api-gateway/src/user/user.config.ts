@@ -1,9 +1,11 @@
-import { ClientsProviderAsyncOptions } from '@nestjs/microservices';
-import { ConfigService } from '@pihe/common';
-import { userOptions } from '../configs/queues';
+import { ClientsProviderAsyncOptions, Transport } from '@nestjs/microservices';
+import { ServerConfigService } from '@pihe-server/common';
 
 export const UserConfig: ClientsProviderAsyncOptions = {
   name: 'USER_SERVICE',
-  useFactory: userOptions,
-  inject: [ConfigService],
+  useFactory: (configService: ServerConfigService) => ({
+    transport: Transport.RMQ,
+    options: configService.getUserServiceConfig().options,
+  }),
+  inject: [ServerConfigService],
 };

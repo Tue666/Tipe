@@ -7,30 +7,30 @@ export class ServerConfigService {
 
   getApiGatewayConfig() {
     return {
-      port: this.configService.get<number>('API_GATEWAY_PORT'),
+      port: parseInt(this.configService.get('API_GATEWAY_PORT')),
     };
   }
 
   getAuthServiceConfig() {
     return {
-      port: this.configService.get<number>('AUTH_SERVICE_PORT'),
+      port: parseInt(this.configService.get('AUTH_SERVICE_PORT')),
       options: {
-        urls: [this.configService.get<string>('RABBIT_HOST') || 'amqp://localhost'],
-        queue: this.configService.get<string>('AUTH_SERVICE_QUEUE') || '',
-        // prefetchCount: this.configService.get<number>('AUTH_SERVICE_PREFETCH_COUNT') || 1,
-        // noAck: this.configService.get<boolean>('AUTH_SERVICE_NO_ACK') || false,
+        urls: [this.configService.get('RABBIT_HOST') || 'amqp://localhost'],
+        queue: this.configService.get('AUTH_SERVICE_QUEUE') || '',
+        prefetchCount: parseInt(this.configService.get('AUTH_SERVICE_PREFETCH_COUNT')) || 1,
+        noAck: JSON.parse(this.configService.get('AUTH_SERVICE_NO_ACK')) || false,
       },
     };
   }
 
   getUserServiceConfig() {
     return {
-      port: this.configService.get<number>('USER_SERVICE_PORT'),
+      port: parseInt(this.configService.get('USER_SERVICE_PORT')),
       options: {
-        urls: [this.configService.get<string>('RABBIT_HOST') || 'amqp://localhost'],
-        queue: this.configService.get<string>('USER_SERVICE_QUEUE') || '',
-        // prefetchCount: this.configService.get<number>('USER_SERVICE_PREFETCH_COUNT') || 1,
-        // noAck: this.configService.get<boolean>('USER_SERVICE_NO_ACK') || false,
+        urls: [this.configService.get('RABBIT_HOST') || 'amqp://localhost'],
+        queue: this.configService.get('USER_SERVICE_QUEUE') || '',
+        prefetchCount: parseInt(this.configService.get('USER_SERVICE_PREFETCH_COUNT')) || 1,
+        noAck: JSON.parse(this.configService.get('USER_SERVICE_NO_ACK')) || false,
       },
     };
   }

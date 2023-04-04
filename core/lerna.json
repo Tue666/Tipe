@@ -1,5 +1,5 @@
 {
-  "packages": ["libs/*", "libs/nestjs-core/*"],
+  "packages": ["libs/**/*"],
   "useWorkspaces": true,
   "version": "independent"
 }

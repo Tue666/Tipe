@@ -3,8 +3,7 @@
   "author": "Pihe",
   "license": "MIT",
   "workspaces": [
-    "libs/*",
-    "libs/nestjs-core/*"
+    "libs/**/*"
   ],
   "scripts": {
     "build": "lerna run build",

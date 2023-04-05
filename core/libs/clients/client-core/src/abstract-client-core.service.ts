@@ -1,9 +1,11 @@
-import { OnModuleInit, ConfigService, Inject } from '@pihe-core/common';
+import { OnModuleInit, ConfigService, Inject, OnModuleDestroy } from '@pihe-core/common';
 import { ClientConfig } from './client.config';
 
-export abstract class AbstractClientCore<Config extends ClientConfig, C> implements OnModuleInit {
+export abstract class AbstractClientCore<Config extends ClientConfig, Client>
+  implements OnModuleInit, OnModuleDestroy
+{
   private configs: { [id: string]: Config } = {};
-  private clients: { [id: string]: C } = {};
+  private clients: { [id: string]: Client } = {};
   @Inject()
   private configService: ConfigService;
 
@@ -15,15 +17,18 @@ export abstract class AbstractClientCore<Config extends ClientConfig, C> impleme
   }
 
   async clientInit(config: Config) {
-    const { id } = config;
-    this.configs[id] = config;
-    this.clients[id] = await this.init(this.configs[id]);
-    await this.start(this.clients[id], id);
+    this.configs[this.service] = config;
+    this.clients[this.service] = await this.init(this.configs[this.service]);
+    await this.start(this.clients[this.service], this.service);
   }
 
-  protected abstract init(config: Config): Promise<C>;
+  async onModuleDestroy() {
+    Object.values(this.clients).forEach(async (client) => await this.stop(client));
+  }
 
-  protected abstract stop(client: C, id?: string): Promise<void>;
+  protected abstract init(config: Config): Promise<Client>;
 
-  protected abstract start(client: C, id?: string): Promise<void>;
+  protected abstract start(client: Client, id?: string): Promise<void>;
+
+  protected abstract stop(client: Client, id?: string): Promise<void>;
 }

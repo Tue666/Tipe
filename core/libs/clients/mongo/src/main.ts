@@ -1,11 +1,4 @@
-import { NestFactory } from '@nestjs/core';
-import { MongoClientModule } from './mongo-client.module';
-
-const bootstrap = async () => {
-  const app = await NestFactory.create(MongoClientModule);
-  await app.listen(10000, () => {
-    console.log(`Api Gateway running on port ${10000}`);
-  });
-};
-
-bootstrap();
+export * from './mongo-client.module';
+export * from './mongo-client.service';
+export * from './mongo-client.config';
+export * from './mongo.client';

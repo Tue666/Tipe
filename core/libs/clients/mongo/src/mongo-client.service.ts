@@ -1,31 +1,58 @@
-import { Injectable } from '@pihe-core/common';
+import { Injectable, sleep } from '@pihe-core/common';
 import { AbstractClientCore } from '@pihe-core/client-core';
 import { MongoClientConfig } from './mongo-client.config';
-import { MongoClient } from './mongo.client';
-import { connect } from 'mongoose';
+import { Connection, connection, connect } from './mongo.client';
 
 @Injectable()
-export class MongoClientService extends AbstractClientCore<MongoClientConfig, MongoClient> {
+export class MongoClientService extends AbstractClientCore<MongoClientConfig, Connection> {
   constructor() {
     super('mongo');
   }
 
-  async connect(config: MongoClientConfig) {
-    const connectionString = `mongodb://zxc?authSource=admin`;
-    return await connect(connectionString, {});
+  private connect(config: MongoClientConfig) {
+    const { url, database, auth, autoIndex, autoCreate } = config;
+    const connectionString = `mongodb://${url}?authSource=admin`;
+    const connectOptions = {};
+    if (auth) {
+      connectOptions['user'] = auth.username;
+      connectOptions['pass'] = auth.password;
+    }
+    if (database) {
+      connectOptions['dbName'] = database;
+    }
+    if (autoIndex) {
+      connectOptions['autoIndex'] = autoIndex;
+    }
+    if (autoCreate) {
+      connectOptions['autoCreate'] = autoCreate;
+    }
+    return connect(connectionString, connectOptions);
   }
 
-  protected async init(config: MongoClientConfig): Promise<MongoClient> {
-    await this.connect(config);
-    return null;
+  protected async init(config: MongoClientConfig): Promise<Connection> {
+    this.connect(config);
+
+    connection.on('connected', () => {
+      console.log('Connected to mongo database successfully');
+    });
+
+    connection.on('error', (error) => {
+      console.log('Error when connecting to database', error);
+    });
+
+    connection.on('disconnected', async () => {
+      console.log('Database connection disconnected');
+      console.log('Database try reconnect, retrying...');
+
+      await sleep(config.retryTimeout);
+
+      this.connect(config);
+    });
+
+    return connection;
   }
 
-  protected start(client: MongoClient, id?: string): Promise<void> {
-    console.log('start mongo client', client, id);
-    return;
-  }
+  protected async start(client: Connection, id?: string): Promise<void> {}
 
-  protected stop(client: MongoClient, id?: string): Promise<void> {
-    return;
-  }
+  protected async stop(client: Connection, id?: string): Promise<void> {}
 }

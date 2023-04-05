@@ -10,8 +10,6 @@
     "start": "node dist/main.js"
   },
   "dependencies": {
-    "@nestjs/core": "^9.3.12",
-    "@nestjs/platform-express": "^9.3.12",
     "@pihe-core/client-core": "^0.0.0",
     "@pihe-core/common": "^0.0.0",
     "mongoose": "^7.0.3"

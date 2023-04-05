@@ -1,1 +1,1 @@
-export interface MongoClient {}
+export * from 'mongoose';

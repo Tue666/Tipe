@@ -1,5 +1,5 @@
 {
-  "name": "@pihe-core/mongo-client",
+  "name": "@pihe/mongo-client",
   "version": "0.0.6-alpha.0",
   "main": "dist/main.js",
   "author": "Pihe",

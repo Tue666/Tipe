@@ -1,6 +1,6 @@
 {
   "name": "@pihe/client-core",
-  "version": "0.0.10-alpha.0",
+  "version": "0.0.11-alpha.0",
   "main": "dist/main.js",
   "author": "Pihe",
   "license": "MIT",
@@ -13,6 +13,6 @@
     "start": "node dist/main.js"
   },
   "dependencies": {
-    "@pihe/common": "^0.0.10-alpha.0"
+    "@pihe/common": "^0.0.11-alpha.0"
   }
 }

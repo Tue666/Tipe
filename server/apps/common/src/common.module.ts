@@ -1,18 +1,13 @@
-import { resolve } from 'path';
 import { Global, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { ServerConfigService } from './config';
+import { config, ServerConfigService } from './config';
 
 @Global()
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: [
-        resolve(__dirname, '..', '.env.development'),
-        resolve(__dirname, '..', '.env.staging'),
-        resolve(__dirname, '..', '.env.production'),
-      ],
+      load: [config],
     }),
   ],
   providers: [ServerConfigService],

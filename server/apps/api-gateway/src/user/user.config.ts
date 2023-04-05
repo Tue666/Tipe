@@ -3,9 +3,13 @@ import { ServerConfigService } from '@pihe-server/common';
 
 export const UserConfig: ClientsProviderAsyncOptions = {
   name: 'USER_SERVICE',
-  useFactory: (configService: ServerConfigService) => ({
-    transport: Transport.RMQ,
-    options: configService.getUserServiceConfig().options,
-  }),
+  useFactory: (configService: ServerConfigService) => {
+    const configs = configService.getServicesConfig();
+    const { user } = configs;
+    return {
+      transport: Transport.RMQ,
+      options: user.options,
+    };
+  },
   inject: [ServerConfigService],
 };

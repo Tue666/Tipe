@@ -4,8 +4,7 @@
   "author": "Pihe",
   "license": "MIT",
   "workspaces": [
-    "apps/*",
-    "apps/services/*"
+    "apps/**/*"
   ],
   "scripts": {
     "build": "lerna run build",

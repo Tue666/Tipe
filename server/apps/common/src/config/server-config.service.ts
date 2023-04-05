@@ -6,31 +6,34 @@ export class ServerConfigService {
   constructor(private configService: ConfigService) {}
 
   getApiGatewayConfig() {
+    const apiGatewayConfig = this.configService.get('apiGateway');
     return {
-      port: parseInt(this.configService.get('API_GATEWAY_PORT')),
+      port: parseInt(apiGatewayConfig.port),
     };
   }
 
-  getAuthServiceConfig() {
+  getServicesConfig() {
+    const rabbitHost = this.configService.get('rabbitHost');
+    const servicesConfig = this.configService.get('services');
+    const { auth, user } = servicesConfig;
     return {
-      port: parseInt(this.configService.get('AUTH_SERVICE_PORT')),
-      options: {
-        urls: [this.configService.get('RABBIT_HOST') || 'amqp://localhost'],
-        queue: this.configService.get('AUTH_SERVICE_QUEUE') || '',
-        prefetchCount: parseInt(this.configService.get('AUTH_SERVICE_PREFETCH_COUNT')) || 1,
-        noAck: JSON.parse(this.configService.get('AUTH_SERVICE_NO_ACK')) || false,
+      auth: {
+        port: parseInt(auth.port),
+        options: {
+          urls: [rabbitHost || 'amqp://localhost'],
+          queue: auth.queue || '',
+          prefetchCount: parseInt(auth.prefetchCount) || 1,
+          noAck: JSON.parse(auth.noAck) || false,
+        },
       },
-    };
-  }
-
-  getUserServiceConfig() {
-    return {
-      port: parseInt(this.configService.get('USER_SERVICE_PORT')),
-      options: {
-        urls: [this.configService.get('RABBIT_HOST') || 'amqp://localhost'],
-        queue: this.configService.get('USER_SERVICE_QUEUE') || '',
-        prefetchCount: parseInt(this.configService.get('USER_SERVICE_PREFETCH_COUNT')) || 1,
-        noAck: JSON.parse(this.configService.get('USER_SERVICE_NO_ACK')) || false,
+      user: {
+        port: parseInt(user.port),
+        options: {
+          urls: [rabbitHost || 'amqp://localhost'],
+          queue: user.queue || '',
+          prefetchCount: parseInt(user.prefetchCount) || 1,
+          noAck: JSON.parse(user.noAck) || false,
+        },
       },
     };
   }

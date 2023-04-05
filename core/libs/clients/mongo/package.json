@@ -1,6 +1,6 @@
 {
-  "name": "@pihe/mongo-client",
-  "version": "0.0.8-alpha.0",
+  "name": "@pihe-core/mongo-client",
+  "version": "0.0.9-alpha.0",
   "main": "dist/main.js",
   "author": "Pihe",
   "license": "MIT",
@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@pihe/client-core": "^0.0.8-alpha.0",
-    "@pihe/common": "^0.0.8-alpha.0",
+    "@pihe/common": "^0.0.9-alpha.0",
     "mongoose": "^7.0.3"
   }
 }

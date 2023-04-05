@@ -1,6 +1,7 @@
 {
   "name": "@pihe-core/mongo-client",
   "version": "0.0.11-alpha.0",
+  "description": "",
   "main": "dist/main.js",
   "author": "Pihe",
   "license": "MIT",

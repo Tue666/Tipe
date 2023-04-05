@@ -4,9 +4,6 @@
   "main": "dist/main.js",
   "author": "Pihe",
   "license": "MIT",
-  "publishConfig": {
-    "access": "public"
-  },
   "scripts": {
     "build": "tsc",
     "dev": "tsc && node dist/main.js",

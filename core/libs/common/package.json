@@ -2,6 +2,7 @@
   "name": "@pihe-core/common",
   "version": "0.0.1-alpha.0",
   "main": "dist/main.js",
+  "description": "",
   "author": "Pihe",
   "license": "MIT",
   "scripts": {

@@ -1,9 +1,12 @@
 {
-  "name": "@pihe/client-core",
+  "name": "@pihe-core/client-core",
   "version": "0.0.8-alpha.0",
   "main": "dist/main.js",
   "author": "Pihe",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc",
     "dev": "tsc && node dist/main.js",

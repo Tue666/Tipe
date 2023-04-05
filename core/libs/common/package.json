@@ -1,5 +1,5 @@
 {
-  "name": "@pihe/common",
+  "name": "@pihe-core/common",
   "version": "0.0.11-alpha.0",
   "main": "dist/main.js",
   "author": "Pihe",

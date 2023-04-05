@@ -1,4 +1,4 @@
-import { OnModuleInit, ConfigService, Inject, OnModuleDestroy } from '@pihe/common';
+import { OnModuleInit, ConfigService, Inject, OnModuleDestroy } from '@pihe-core/common';
 import { ClientConfig } from './client.config';
 
 export abstract class AbstractClientCore<Config extends ClientConfig, Client>

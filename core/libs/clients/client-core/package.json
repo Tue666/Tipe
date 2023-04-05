@@ -1,5 +1,5 @@
 {
-  "name": "@pihe/client-core",
+  "name": "@pihe-core/client-core",
   "version": "0.0.11-alpha.0",
   "main": "dist/main.js",
   "author": "Pihe",
@@ -13,6 +13,6 @@
     "start": "node dist/main.js"
   },
   "dependencies": {
-    "@pihe/common": "^0.0.11-alpha.0"
+    "@pihe-core/common": "^0.0.11-alpha.0"
   }
 }

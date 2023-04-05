@@ -1,5 +1,5 @@
-import { Global, Module } from '@pihe-core/common';
-import { ClientCoreModule } from '@pihe-core/client-core';
+import { Global, Module } from '@pihe/common';
+import { ClientCoreModule } from '@pihe/client-core';
 import { MongoClientService } from './mongo-client.service';
 
 @Global()

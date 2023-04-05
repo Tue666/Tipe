@@ -1,4 +1,4 @@
-import { CommonModule, Module } from '@pihe-core/common';
+import { CommonModule, Module } from '@pihe/common';
 
 @Module({
   imports: [CommonModule],

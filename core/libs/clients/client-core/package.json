@@ -13,6 +13,6 @@
     "start": "node dist/main.js"
   },
   "dependencies": {
-    "@pihe-core/common": "^0.0.6-alpha.0"
+    "@pihe/common": "^0.0.6-alpha.0"
   }
 }

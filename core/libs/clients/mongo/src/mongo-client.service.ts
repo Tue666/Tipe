@@ -1,5 +1,5 @@
-import { Injectable, sleep } from '@pihe-core/common';
-import { AbstractClientCore } from '@pihe-core/client-core';
+import { Injectable, sleep } from '@pihe/common';
+import { AbstractClientCore } from '@pihe/client-core';
 import { MongoClientConfig } from './mongo-client.config';
 import { Connection, connection, connect } from './mongo.client';
 

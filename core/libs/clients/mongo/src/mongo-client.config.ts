@@ -1,4 +1,4 @@
-import { ClientConfig } from '@pihe-core/client-core';
+import { ClientConfig } from '@pihe/client-core';
 
 class BasicAuthCredentials {
   username: string;

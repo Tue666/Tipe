@@ -15,7 +15,7 @@ export class ServerConfigService {
   getServicesConfig() {
     const rabbitHost = this.configService.get('rabbitHost');
     const servicesConfig = this.configService.get('services');
-    const { auth, user } = servicesConfig;
+    const { auth, account } = servicesConfig;
     return {
       auth: {
         port: parseInt(auth.port),
@@ -26,13 +26,13 @@ export class ServerConfigService {
           noAck: JSON.parse(auth.noAck) || false,
         },
       },
-      user: {
-        port: parseInt(user.port),
+      account: {
+        port: parseInt(account.port),
         options: {
           urls: [rabbitHost || 'amqp://localhost'],
-          queue: user.queue || '',
-          prefetchCount: parseInt(user.prefetchCount) || 1,
-          noAck: JSON.parse(user.noAck) || false,
+          queue: account.queue || '',
+          prefetchCount: parseInt(account.prefetchCount) || 1,
+          noAck: JSON.parse(account.noAck) || false,
         },
       },
     };

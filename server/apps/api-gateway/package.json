@@ -17,6 +17,7 @@
     "@pihe-server/common": "^0.0.0",
     "amqp-connection-manager": "^4.1.11",
     "amqplib": "^0.10.3",
+    "express": "^4.18.2",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.0"
   }

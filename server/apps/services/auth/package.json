@@ -3,5 +3,20 @@
   "version": "0.0.0",
   "main": "dist/main.js",
   "author": "Pihe",
-  "license": "MIT"
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc && node dist/main.js",
+    "start": "node dist/main.js"
+  },
+  "dependencies": {
+    "@nestjs/core": "^9.4.1",
+    "@nestjs/microservices": "^9.4.1",
+    "@pihe-core/common": "^0.0.15-alpha.0",
+    "@pihe-server/common": "^0.0.0",
+    "jsonwebtoken": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.2"
+  }
 }

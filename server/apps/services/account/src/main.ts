@@ -1,21 +1,21 @@
 import { NestFactory } from '@nestjs/core';
-import { UserModule } from './user.module';
+import { AccountModule } from './account.module';
 import { ServerConfigService } from '@pihe-server/common';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
 const bootstrap = async () => {
-  const app = await NestFactory.create(UserModule);
+  const app = await NestFactory.create(AccountModule);
   const configService = app.get(ServerConfigService);
   const configs = configService.getServicesConfig();
-  const { user } = configs;
-  const PORT = user.port;
+  const { account } = configs;
+  const PORT = account.port;
   await app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.RMQ,
-    options: user.options,
+    options: account.options,
   });
   await app.startAllMicroservices();
   await app.listen(PORT, () => {
-    console.log(`User service running on port ${PORT}`);
+    console.log(`Account service running on port ${PORT}`);
   });
 };
 

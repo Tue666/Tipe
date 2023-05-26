@@ -11,7 +11,7 @@
     "dev": "lerna run dev",
     "dev:api-gateway": "lerna run dev --scope=@pihe-server/api-gateway",
     "dev:service:auth": "lerna run dev --scope=@pihe-server/auth-service",
-    "dev:service:user": "lerna run dev --scope=@pihe-server/user-service",
+    "dev:service:account": "lerna run dev --scope=@pihe-server/account-service",
     "start": "lerna run start"
   },
   "devDependencies": {

@@ -1,15 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
-export class AuthService {
-  constructor(@Inject('AUTH_SERVICE') private authClient: ClientProxy) {}
-
-  create() {
-    const data = {
-      id: 1,
-      name: 'Tipe',
-    };
-    return this.authClient.emit('create', JSON.stringify(data));
-  }
-}
+export class AuthService {}

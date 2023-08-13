@@ -1,2 +1,2 @@
-export { default as Carousel } from "./Carousel";
-export * from "./settings";
+export { default as Carousel } from './Carousel.component';
+export * from './settings';

@@ -1,2 +1,2 @@
-export * from "./palette";
-export * from "./typography";
+export * from './palette.override';
+export * from './typography.override';

@@ -1,11 +1,8 @@
-import { ReactNode } from "react";
-import type { ThemeOptions } from "@mui/material";
-import { ThemeProvider, CssBaseline, createTheme } from "@mui/material";
-
-// overrides
-import { palette, typography } from "./overrides";
-// hooks
-import useSettings from "@/hooks/useSettings";
+import { ReactNode } from 'react';
+import type { ThemeOptions } from '@mui/material';
+import { ThemeProvider, CssBaseline, createTheme } from '@mui/material';
+import { palette, typography } from './overrides';
+import useSettings from '@/hooks/useSettings.hook';
 
 interface ThemeConfigProps {
   children: ReactNode;
@@ -13,7 +10,7 @@ interface ThemeConfigProps {
 
 const ThemeConfig = ({ children }: ThemeConfigProps) => {
   const { themeMode } = useSettings();
-  const isLight = themeMode === "light";
+  const isLight = themeMode === 'light';
 
   const themeOptions: ThemeOptions = {
     // overrides MUI properties here...

@@ -1,10 +1,7 @@
-import { Badge, IconButton } from "@mui/material";
-import { ShoppingCartOutlined } from "@mui/icons-material";
-
-// components
-import { Link } from "@/components/overrides";
-// configs
-import { PATH_MAIN } from "@/configs/routers";
+import { Badge, IconButton } from '@mui/material';
+import { ShoppingCartOutlined } from '@mui/icons-material';
+import { Link } from '@/components/overrides';
+import { PATH_MAIN } from '@/configs/routers';
 
 const CartPopover = () => {
   return (
@@ -13,8 +10,8 @@ const CartPopover = () => {
       badgeContent={10}
       max={99}
       anchorOrigin={{
-        vertical: "top",
-        horizontal: "left",
+        vertical: 'top',
+        horizontal: 'left',
       }}
     >
       <Link href={PATH_MAIN.cart}>

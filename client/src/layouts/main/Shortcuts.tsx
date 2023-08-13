@@ -1,12 +1,8 @@
-import { Grid, Stack } from "@mui/material";
-
-// components
-import Logo from "@/components/Logo";
-import Hidden from "@/components/Hidden";
-//
-import SearchBar from "./SearchBar";
-import CartPopover from "./CartPopover";
-import SwitchTheme from "./SwitchTheme";
+import { Grid, Stack } from '@mui/material';
+import { Logo, Hidden } from '@/components';
+import SearchBar from './SearchBar';
+import CartPopover from './CartPopover';
+import SwitchTheme from './SwitchTheme';
 
 const Shortcuts = () => {
   return (
@@ -19,12 +15,7 @@ const Shortcuts = () => {
           <SearchBar />
         </Grid>
         <Grid item md={3}>
-          <Stack
-            direction="row"
-            justifyContent="center"
-            alignItems="center"
-            spacing={3}
-          >
+          <Stack direction="row" justifyContent="center" alignItems="center" spacing={3}>
             <CartPopover />
             <SwitchTheme />
           </Stack>
@@ -32,12 +23,7 @@ const Shortcuts = () => {
       </Hidden>
       <Hidden breakpoint="md" type="Up">
         <Grid item xs={6}>
-          <Stack
-            direction="row"
-            justifyContent="center"
-            alignItems="center"
-            spacing={3}
-          >
+          <Stack direction="row" justifyContent="center" alignItems="center" spacing={3}>
             <CartPopover />
             <SwitchTheme />
           </Stack>

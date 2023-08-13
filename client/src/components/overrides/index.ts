@@ -1,2 +1,3 @@
-export { default as Link } from "./Link";
-export { default as Image } from "./Image";
+export { default as Link } from './Link.override';
+export { default as Image } from './Image.override';
+export { default as Avatar } from './Avatar.override';

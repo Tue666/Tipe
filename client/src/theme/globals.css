@@ -1,15 +1,16 @@
 ::-webkit-scrollbar {
-  width: '11px';
-  height: '11px';
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: 'gray';
-  border-radius: '10px';
+  background: gray;
+  border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: '#bbb',
+  transition: 0.3s;
+  background-color: #bbb;
 }
 
 * {
@@ -36,7 +37,7 @@ a {
 }
 
 .slick-arrow:before {
-  display: 'none';
+  display: none;
 }
 
 .slick-dots li.slick-active div {

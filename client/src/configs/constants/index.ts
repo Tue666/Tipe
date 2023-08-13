@@ -1,2 +1,1 @@
-export * from "./app";
-export * from "./teleports";
+export * from './app.constant';

@@ -1,52 +1,60 @@
-import { Fragment } from "react";
-import { useTheme, Stack, Typography, SxProps } from "@mui/material";
-
-// components
-import { Link } from "@/components/overrides";
-import Hidden from "@/components/Hidden";
+import { Fragment, MouseEvent } from 'react';
+import { useTheme, Stack, Typography, SxProps } from '@mui/material';
+import { Link } from '@/components/overrides';
+import { Hidden } from '@/components';
+import useModal from '@/hooks/useModal';
+import useAuth from '@/hooks/useAuth.hook';
+import AccountPopover from './AccountPopover';
 
 const CONNECTS = [
   {
     icon: <i className="bi bi-file-arrow-down" />,
-    title: "Download app",
-    href: "https://www.facebook.com/exe.shiro",
-    target: "_blank",
+    title: 'Download app',
+    href: 'https://www.facebook.com/exe.shiro',
+    target: '_blank',
   },
   {
     icon: <i className="bi bi-code-slash" />,
-    title: "Connect",
-    href: "https://www.facebook.com/exe.shiro",
-    target: "_blank",
+    title: 'Connect',
+    href: 'https://www.facebook.com/exe.shiro',
+    target: '_blank',
   },
 ];
 
 const APPS = [
   {
     icon: <i className="bi bi-file-earmark-richtext" />,
-    title: "News",
-    href: "",
-    target: "_self",
+    title: 'News',
+    href: '',
+    target: '_self',
   },
   {
     icon: <i className="bi bi-question-circle" />,
-    title: "Support",
-    href: "https://www.facebook.com/exe.shiro",
-    target: "_blank",
+    title: 'Support',
+    href: 'https://www.facebook.com/exe.shiro',
+    target: '_blank',
   },
 ];
 
 const Navbars = () => {
   const theme = useTheme();
+  const { isAuthenticated, signOut } = useAuth();
+  const { openModal } = useModal();
   const navItemStyle: SxProps = {
     ...theme.typography.body2,
-    padding: "0px 10px",
-    transition: "0.3s",
-    borderBottom: "1px solid transparent",
-    textTransform: "capitalize",
-    "&:hover": {
+    padding: '0px 10px',
+    transition: '0.3s',
+    borderBottom: '1px solid transparent',
+    textTransform: 'capitalize',
+    '&:hover': {
       color: theme.palette.primary.main,
       borderBottom: `1px solid ${theme.palette.primary.main}`,
     },
+  };
+
+  const handleClickSignIO = (e: MouseEvent) => {
+    e.preventDefault();
+    openModal({ key: 'authentication' });
   };
   return (
     <Fragment>
@@ -57,12 +65,7 @@ const Navbars = () => {
               CONNECTS.map((connect, index) => {
                 const { icon, title, href, target } = connect;
                 return (
-                  <Link
-                    key={index}
-                    href={href}
-                    target={target}
-                    sx={{ ...navItemStyle }}
-                  >
+                  <Link key={index} href={href} target={target} sx={{ ...navItemStyle }}>
                     {icon} {title}
                   </Link>
                 );
@@ -73,27 +76,27 @@ const Navbars = () => {
               APPS.map((app, index) => {
                 const { icon, title, href, target } = app;
                 return (
-                  <Link
-                    key={index}
-                    href={href}
-                    target={target}
-                    sx={{ ...navItemStyle }}
-                  >
+                  <Link key={index} href={href} target={target} sx={{ ...navItemStyle }}>
                     {icon} {title}
                   </Link>
                 );
               })}
-            <Typography
-              sx={{
-                ...navItemStyle,
-                cursor: "pointer",
-                "&:hover": {
-                  color: theme.palette.primary.main,
-                },
-              }}
-            >
-              Sign in / Sign up
-            </Typography>
+            {isAuthenticated && <AccountPopover signOut={signOut} />}
+            {!isAuthenticated && (
+              <Link
+                href="#"
+                sx={{
+                  ...navItemStyle,
+                  cursor: 'pointer',
+                  '&:hover': {
+                    color: theme.palette.primary.main,
+                  },
+                }}
+                onClick={handleClickSignIO}
+              >
+                Sign in / Sign up
+              </Link>
+            )}
           </Stack>
         </Stack>
       </Hidden>
@@ -101,8 +104,8 @@ const Navbars = () => {
         <Typography
           sx={{
             ...navItemStyle,
-            cursor: "pointer",
-            "&:hover": {
+            cursor: 'pointer',
+            '&:hover': {
               color: theme.palette.primary.main,
             },
           }}

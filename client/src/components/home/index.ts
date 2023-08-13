@@ -1,2 +1,2 @@
-export { default as Banners } from "./Banners";
-export { default as Categories } from "./Categories";
+export { default as Banners } from './Banners.component';
+export { default as Categories } from './Categories.component';

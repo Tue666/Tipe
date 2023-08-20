@@ -5,6 +5,7 @@ import { Hidden } from '@/components';
 import useModal from '@/hooks/useModal';
 import useAuth from '@/hooks/useAuth.hook';
 import AccountPopover from './AccountPopover';
+import { STYLE } from '@/configs/constants';
 
 const CONNECTS = [
   {
@@ -42,7 +43,7 @@ const Navbars = () => {
   const { openModal } = useModal();
   const navItemStyle: SxProps = {
     ...theme.typography.body2,
-    padding: '0px 10px',
+    padding: STYLE.DESKTOP.HEADER.NAVBARS.ITEM_PADDING,
     transition: '0.3s',
     borderBottom: '1px solid transparent',
     textTransform: 'capitalize',

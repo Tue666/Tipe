@@ -4,7 +4,7 @@ import { Stack, Typography, TextField } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { ArrowBackIosOutlined } from '@mui/icons-material';
 import { isAxiosError } from 'axios';
-import { SignInPayload } from '@/models/interfaces/account';
+import { IAccount } from '@/models/interfaces';
 
 interface SignInState {
   isLoading: boolean;
@@ -55,7 +55,7 @@ const reducer = (state: SignInState, action: SignInAction) =>
 interface SignInFormProps {
   phoneNumber: string;
   handleBackDefaultState: () => void;
-  signIn: (signInPayload: SignInPayload) => Promise<string>;
+  signIn: (signInBody: IAccount.SignInBody) => Promise<string>;
   closeModal: () => void;
 }
 

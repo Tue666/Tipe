@@ -97,7 +97,7 @@ const reducer = (state: AuthenticationState, action: AuthenticationAction) =>
 
 const Authentication = (params: ModalParams) => {
   const { beClosed } = params;
-  const { openModal, closeModal } = useModal();
+  const { closeModal } = useModal();
   const { signIn, signUp } = useAuth();
   const [phoneNumber, setPhoneNumber] = useState('');
   const [state, dispatch] = useReducer(reducer, initialState);

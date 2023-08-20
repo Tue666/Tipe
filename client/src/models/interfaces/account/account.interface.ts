@@ -29,14 +29,14 @@ export interface Customer extends Account {
 
 export interface Administrator extends Account {}
 
-export interface SignInPayload extends Pick<Account, 'phone_number' | 'password'> {}
+export interface SignInBody extends Pick<Account, 'phone_number' | 'password'> {}
 
 export interface SignInResponse {
   name: string;
   accessToken: Tokens['AC_T'];
 }
 
-export interface SignUpPayload extends Account {
+export interface SignUpBody extends Account {
   passwordConfirm: string;
   account_type: Type[keyof Type];
 }

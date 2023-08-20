@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { useEffect, useReducer, createContext, ReactNode } from 'react';
 import accountApi from '../apis/accountApi';
-import { SignInPayload, SignUpPayload } from '@/models/interfaces/account';
+import { SignInBody, SignUpBody } from '@/models/interfaces/account';
 import { getToken, isValidToken, setToken } from '@/utils';
 
 interface AuthContextState {
@@ -10,9 +10,9 @@ interface AuthContextState {
 }
 
 interface AuthContextStateMethod {
-  signIn: (signInPayload: SignInPayload) => Promise<string>;
+  signIn: (signInBody: SignInBody) => Promise<string>;
   // socialLogin: () => Promise<void>;
-  signUp: (signUpPayload: SignUpPayload) => Promise<void>;
+  signUp: (signUpBody: SignUpBody) => Promise<void>;
   signOut: () => void;
 }
 
@@ -88,8 +88,8 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
     initialize();
   }, []);
 
-  const signIn = async (signInPayload: SignInPayload): Promise<string> => {
-    const { name, accessToken } = await accountApi.signIn(signInPayload);
+  const signIn = async (signInBody: SignInBody): Promise<string> => {
+    const { name, accessToken } = await accountApi.signIn(signInBody);
     setToken(accessToken);
     dispatch({ type: 'LOGIN' });
     return name;
@@ -105,8 +105,8 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
   //   return name;
   // };
 
-  const signUp = async (signUpPayload: SignUpPayload) => {
-    await accountApi.signUp(signUpPayload);
+  const signUp = async (signUpBody: SignUpBody) => {
+    await accountApi.signUp(signUpBody);
   };
 
   const signOut = () => {

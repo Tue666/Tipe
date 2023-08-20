@@ -8,7 +8,7 @@ interface LinkItemProps {
 }
 
 interface BreadcrumbsProps {
-  links: LinkItemProps[];
+  links?: LinkItemProps[];
 }
 
 const Breadcrumbs = ({ links }: BreadcrumbsProps) => {

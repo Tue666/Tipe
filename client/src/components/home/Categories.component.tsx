@@ -1,50 +1,68 @@
-import { styled, Grid, Stack, Tooltip, Typography, useTheme } from '@mui/material';
-import { Image } from '../overrides';
+import { styled, Grid, Stack, Tooltip, Typography, Skeleton } from '@mui/material';
+import { Image, Link } from '../overrides';
 import Ellipsis from '../Ellipsis.component';
 import { STYLE } from '@/configs/constants';
+import { ICategory } from '@/models/interfaces';
+import { appConfig } from '@/configs/apis';
+import { PATH_MAIN } from '@/configs/routers';
 
 interface CategoriesProps {
   id: string;
   title: string;
+  categories: ICategory.Category[];
 }
 
-const Categories = ({ id, title }: CategoriesProps) => {
-  const theme = useTheme();
+const Categories = ({ id, title, categories }: CategoriesProps) => {
   return (
     <Root id={id}>
       <Stack spacing={1}>
         <Typography variant="subtitle2">{title}</Typography>
         <Grid container justifyContent="center">
-          {[...Array(12)].map((_, index) => (
-            <Grid item lg={2} sm={3} xs={6} key={index}>
-              <Category direction="row" alignItems="center" spacing={2}>
-                <Image
-                  src="/product-card-2.jpg"
-                  alt=""
-                  sx={{
-                    width: parseInt(STYLE.DESKTOP.CATEGORIES.ICON_SIZE),
-                    height: parseInt(STYLE.DESKTOP.CATEGORIES.ICON_SIZE),
-                    '& > img': {
-                      borderRadius: STYLE.DESKTOP.CATEGORIES.ICON_BORDER_RADIUS,
-                    },
-                  }}
-                />
-                <Tooltip placement="top" title="hihi" arrow>
-                  <div style={{ flex: 1 }}>
-                    <Ellipsis
-                      variant="body2"
-                      text="Đời sống thể thao & Du lịch vui chơi"
-                      sx={{
-                        '&:hover': {
-                          color: theme.palette.primary.main,
-                        },
-                      }}
-                    />
-                  </div>
-                </Tooltip>
-              </Category>
-            </Grid>
-          ))}
+          {categories?.length &&
+            categories.map((category) => {
+              const { _id, name, image, slug } = category;
+              return (
+                <Grid item lg={2} sm={3} xs={6} key={_id}>
+                  <Link href={PATH_MAIN.category(slug, _id)}>
+                    <Category direction="row" alignItems="center" spacing={2}>
+                      <Image
+                        src={`${appConfig.image_storage_url}/${image}`}
+                        alt=""
+                        sx={{
+                          width: parseInt(STYLE.DESKTOP.CATEGORIES.ICON_SIZE),
+                          height: parseInt(STYLE.DESKTOP.CATEGORIES.ICON_SIZE),
+                          '& > img': {
+                            borderRadius: STYLE.DESKTOP.CATEGORIES.ICON_BORDER_RADIUS,
+                          },
+                        }}
+                      />
+                      <Tooltip placement="top" title={name} arrow>
+                        <div style={{ flex: 1 }}>
+                          <Ellipsis
+                            variant="body2"
+                            text={name}
+                            sx={{
+                              '&:hover': {
+                                color: (theme) => theme.palette.primary.main,
+                              },
+                            }}
+                          />
+                        </div>
+                      </Tooltip>
+                    </Category>
+                  </Link>
+                </Grid>
+              );
+            })}
+          {!categories?.length &&
+            [...Array(12)].map((_, index) => (
+              <Grid item lg={2} sm={3} xs={6} key={index}>
+                <Category>
+                  <Skeleton variant="circular" width={49} height={49} />
+                  <Skeleton variant="rectangular" width={80} height={45} />
+                </Category>
+              </Grid>
+            ))}
         </Grid>
       </Stack>
     </Root>

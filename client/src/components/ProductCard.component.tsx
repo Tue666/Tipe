@@ -59,9 +59,9 @@ const ProductCard = () => {
 const Root = styled(Card)(({ theme }) => ({
   width: STYLE.DESKTOP.PRODUCT.CARD_WIDTH,
   position: 'relative',
-  borderRadius: '5px',
-  margin: '1px',
-  padding: '10px',
+  borderRadius: STYLE.DESKTOP.PRODUCT.CARD_BORDER_RADIUS,
+  margin: STYLE.DESKTOP.PRODUCT.CARD_MARGIN,
+  padding: STYLE.DESKTOP.PRODUCT.CARD_PADDING,
   backgroundImage: 'none',
   boxShadow: 'none',
   '&:hover': {

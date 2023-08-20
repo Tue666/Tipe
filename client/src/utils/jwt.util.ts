@@ -22,7 +22,7 @@ const setToken = (accessToken: Tokens['AC_T'] | null) => {
 const isValidToken = async (token: Tokens['AC_T'] | undefined) => {
   if (_.isNil(token)) return false;
   setToken(token);
-  return await accountApi.verifyToken('customer');
+  return await accountApi.verifyToken();
 };
 
 export { getToken, setToken, isValidToken };

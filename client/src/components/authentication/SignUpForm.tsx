@@ -4,15 +4,14 @@ import { ArrowBackIosOutlined } from '@mui/icons-material';
 import { useFormik, FormikProvider, Form } from 'formik';
 import { LoadingButton } from '@mui/lab';
 import Avatar from '../overrides/Avatar.override';
-import { accountApi } from '@/apis';
 import { isAxiosError } from 'axios';
-import { SignUpPayload } from '@/models/interfaces/account';
+import { IAccount } from '@/models/interfaces';
 
 interface SignUpFormProps {
   phoneNumber: string;
   socialAccount: any;
   handleBackDefaultState: () => void;
-  signUp: (signUpPayload: SignUpPayload) => Promise<void>;
+  signUp: (signUpBody: IAccount.SignUpBody) => Promise<void>;
 }
 
 const SignUpForm = (props: SignUpFormProps) => {
@@ -26,12 +25,12 @@ const SignUpForm = (props: SignUpFormProps) => {
     },
     onSubmit: async (values, { setErrors, resetForm }) => {
       try {
-        const signUpPayload: SignUpPayload = {
+        const signUpBody: IAccount.SignUpBody = {
           phone_number: phoneNumber,
           ...values,
           account_type: 'CUSTOMER',
         };
-        await signUp(signUpPayload);
+        await signUp(signUpBody);
         handleBackDefaultState();
       } catch (error) {
         resetForm();

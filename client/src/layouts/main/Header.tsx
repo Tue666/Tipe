@@ -24,17 +24,17 @@ const Root = styled('div')(({ theme }) => ({
   right: 0,
   display: 'flex',
   flexDirection: 'column',
-  padding: `${STYLE.DESKTOP.HEADER.PADDING}`,
+  padding: STYLE.DESKTOP.HEADER.PADDING,
   backgroundColor: theme.palette.background.paper,
   zIndex: 999,
   [theme.breakpoints.down('sm')]: {
-    padding: '5px',
+    padding: STYLE.MOBILE.HEADER.PADDING,
   },
 }));
 
 const HeaderSpacing = styled('div')({
   height: STYLE.DESKTOP.HEADER.HEIGHT,
-  marginBottom: '10px',
+  marginBottom: STYLE.DESKTOP.HEADER.SPACING_BOTTOM,
 });
 
 export default Header;

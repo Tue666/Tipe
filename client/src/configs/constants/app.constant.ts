@@ -4,6 +4,17 @@ export const STYLE = {
     HEADER: {
       HEIGHT: '140px',
       PADDING: '5px 100px',
+      SPACING_BOTTOM: '10px',
+      NAVBARS: {
+        ITEM_PADDING: '0px 10px',
+      },
+      SHORTCUTS: {
+        SEARCH_WIDTH: '90%',
+        SEARCH_HEIGH: '40px',
+        SEARCH_PADDING: '15px',
+        SEARCH_BORDER_RADIUS: '20px',
+        SEARCH_BUTTON_SIZE: '30px',
+      },
     },
     LOGO: {
       WIDTH: '80px',
@@ -40,6 +51,9 @@ export const STYLE = {
     PRODUCT: {
       CARD_WIDTH: '220px',
       CARD_HEIGHT: '225px',
+      CARD_BORDER_RADIUS: '5px',
+      CARD_MARGIN: '1px',
+      CARD_PADDING: '10px',
       CONTENT_HEIGHT: '100px',
     },
     FOOTER: {
@@ -62,6 +76,9 @@ export const STYLE = {
   },
   TABLET: {},
   MOBILE: {
+    HEADER: {
+      PADDING: '5px',
+    },
     LOGO: {
       WIDTH: '50px',
       HEIGHT: '50px',

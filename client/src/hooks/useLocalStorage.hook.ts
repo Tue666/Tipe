@@ -8,7 +8,7 @@ const useLocalStorage = <T>(key: string, defaultValue: T): [T, (newValue: T) => 
       const storedValue = localStorage.getItem(key);
       storedValue !== null && setValue(JSON.parse(storedValue));
     }
-  }, []);
+  }, [key]);
 
   const setValueStorage = (newValue: T): void => {
     setValue((currentValue: T | ((currentValue: T) => T)) => {

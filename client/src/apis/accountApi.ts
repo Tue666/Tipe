@@ -1,14 +1,14 @@
-import { SignInPayload, SignInResponse, SignUpPayload, Tokens } from '@/models/interfaces/account';
 import axiosInstance from './axiosInstance';
+import { IAccount } from '@/models/interfaces';
 
 const accountApi = {
-  // [GET] /accounts/verify-token/:type
-  verifyToken: (type: string): Promise<boolean> => {
-    const url = `/accounts/verify-token/${type}`;
+  // [GET] {{URL}}/api/accounts/verify-token
+  verifyToken: (): Promise<boolean> => {
+    const url = `/accounts/verify-token`;
     return axiosInstance.get(url);
   },
 
-  // [POST] /accounts/verify-exist
+  // [POST] {{URL}}/api/accounts/verify-exist
   verifyExist: (phone_number: string): Promise<boolean> => {
     const url = `/accounts/verify-exist`;
     return axiosInstance.post(url, {
@@ -16,16 +16,15 @@ const accountApi = {
     });
   },
 
-  // [GET] /accounts/refresh-token
-  refreshToken: (): Promise<Tokens['AC_T']> => {
+  // [GET] {{URL}}/api/accounts/refresh-token
+  refreshToken: (): Promise<IAccount.Tokens['AC_T']> => {
     const url = `/accounts/refresh-token`;
     return axiosInstance.get(url);
   },
 
-  // [POST] /accounts/sign-in
-  signIn: (body: SignInPayload): Promise<SignInResponse> => {
-    const { phone_number, password } = body;
-
+  // [POST] {{URL}}/api/accounts/sign-in
+  signIn: (signInBody: IAccount.SignInBody): Promise<IAccount.SignInResponse> => {
+    const { phone_number, password } = signInBody;
     const url = `/accounts/sign-in`;
     return axiosInstance.post(url, {
       phone_number,
@@ -33,11 +32,16 @@ const accountApi = {
     });
   },
 
-  // [POST] /accounts/sign-up
-  signUp: (body: SignUpPayload) => {
+  // [POST] {{URL}}/api/accounts/sign-up
+  signUp: (signUpBody: IAccount.SignUpBody): Promise<void> => {
+    const { phone_number, password, passwordConfirm, account_type, ...rest } = signUpBody;
     const url = `/accounts/sign-up`;
     return axiosInstance.post(url, {
-      ...body,
+      phone_number,
+      password,
+      passwordConfirm,
+      account_type,
+      ...rest,
     });
   },
 };

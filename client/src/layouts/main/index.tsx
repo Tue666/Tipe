@@ -1,5 +1,5 @@
 import { ReactNode, Fragment } from 'react';
-import { Container } from '@mui/material';
+import { Container } from '@/components/overrides';
 import Header from './Header';
 import Footer from './Footer';
 

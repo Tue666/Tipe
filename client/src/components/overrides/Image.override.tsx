@@ -10,7 +10,12 @@ interface ImageProps extends BoxProps {
 const Image = ({ src, alt, sx, ...props }: ImageProps) => {
   return (
     <Box sx={{ position: 'relative', ...sx }} {...props}>
-      <NextImage src={src} alt={alt} fill />
+      <NextImage
+        src={src}
+        alt={alt}
+        fill
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+      />
     </Box>
   );
 };

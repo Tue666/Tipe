@@ -3,6 +3,9 @@ import { RouterUtil } from '@/utils';
 const ROOT_MAIN = '/';
 export const PATH_MAIN = {
   home: ROOT_MAIN,
+  category: (slug: string, id: string) => {
+    return RouterUtil.combinePath(ROOT_MAIN, `c/${slug}/${id}`);
+  },
   cart: RouterUtil.combinePath(ROOT_MAIN, 'cart'),
 };
 

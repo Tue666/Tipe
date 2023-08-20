@@ -1,5 +1,8 @@
 import { CSSProperties } from 'react';
 import { styled, Stack } from '@mui/material';
+import { STYLE } from '@/configs/constants';
+
+const { SEARCH_HEIGH, SEARCH_PADDING, SEARCH_BUTTON_SIZE } = STYLE.DESKTOP.HEADER.SHORTCUTS;
 
 interface SearchBarProps {
   sx?: CSSProperties;
@@ -17,13 +20,13 @@ const SearchBar = ({ sx }: SearchBarProps) => {
 };
 
 const SearchField = styled('input')(({ theme }) => ({
-  width: '90%',
-  height: '40px',
-  padding: '20px',
+  width: STYLE.DESKTOP.HEADER.SHORTCUTS.SEARCH_WIDTH,
+  height: SEARCH_HEIGH,
+  padding: `${SEARCH_PADDING} calc(${SEARCH_PADDING} + ${SEARCH_BUTTON_SIZE} + 10px) ${SEARCH_PADDING} ${SEARCH_PADDING}`,
   backgroundColor: theme.palette.background.default,
   outline: 'none',
   border: 'none',
-  borderRadius: 20,
+  borderRadius: STYLE.DESKTOP.HEADER.SHORTCUTS.SEARCH_BORDER_RADIUS,
   '&:focus + div': {
     opacity: 1,
   },
@@ -31,16 +34,16 @@ const SearchField = styled('input')(({ theme }) => ({
 
 const SearchButton = styled('div')(({ theme }) => ({
   position: 'absolute',
-  top: '5px',
-  right: 'calc(10% + 5px)',
-  width: '30px',
-  height: '30px',
-  lineHeight: '30px',
+  top: `calc(${parseInt(SEARCH_HEIGH) / 2}px - ${parseInt(SEARCH_BUTTON_SIZE) / 2}px)`,
+  right: `calc(${SEARCH_PADDING} + ${SEARCH_BUTTON_SIZE})`,
+  width: STYLE.DESKTOP.HEADER.SHORTCUTS.SEARCH_BUTTON_SIZE,
+  height: STYLE.DESKTOP.HEADER.SHORTCUTS.SEARCH_BUTTON_SIZE,
+  lineHeight: STYLE.DESKTOP.HEADER.SHORTCUTS.SEARCH_BUTTON_SIZE,
   outline: 'none',
   border: 'none',
   borderRadius: '50%',
   backgroundColor: theme.palette.primary.light,
-  color: '#fff',
+  color: theme.palette.background.paper,
   transition: '0.4s',
   cursor: 'pointer',
   textAlign: 'center',

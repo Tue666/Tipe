@@ -16,7 +16,7 @@ const Breadcrumbs = ({ links }: BreadcrumbsProps) => {
     <MUIBreadcrumbs separator=">">
       <Link href={PATH_MAIN.home}>
         <Typography variant="subtitle2" sx={{ fontWeight: 500 }}>
-          Trang chủ
+          Home
         </Typography>
       </Link>
       {links &&

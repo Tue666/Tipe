@@ -1,5 +1,6 @@
 import { Button, Divider, Stack, Typography, styled } from '@mui/material';
 import { Link } from '../overrides';
+import { STYLE } from '@/configs/constants';
 
 const PriceStatistics = () => {
   return (
@@ -53,7 +54,7 @@ const PriceStatistics = () => {
 };
 
 const Root = styled('div')(({ theme }) => ({
-  width: `calc(100% - calc(850px + 15px))`,
+  width: `calc(100% - calc(${STYLE.DESKTOP.CART.LIST_WIDTH} + 7px))`,
   [theme.breakpoints.down('md')]: {
     width: '100%',
   },
@@ -61,7 +62,7 @@ const Root = styled('div')(({ theme }) => ({
 
 const ContentInner = styled('div')(() => ({
   position: 'sticky',
-  top: `calc(140px + 10px)`,
+  top: `calc(${STYLE.DESKTOP.HEADER.HEIGHT} + 10px)`,
 }));
 
 const Wrapper = styled('div')(({ theme }) => ({

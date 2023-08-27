@@ -4,13 +4,14 @@ import ProductCard from './ProductCard.component';
 
 interface ProductListProps {
   id: string;
-  title: string;
+  title?: string;
 }
 
 const ProductList = ({ id, title }: ProductListProps) => {
   return (
     <Stack id={id} spacing={1}>
-      <Typography variant="subtitle2">{title}</Typography>
+      {title && <Typography variant="subtitle2">{title}</Typography>}
+      {!title && <div></div>}
       <Wrapper>
         {[...Array(10)].map((_, index) => (
           <ProductCard key={index} />

@@ -1,25 +1,31 @@
-import type { AppProps } from 'next/app';
 import '@/theme/globals.css';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
-import { Provider as ReduxProvider } from 'react-redux';
-import { SettingsProvider } from '@/contexts/Settings.context';
-import { store } from '@/redux/store';
-import { AxiosInterceptor } from '@/apis';
-import { AuthProvider } from '@/contexts/Auth.context';
-import AppWrapper from './_app-wrapper';
+import { ReactElement, ReactNode } from 'react';
+import { NextPage } from 'next';
+import type { AppProps } from 'next/app';
+import Providers from './_providers';
+import ThemeConfig from '@/theme';
+import Modal from '@/components/Modal.component';
+import MainLayout from '@/layouts/main';
 
-const App = (props: AppProps) => {
+export type PageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
+  getLayout?: (page: ReactElement) => ReactNode;
+};
+
+interface AppPropsWithLayout extends AppProps {
+  Component: PageWithLayout;
+}
+
+const App = ({ Component, pageProps }: AppPropsWithLayout) => {
+  const getLayout = Component.getLayout ?? ((page) => <MainLayout>{page}</MainLayout>);
   return (
-    <ReduxProvider store={store}>
-      <SettingsProvider>
-        <AuthProvider>
-          <AxiosInterceptor>
-            <AppWrapper {...props} />
-          </AxiosInterceptor>
-        </AuthProvider>
-      </SettingsProvider>
-    </ReduxProvider>
+    <Providers>
+      <ThemeConfig>
+        <Modal />
+        {getLayout(<Component {...pageProps} />)}
+      </ThemeConfig>
+    </Providers>
   );
 };
 

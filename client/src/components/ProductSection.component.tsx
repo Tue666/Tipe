@@ -6,7 +6,7 @@ import ProductCard from './ProductCard.component';
 
 interface ProductSectionProps {
   id: string;
-  title: string;
+  title?: string;
 }
 
 const ProductSection = ({ id, title }: ProductSectionProps) => {
@@ -15,7 +15,8 @@ const ProductSection = ({ id, title }: ProductSectionProps) => {
   return (
     <Stack id={id} spacing={1}>
       <Stack direction="row" justifyContent="space-between" alignItems="center">
-        <Typography variant="subtitle2">{title}</Typography>
+        {title && <Typography variant="subtitle2">{title}</Typography>}
+        {!title && <div></div>}
         <Link href="/auth">
           <Typography variant="subtitle2" color="primary">
             View more <i className="bi bi-chevron-right"></i>

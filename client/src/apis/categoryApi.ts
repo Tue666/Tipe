@@ -19,6 +19,12 @@ const categoryApi = {
     const url = `/categories?${buildQuery}`;
     return axiosInstance.get(url);
   },
+
+  // [GET] {{URL}}/api/categories/:_id
+  staticFindById: (_id: string): Promise<AxiosResponse<ICategory.Category>> => {
+    const url = `/categories/${_id}`;
+    return axiosInstance.get(url);
+  },
 };
 
 export default categoryApi;

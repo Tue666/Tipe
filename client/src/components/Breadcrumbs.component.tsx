@@ -8,12 +8,13 @@ interface LinkItemProps {
 }
 
 interface BreadcrumbsProps {
+  current: string;
   links?: LinkItemProps[];
 }
 
-const Breadcrumbs = ({ links }: BreadcrumbsProps) => {
+const Breadcrumbs = ({ current, links }: BreadcrumbsProps) => {
   return (
-    <MUIBreadcrumbs separator=">">
+    <MUIBreadcrumbs separator=">" sx={{ my: 1 }}>
       <Link href={PATH_MAIN.home}>
         <Typography variant="subtitle2" sx={{ fontWeight: 500 }}>
           Home
@@ -30,6 +31,7 @@ const Breadcrumbs = ({ links }: BreadcrumbsProps) => {
             </Link>
           );
         })}
+      <Typography>{current}</Typography>
     </MUIBreadcrumbs>
   );
 };

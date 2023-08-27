@@ -25,7 +25,11 @@ export const STYLE = {
       AVATAR_SIZE: '65px',
     },
     AUTH_FORM: {
-      WIDTH: '500px',
+      WIDTH: '800px',
+      FORM_WIDTH: '500px',
+      IMAGE_WIDTH: '190px',
+      IMAGE_HEIGHT: '160px',
+      CLOSE_BUTTON_SIZE: '30px',
     },
     BANNERS: {
       SLIDE_TO_SHOW: 1,
@@ -45,6 +49,12 @@ export const STYLE = {
       ICON_SIZE: '45px',
       ICON_BORDER_RADIUS: '50%',
     },
+    CART: {
+      GRID_TEMPLATE_COLUMS: '44% 20% 15.5% 15.5% 5%',
+      LIST_WIDTH: '850px',
+      EMPTY_IMAGE_WIDTH: '190px',
+      EMPTY_IMAGE_HEIGHT: '160px',
+    },
     PRODUCT_SECTION: {
       SLIDE_TO_SHOW: 5,
     },
@@ -55,6 +65,12 @@ export const STYLE = {
       CARD_MARGIN: '1px',
       CARD_PADDING: '10px',
       CONTENT_HEIGHT: '100px',
+      IMAGE_WIDTH: '430px',
+      IMAGE_HEIGHT: '370px',
+      INTENDED_WIDTH: '300px',
+      WARRANTY_ICON_SIZE: '32px',
+      DESCRIPTION_MAX_HEIGHT: '400px',
+      RATING_WIDTH: '335px',
     },
     FOOTER: {
       MARGIN_TOP: '50px',
@@ -88,6 +104,9 @@ export const STYLE = {
       MAIN_HEIGHT: '300px',
       SUB_WIDTH: '50%',
       SUB_HEIGHT: '100px',
+    },
+    CART: {
+      GRID_TEMPLATE_COLUMS: '88% 12%',
     },
     PRODUCT_SECTION: {
       SLIDE_TO_SHOW: 2,

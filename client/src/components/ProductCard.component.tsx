@@ -2,12 +2,13 @@ import { Card, CardContent, Stack, styled, Tooltip, Typography, useTheme } from 
 import { Image, Link } from './overrides';
 import { Stars, Ellipsis } from '@/components';
 import { STYLE } from '@/configs/constants';
+import { PATH_MAIN } from '@/configs/routers';
 
 const ProductCard = () => {
   const theme = useTheme();
   return (
     <Root>
-      <Link href="/">
+      <Link href={PATH_MAIN.product('slug-product-item', '1')}>
         <Image
           src="/product-card-2.jpg"
           alt=""

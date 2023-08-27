@@ -1,10 +1,10 @@
+import { GetStaticProps } from 'next';
 import { Stack } from '@mui/material';
 import { Page, Teleport, ProductSection, ProductList } from '@/components';
 import { Banners, Categories } from '@/components/home';
 import { HOME_TELEPORTS } from '@/configs/teleport';
-import categoryApi from '@/apis/categoryApi';
+import { categoryApi } from '@/apis';
 import { ICategory } from '@/models/interfaces';
-import { GetStaticProps } from 'next';
 
 interface HomeProps {
   categories: ICategory.Category[];

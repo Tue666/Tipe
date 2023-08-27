@@ -249,7 +249,10 @@ const Authentication = (params: ModalParams) => {
         <Image
           src={`${PATH_IMAGE.root}buy-more.png`}
           alt="buy_more"
-          sx={{ width: '190px', height: '160px' }}
+          sx={{
+            width: STYLE.DESKTOP.AUTH_FORM.IMAGE_WIDTH,
+            height: STYLE.DESKTOP.AUTH_FORM.IMAGE_HEIGHT,
+          }}
         />
         <Typography variant="subtitle2">Shopping at Tipe</Typography>
         <Typography variant="body2">Super deals every day</Typography>
@@ -259,7 +262,7 @@ const Authentication = (params: ModalParams) => {
 };
 
 const RootStyle = styled(Stack)({
-  width: '800px',
+  width: STYLE.DESKTOP.AUTH_FORM.WIDTH,
   position: 'relative',
 });
 
@@ -267,10 +270,10 @@ const CloseButton = styled(Typography)(({ theme }) => ({
   position: 'absolute',
   top: '5px',
   right: '5px',
-  width: '30px',
-  height: '30px',
-  lineHeight: '30px',
-  borderRadius: '15px',
+  width: STYLE.DESKTOP.AUTH_FORM.CLOSE_BUTTON_SIZE,
+  height: STYLE.DESKTOP.AUTH_FORM.CLOSE_BUTTON_SIZE,
+  lineHeight: STYLE.DESKTOP.AUTH_FORM.CLOSE_BUTTON_SIZE,
+  borderRadius: '50%',
   textAlign: 'center',
   cursor: 'pointer',
   backgroundColor: theme.palette.background.paper,
@@ -282,12 +285,12 @@ const CloseButton = styled(Typography)(({ theme }) => ({
 }));
 
 const LeftContent = styled(Stack)({
-  width: STYLE.DESKTOP.AUTH_FORM.WIDTH,
+  width: STYLE.DESKTOP.AUTH_FORM.FORM_WIDTH,
   padding: '40px',
 });
 
 const RightContent = styled(Stack)(({ theme }) => ({
-  width: `calc(100% - ${STYLE.DESKTOP.AUTH_FORM.WIDTH})`,
+  width: `calc(100% - ${STYLE.DESKTOP.AUTH_FORM.FORM_WIDTH})`,
   background: `linear-gradient(136deg, rgb(255 164 140 / 11%), ${theme.palette.error.light})`,
   color: theme.palette.error.main,
 }));

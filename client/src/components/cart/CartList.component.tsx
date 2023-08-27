@@ -1,6 +1,8 @@
 import { DeleteForeverOutlined, Favorite } from '@mui/icons-material';
 import { Checkbox, IconButton, Stack, Tooltip, Typography, styled } from '@mui/material';
 import CartItem from './CartItem.component';
+import Hidden from '../Hidden.component';
+import { STYLE } from '@/configs/constants';
 
 const CartList = () => {
   return (
@@ -10,9 +12,11 @@ const CartList = () => {
           <Checkbox size="small" checkedIcon={<Favorite />} color="error" />
           <Typography variant="subtitle2">All (10 products)</Typography>
         </Stack>
-        <Typography variant="subtitle2">Single</Typography>
-        <Typography variant="subtitle2">Quantity</Typography>
-        <Typography variant="subtitle2">Price</Typography>
+        <Hidden breakpoint="md" type="Down">
+          <Typography variant="subtitle2">Single</Typography>
+          <Typography variant="subtitle2">Quantity</Typography>
+          <Typography variant="subtitle2">Price</Typography>
+        </Hidden>
         <Tooltip placement="bottom" title="Remove selected items" arrow>
           <IconButton color="error">
             <DeleteForeverOutlined />
@@ -36,7 +40,7 @@ const CartList = () => {
 };
 
 const Root = styled('div')(({ theme }) => ({
-  width: '850px',
+  width: STYLE.DESKTOP.CART.LIST_WIDTH,
   [theme.breakpoints.down('md')]: {
     width: '100%',
   },
@@ -44,12 +48,12 @@ const Root = styled('div')(({ theme }) => ({
 
 const Heading = styled('div')(({ theme }) => ({
   display: 'grid',
-  gridTemplateColumns: '44% 20% 15.5% 15.5% 5%',
+  gridTemplateColumns: STYLE.DESKTOP.CART.GRID_TEMPLATE_COLUMS,
   alignItems: 'center',
   backgroundColor: theme.palette.background.paper,
   borderRadius: '5px',
   position: 'sticky',
-  top: `calc(140px + 10px)`,
+  top: `calc(${STYLE.DESKTOP.HEADER.HEIGHT} + 10px)`,
   padding: '5px',
   zIndex: 99,
   '&:before, &:after': {
@@ -64,6 +68,9 @@ const Heading = styled('div')(({ theme }) => ({
   },
   '&:after': {
     bottom: '-10px',
+  },
+  [theme.breakpoints.down('md')]: {
+    gridTemplateColumns: STYLE.MOBILE.CART.GRID_TEMPLATE_COLUMS,
   },
 }));
 

@@ -39,8 +39,8 @@ const APPS = [
 
 const Navbars = () => {
   const theme = useTheme();
-  const { isAuthenticated, signOut } = useAuth();
   const { openModal } = useModal();
+  const { isInitialized, isAuthenticated, signOut } = useAuth();
   const navItemStyle: SxProps = {
     ...theme.typography.body2,
     padding: STYLE.DESKTOP.HEADER.NAVBARS.ITEM_PADDING,
@@ -82,8 +82,8 @@ const Navbars = () => {
                   </Link>
                 );
               })}
-            {isAuthenticated && <AccountPopover signOut={signOut} />}
-            {!isAuthenticated && (
+            {isInitialized && isAuthenticated && <AccountPopover signOut={signOut} />}
+            {isInitialized && !isAuthenticated && (
               <Link
                 href="#"
                 sx={{

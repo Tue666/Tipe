@@ -1,8 +1,7 @@
 import { Stack, Checkbox, IconButton, Typography, styled } from '@mui/material';
 import { DeleteForeverOutlined, Favorite } from '@mui/icons-material';
 import { Image, Link } from '../overrides';
-import Hidden from '../Hidden.component';
-import QuantityInput from '../QuantityInput.component';
+import { Hidden, QuantityInput } from '@/components';
 import { STYLE } from '@/configs/constants';
 
 const CartItem = () => {

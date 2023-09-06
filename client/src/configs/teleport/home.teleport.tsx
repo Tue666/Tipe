@@ -1,13 +1,7 @@
-import {
-  Ballot,
-  Category,
-  LocalFireDepartment,
-  ScreenSearchDesktop,
-  ViewCarousel,
-} from '@mui/icons-material';
+import { Ballot, Category, LocalFireDepartment, Favorite, ViewCarousel } from '@mui/icons-material';
 import { TeleportProps, getIds, getTitles, getActions } from './teleport.config';
 
-type Home = 'banners' | 'categories' | 'sold-section' | 'search-section' | 'product-list';
+type Home = 'banners' | 'categories' | 'sold-section' | 'favorite-section' | 'product-list';
 const homeTeleport: TeleportProps<Home>[] = [
   {
     id: 'banners',
@@ -25,9 +19,9 @@ const homeTeleport: TeleportProps<Home>[] = [
     icon: <LocalFireDepartment />,
   },
   {
-    id: 'search-section',
-    title: 'Most searching products',
-    icon: <ScreenSearchDesktop />,
+    id: 'favorite-section',
+    title: 'Maybe you like',
+    icon: <Favorite />,
   },
   {
     id: 'product-list',

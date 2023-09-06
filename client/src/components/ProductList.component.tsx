@@ -1,25 +1,40 @@
 import { Stack, styled, Typography } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import ProductCard from './ProductCard.component';
+import { ProductCard } from '@/components';
+import { IProduct } from '@/models/interfaces';
+import useInfiniteProduct from '@/hooks/useInfiniteProduct.hook';
 
 interface ProductListProps {
   id: string;
   title?: string;
+  suggestion: IProduct.FindForSuggestionResponse;
 }
 
-const ProductList = ({ id, title }: ProductListProps) => {
+const ProductList = ({ id, title, suggestion }: ProductListProps) => {
+  const { products } = suggestion;
+  const { handleNextPage, isLoading, hasMore, infiniteProducts } = useInfiniteProduct({
+    initFromScratch: false,
+  });
+
   return (
     <Stack id={id} spacing={1}>
       {title && <Typography variant="subtitle2">{title}</Typography>}
       {!title && <div></div>}
       <Wrapper>
-        {[...Array(10)].map((_, index) => (
-          <ProductCard key={index} />
+        {[...products, ...infiniteProducts].map((product, index) => (
+          <ProductCard key={index} product={product} />
         ))}
       </Wrapper>
-      <LoadingButton variant="outlined" sx={{ width: '40%', alignSelf: 'center' }}>
-        Load More
-      </LoadingButton>
+      {hasMore && (
+        <LoadingButton
+          loading={isLoading}
+          variant="outlined"
+          sx={{ width: '40%', alignSelf: 'center' }}
+          onClick={handleNextPage}
+        >
+          Load More
+        </LoadingButton>
+      )}
     </Stack>
   );
 };

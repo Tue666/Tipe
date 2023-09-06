@@ -1,17 +1,16 @@
 import { Checkbox, Chip, Stack, styled } from '@mui/material';
 import { Link } from '../overrides';
-import Stars from '../Stars.component';
 import ApplyPrice from './ApplyPrice.component';
-import Collapse from '../Collapse.component';
+import { Stars, Collapse } from '@/components';
 import { ICategory } from '@/models/interfaces';
 import { PATH_MAIN } from '@/configs/routers';
 
 interface FilterProps {
-  children: ICategory.Category['children'];
+  _children: ICategory.NestedCategory['children'];
 }
 
 const Filter = (props: FilterProps) => {
-  const { children } = props;
+  const { _children } = props;
   const renderAttribute = (multi_select: boolean) =>
     [...Array(5)].map((_, index) => {
       return (
@@ -23,10 +22,10 @@ const Filter = (props: FilterProps) => {
     });
   return (
     <Root>
-      {children.length > 0 && (
+      {_children.length > 0 && (
         <Wrapper>
           <Title>Product portfolio</Title>
-          {children.map((category) => {
+          {_children.map((category) => {
             const { _id, slug, name } = category;
             return (
               <Link key={_id} href={PATH_MAIN.category(slug, _id)}>

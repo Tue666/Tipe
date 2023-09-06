@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { Fragment } from 'react';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { Stack } from '@mui/material';
@@ -7,33 +8,12 @@ import { categoryApi } from '@/apis';
 import { ICategory } from '@/models/interfaces';
 import { PATH_MAIN } from '@/configs/routers';
 
-export const getStaticPaths: GetStaticPaths = async () => {
-  return {
-    paths: [],
-    fallback: 'blocking',
-  };
-};
-
-export const getStaticProps: GetStaticProps<CategoryProps, CategoryParams> = async (context) => {
-  const { params } = context.params!; // params is the value of dynamic route
-  const [slug, _id] = params;
-  const category = await categoryApi.staticFindById(_id);
-  return {
-    props: {
-      category: category.data,
-    },
-  };
-};
-
-type CategoryParams = {
-  params: string[];
-};
-
 interface CategoryProps {
-  category: ICategory.Category;
+  category: ICategory.NestedCategory;
 }
 
-const Category = ({ category }: CategoryProps) => {
+const Category = (props: CategoryProps) => {
+  const { category } = props;
   const { name, banners, parents, children } = category;
   return (
     <Page title="Buy online at good price | Tipe Shop">
@@ -47,12 +27,44 @@ const Category = ({ category }: CategoryProps) => {
           })}
         />
         <Stack direction={{ xs: 'column', sm: 'row', lg: 'row' }} justifyContent="space-between">
-          <Filter children={children} />
+          <Filter _children={children} />
           <Result name={name} banners={banners} />
         </Stack>
       </Fragment>
     </Page>
   );
+};
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  return {
+    paths: [],
+    fallback: 'blocking',
+  };
+};
+
+export const getStaticProps: GetStaticProps = async (context) => {
+  const { params } = context;
+  if (!params?.params?.[1]) {
+    console.log('Category generated with error: params not found');
+    return {
+      notFound: true,
+    };
+  }
+
+  const _id = params.params[1];
+  const { data: category } = await categoryApi.staticFindById(parseInt(_id));
+  if (_.isNil(category) || _.isEmpty(category)) {
+    console.log('Category generated with error: resources not found');
+    return {
+      notFound: true,
+    };
+  }
+
+  return {
+    props: {
+      category,
+    },
+  };
 };
 
 export default Category;

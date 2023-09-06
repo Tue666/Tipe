@@ -10,7 +10,7 @@ const Cart = () => {
     <Page title="Cart | Tipe">
       <Breadcrumbs current="Cart" />
       <Typography variant="subtitle1" sx={{ mb: 2 }}>
-        Check out what you've ordered 😉
+        {`Check out what you've ordered`}
       </Typography>
       {10 > 0 && (
         <Stack

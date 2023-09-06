@@ -1,14 +1,47 @@
+import _ from 'lodash';
 import { Fragment } from 'react';
+import { GetStaticPaths, GetStaticProps } from 'next';
 import { Stack, styled } from '@mui/material';
 import { Breadcrumbs, Page, ProductList, ProductSection, Teleport } from '@/components';
 import { Images, Information, Specification, Description, Review } from '@/components/product';
 import { PRODUCT_TELEPORTS } from '@/configs/teleport/product.teleport';
-import { STYLE } from '@/configs/constants';
+import { LIMIT_SUGGESTION_NUMBER, LIMIT_WIDGET_NUMBER, STYLE } from '@/configs/constants';
+import { IProduct } from '@/models/interfaces';
+import { productApi } from '@/apis';
 
-const Product = () => {
+interface ProductProps {
+  product: IProduct.Product;
+  similarWidget: IProduct.Product[];
+  suggestion: IProduct.FindForSuggestionResponse;
+}
+
+const Product = (props: ProductProps) => {
   const { ids, titles, actions } = PRODUCT_TELEPORTS;
+  const { product, similarWidget, suggestion } = props;
+  const {
+    name,
+    images,
+    discount_rate,
+    original_price,
+    price,
+    description,
+    quantity_sold,
+    rating_average,
+    review_count,
+    inventory_status,
+  } = product;
+  const informationProps = {
+    name,
+    discount_rate,
+    original_price,
+    price,
+    quantity_sold,
+    rating_average,
+    review_count,
+    inventory_status,
+  };
   return (
-    <Page title={`Thú nhồi bông | Tipe Shop`}>
+    <Page title={`${name} | Tipe Shop`}>
       <Teleport actions={actions} />
       <Fragment>
         <Breadcrumbs current="Thú nhồi bông" />
@@ -18,22 +51,30 @@ const Product = () => {
             spacing={2}
             justifyContent="space-between"
           >
-            <Images />
-            <Information />
+            <Images images={images} />
+            <Information {...informationProps} />
           </Stack>
         </Wrapper>
-        <Wrapper>
-          <Title>Similar Products</Title>
-          <ProductSection id={ids['similar-section']} title={titles['similar-section']} />
-        </Wrapper>
+        {similarWidget.length && (
+          <Wrapper>
+            <Title>Similar Products</Title>
+            <ProductSection
+              id={ids['similar-section']}
+              title={titles['similar-section']}
+              products={similarWidget}
+            />
+          </Wrapper>
+        )}
         <Wrapper id={ids['specifications']}>
           <Title>Specifications</Title>
           <Specification />
         </Wrapper>
-        <Wrapper id={ids['description']}>
-          <Title>Product Description</Title>
-          <Description />
-        </Wrapper>
+        {description && (
+          <Wrapper id={ids['description']}>
+            <Title>Product Description</Title>
+            <Description description={description} />
+          </Wrapper>
+        )}
         <Wrapper id={ids['review']}>
           <Title>Ratings - Reviews from customers</Title>
           <Review />
@@ -41,10 +82,51 @@ const Product = () => {
       </Fragment>
       <Stack>
         <DiscoverMore>Discover more for you</DiscoverMore>
-        <ProductList id={ids['product-list']} />
+        <ProductList id={ids['product-list']} suggestion={suggestion} />
       </Stack>
     </Page>
   );
+};
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  return {
+    paths: [],
+    fallback: 'blocking',
+  };
+};
+
+export const getStaticProps: GetStaticProps = async (context) => {
+  const { params } = context;
+  if (!params?.params?.[1]) {
+    console.log('Product generated with error: params not found');
+    return {
+      notFound: true,
+    };
+  }
+
+  const _id = params.params[1];
+  const { data: product } = await productApi.staticFindById(_id);
+  const { data: similarWidget } = await productApi.staticFindForWidget('similar', {
+    _id,
+    limit: LIMIT_WIDGET_NUMBER,
+  });
+  const { data: suggestion } = await productApi.staticFindForSuggestion({
+    limit: LIMIT_SUGGESTION_NUMBER,
+  });
+  if (_.isNil(product) || _.isEmpty(product)) {
+    console.log('Product generated with error: resources not found');
+    return {
+      notFound: true,
+    };
+  }
+
+  return {
+    props: {
+      product,
+      similarWidget,
+      suggestion,
+    },
+  };
 };
 
 const Wrapper = styled('div')(({ theme }) => ({

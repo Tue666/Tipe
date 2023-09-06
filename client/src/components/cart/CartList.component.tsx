@@ -1,7 +1,7 @@
 import { DeleteForeverOutlined, Favorite } from '@mui/icons-material';
 import { Checkbox, IconButton, Stack, Tooltip, Typography, styled } from '@mui/material';
 import CartItem from './CartItem.component';
-import Hidden from '../Hidden.component';
+import { Hidden } from '@/components';
 import { STYLE } from '@/configs/constants';
 
 const CartList = () => {

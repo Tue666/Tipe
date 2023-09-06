@@ -1,11 +1,14 @@
 export interface Category {
-  _id: string;
+  _id: number;
   name: string;
   image: string;
   banners?: string[];
   slug: string;
-  parents: Omit<Category, 'parents'>[];
-  children: Omit<Category, 'children'>[];
+}
+
+export interface NestedCategory extends Category {
+  parents: Pick<Category, '_id' | 'name' | 'slug'>[];
+  children: Pick<Category, '_id' | 'name' | 'slug'>[];
 }
 
 export interface FindQuery {

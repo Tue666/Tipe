@@ -125,3 +125,6 @@ export const STYLE = {
     },
   },
 };
+
+export const LIMIT_WIDGET_NUMBER = 24;
+export const LIMIT_SUGGESTION_NUMBER = 30;

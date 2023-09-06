@@ -2,16 +2,23 @@ import { Fragment } from 'react';
 import { Stack, Typography, styled } from '@mui/material';
 import { Image } from '../overrides';
 import { STYLE } from '@/configs/constants';
+import { appConfig } from '@/configs/apis';
 
 const MINI_IMAGE_NUMBER = 5;
 const MINI_IMAGE_SPACING = 1;
 
-const Images = () => {
+interface ImagesProps {
+  images: string[];
+}
+
+const Images = (props: ImagesProps) => {
+  const { images } = props;
+  const miniImages = images.slice(0, MINI_IMAGE_NUMBER);
   return (
     <Fragment>
       <Root>
         <Image
-          src="/product-card-2.jpg"
+          src={`${appConfig.image_storage_url}/${images[0]}`}
           alt=""
           sx={{
             height: STYLE.DESKTOP.PRODUCT.IMAGE_HEIGHT,
@@ -20,7 +27,7 @@ const Images = () => {
           }}
         />
         <Stack direction="row" spacing={MINI_IMAGE_SPACING}>
-          {[...Array(MINI_IMAGE_NUMBER)].map((_, index) => {
+          {miniImages.map((image, index) => {
             const IMAGE_WIDTH = parseInt(STYLE.DESKTOP.PRODUCT.IMAGE_WIDTH);
             const MINI_IMAGE_SIZE = `${
               (IMAGE_WIDTH - MINI_IMAGE_NUMBER * (MINI_IMAGE_SPACING * (8 + 1))) / MINI_IMAGE_NUMBER
@@ -28,7 +35,7 @@ const Images = () => {
             return (
               <MiniImage key={index} className={index === 0 ? 'active' : ''}>
                 <Image
-                  src="/product-card-2.jpg"
+                  src={`${appConfig.image_storage_url}/${image}`}
                   alt=""
                   sx={{
                     width: MINI_IMAGE_SIZE,

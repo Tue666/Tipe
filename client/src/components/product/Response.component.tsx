@@ -1,5 +1,5 @@
 import { Stack, Typography, styled } from '@mui/material';
-import Hidden from '../Hidden.component';
+import { Hidden } from '@/components';
 import { Avatar } from '../overrides';
 
 const Response = () => {

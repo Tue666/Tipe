@@ -63,35 +63,35 @@ interface AuthProviderProps {
 }
 
 const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  // const [state, dispatch] = useReducer(reducer, initialState);
 
-  useEffect(() => {
-    const initialize = async () => {
-      try {
-        const token = getToken();
-        const isAuthenticated = await isValidToken(token);
-        if (isAuthenticated) {
-          // Fetch data account goes here...
-        }
-        dispatch({
-          type: 'INITIALIZE',
-          payload: { isAuthenticated },
-        });
-      } catch (error) {
-        console.log(error);
-        dispatch({
-          type: 'INITIALIZE',
-          payload: { isAuthenticated: false },
-        });
-      }
-    };
-    initialize();
-  }, []);
+  // useEffect(() => {
+  //   const initialize = async () => {
+  //     try {
+  //       const token = getToken();
+  //       const isAuthenticated = await isValidToken(token);
+  //       if (isAuthenticated) {
+  //         // Fetch data account goes here...
+  //       }
+  //       dispatch({
+  //         type: 'INITIALIZE',
+  //         payload: { isAuthenticated },
+  //       });
+  //     } catch (error) {
+  //       console.log(error);
+  //       dispatch({
+  //         type: 'INITIALIZE',
+  //         payload: { isAuthenticated: false },
+  //       });
+  //     }
+  //   };
+  //   initialize();
+  // }, []);
 
   const signIn = async (signInBody: SignInBody): Promise<string> => {
     const { name, accessToken } = await accountApi.signIn(signInBody);
     setToken(accessToken);
-    dispatch({ type: 'LOGIN' });
+    // dispatch({ type: 'LOGIN' });
     return name;
   };
 
@@ -111,14 +111,15 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const signOut = () => {
     setToken(null);
-    dispatch({
-      type: 'LOGOUT',
-    });
+    // dispatch({
+    //   type: 'LOGOUT',
+    // });
   };
   return (
     <AuthContext.Provider
       value={{
-        ...state,
+        isInitialized: true,
+        isAuthenticated: false,
         signIn,
         // socialLogin,
         signUp,

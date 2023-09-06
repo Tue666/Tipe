@@ -1,11 +1,16 @@
 export { default as Breadcrumbs } from './Breadcrumbs.component';
+export { default as Collapse } from './Collapse.component';
+export { default as ContentToggle } from './ContentToggle.component';
 export { default as Ellipsis } from './Ellipsis.component';
 export { default as Hidden } from './Hidden.component';
+export { default as LightBox } from './LightBox.component';
 export { default as Logo } from './Logo.component';
+export { default as Modal } from './Modal.component';
 export { default as Page } from './Page.component';
 export { default as ProductCard } from './ProductCard.component';
 export { default as ProductList } from './ProductList.component';
 export { default as ProductSection } from './ProductSection.component';
+export { default as QuantityInput } from './QuantityInput.component';
 export { default as ScrollToTop, combineLink } from './ScrollToTop.component';
 export { default as Stars } from './Stars.component';
 export { default as Teleport } from './Teleport.component';

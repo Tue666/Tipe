@@ -1,6 +1,6 @@
 import { Alert, Chip, Pagination, Stack, Typography, styled } from '@mui/material';
-import ProductCard from '../ProductCard.component';
 import { HelpOutline } from '@mui/icons-material';
+import { ProductCard } from '@/components';
 import { Carousel } from '../_external_/react-slick';
 import { Image } from '../overrides';
 import { appConfig } from '@/configs/apis';
@@ -57,9 +57,9 @@ const Result = (props: ResultProps) => {
         </Stack>
         {99 > 0 && (
           <ResultWrapper>
-            {[...Array(20)].map((_, index) => {
+            {/* {[...Array(20)].map((_, index) => {
               return <ProductCard key={index} />;
-            })}
+            })} */}
           </ResultWrapper>
         )}
         {99 <= 0 && (

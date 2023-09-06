@@ -1,57 +1,93 @@
+import { Fragment } from 'react';
 import { Link as ScrollLink } from 'react-scroll';
 import { Button, Chip, Stack, Tooltip, Typography, styled } from '@mui/material';
-import Stars from '../Stars.component';
-import QuantityInput from '../QuantityInput.component';
+import { Stars, QuantityInput } from '@/components';
 import { appConfig } from '@/configs/apis';
 import { STYLE } from '@/configs/constants';
+import { IProduct } from '@/models/interfaces';
+import { toVND } from '@/utils';
+import { Image } from '../overrides';
 
 const WRAPPER_PADDING = '10px';
 const MAX_WARRANTY_IN_LINE = 3;
 
-const Information = () => {
+interface PriceWrapperProps {
+  tag: 'sale' | 'normal';
+}
+
+interface InformationProps {
+  name: string;
+  discount_rate: number;
+  original_price: number;
+  price: number;
+  quantity_sold: IProduct.QuantitySold;
+  rating_average: number;
+  review_count: number;
+  inventory_status: IProduct.InventoryStatus;
+}
+
+const Information = (props: InformationProps) => {
+  const {
+    name,
+    discount_rate,
+    original_price,
+    price,
+    quantity_sold,
+    rating_average,
+    review_count,
+    inventory_status,
+  } = props;
   return (
     <Root>
-      <Typography variant="h6">Thú nhồi bông</Typography>
+      <Typography variant="h6">{name}</Typography>
       <Stack spacing={1}>
         <Stack direction="row" alignItems="center" spacing={1}>
-          <Stars total={5} rating={5} sx={{ fontSize: '18px' }} />
-          <ScrollLink
-            to="review"
-            duration={500}
-            offset={parseInt(STYLE.DESKTOP.HEADER.HEIGHT.slice(0, -2)) * -1}
-          >
-            <Typography variant="subtitle1" sx={{ fontSize: '14px', cursor: 'pointer' }}>
-              (View 999 reviews)
-            </Typography>
-          </ScrollLink>
-          <DivideLine />
-          <Tooltip placement="right" title="999 sold" arrow>
-            <Typography variant="subtitle1" sx={{ fontSize: '14px' }}>
-              999
-            </Typography>
-          </Tooltip>
+          {rating_average > 0 && (
+            <Stars total={5} rating={rating_average} sx={{ fontSize: '18px' }} />
+          )}
+          {review_count > 0 && (
+            <ScrollLink
+              to="review"
+              duration={500}
+              offset={parseInt(STYLE.DESKTOP.HEADER.HEIGHT.slice(0, -2)) * -1}
+            >
+              <Typography variant="subtitle1" sx={{ fontSize: '14px', cursor: 'pointer' }}>
+                (View {review_count} reviews)
+              </Typography>
+            </ScrollLink>
+          )}
+          {quantity_sold.value > 0 && (rating_average > 0 || review_count > 0) && <DivideLine />}
+          {quantity_sold.value > 0 && (
+            <Tooltip placement="right" title={quantity_sold.value} arrow>
+              <Typography variant="subtitle1" sx={{ fontSize: '14px' }}>
+                {quantity_sold.text}
+              </Typography>
+            </Tooltip>
+          )}
         </Stack>
         <Stack direction={{ xs: 'column', sm: 'row', lg: 'row' }} spacing={1}>
           <Stack spacing={1} sx={{ flex: '2 1 0%' }}>
-            <PriceWrapper>
+            <PriceWrapper tag={discount_rate !== 0 ? 'sale' : 'normal'}>
               <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
-                10.000.000
+                {discount_rate === 0 ? toVND(original_price) : toVND(price)}
               </Typography>
-              <Typography component="span">
-                <Typography
-                  component="span"
-                  variant="subtitle1"
-                  sx={{
-                    color: '#efefef',
-                    fontSize: '15px',
-                    textDecoration: 'line-through',
-                    mx: '5px',
-                  }}
-                >
-                  9.000.000
+              {discount_rate !== 0 && (
+                <Typography component="span">
+                  <Typography
+                    component="span"
+                    variant="subtitle1"
+                    sx={{
+                      color: '#efefef',
+                      fontSize: '15px',
+                      textDecoration: 'line-through',
+                      mx: '5px',
+                    }}
+                  >
+                    {toVND(original_price)}
+                  </Typography>
+                  -{discount_rate}%
                 </Typography>
-                -10%
-              </Typography>
+              )}
             </PriceWrapper>
             <Stack sx={{ cursor: 'pointer' }}>
               <Typography variant="subtitle2">Delivery</Typography>
@@ -62,13 +98,24 @@ const Information = () => {
                 Add new delivery address
               </Typography>
             </Stack>
-            <Stack spacing={1}>
-              <Typography variant="subtitle2">Quantity</Typography>
-              <QuantityInput />
-            </Stack>
-            <Button variant="contained" color="error" disableElevation>
-              BUY
-            </Button>
+            {inventory_status === 'available' && (
+              <Fragment>
+                <Stack spacing={1}>
+                  <Typography variant="subtitle2">Quantity</Typography>
+                  <QuantityInput />
+                </Stack>
+                <Button variant="contained" color="error" disableElevation>
+                  BUY
+                </Button>
+              </Fragment>
+            )}
+            {inventory_status === 'out_of_stock' && (
+              <Typography variant="subtitle2" color="error" sx={{ fontWeight: 'bold' }}>
+                The product is out of stock or does not exist anymore.
+                <br />
+                Come back later, thanks for your attention!
+              </Typography>
+            )}
           </Stack>
           <IntendWrapper>
             <Wrapper>
@@ -118,7 +165,7 @@ const Information = () => {
                     spacing={1}
                     sx={{ width: WARRANTY_WIDTH }}
                   >
-                    <img
+                    <Image
                       src={`${appConfig.image_storage_url}/_external_/icons/defense_check.png`}
                       alt=""
                       style={{
@@ -147,12 +194,16 @@ const Root = styled('div')(({ theme }) => ({
   },
 }));
 
-const PriceWrapper = styled('div')(() => ({
-  background: 'linear-gradient(100deg,rgb(255, 66, 78),rgb(253, 130, 10))',
+const PriceWrapper = styled('div')<PriceWrapperProps>(({ theme, tag }) => ({
+  background: `${
+    tag === 'sale'
+      ? 'linear-gradient(100deg,rgb(255, 66, 78),rgb(253, 130, 10))'
+      : theme.palette.background.default
+  }`,
   borderRadius: '5px',
   padding: '15px',
   marginBottom: '10px',
-  color: '#fff',
+  color: tag === 'sale' ? '#fff' : '',
 }));
 
 const DivideLine = styled('div')({

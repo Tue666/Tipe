@@ -1,8 +1,7 @@
 import { Button, Stack, Typography, styled } from '@mui/material';
-import Hidden from '../Hidden.component';
-import { Avatar } from '../overrides';
-import Stars from '../Stars.component';
 import { ThumbUpOutlined } from '@mui/icons-material';
+import { Avatar } from '../overrides';
+import { Hidden, Stars } from '@/components';
 import Response from './Response.component';
 
 const Comment = () => {
@@ -34,19 +33,9 @@ const Comment = () => {
           <Typography variant="subtitle2">Very good</Typography>
         </Stack>
         <Typography variant="subtitle1">
-          Mình đặt hàng khi em này đề giá 999k, thêm cái mã giảm được 40k. Mò mẫm em nửa ngày rút ra
-          vài thông tin: Về sản phẩm: - Đầy đủ phụ kiện, bảng vẽ mới cóng không trầy xước - Nặng hơn
-          H610 pro v2. Nếu H610 mỏng nhẹ và hơi cong ở hai mép thì em này mặt dưới phẳng hoàn toàn -
-          Độ bền chưa rõ, nhưng thấy hoạt động ok - Cảm giác tiếp xúc giữa đầu bút và mặt bảng hơi
-          nhám, với mình thì chấp nhận được Về kết nối: - Vào huion.com/download tải driver rồi cài
-          đặt - Cắm bảng vẽ vào lap và mở driver để điều chỉnh các thông số (giao diện driver như
-          hình) - Từ đây có thể kích hoạt các nút bấm, đổi chức năng cho nút bấm ở mục "Press keys".
-          Ví dụ: dùng phím tắt Clrl + Z (lệnh undo) cho nút đầu tiên - Dùng paint tool sai ĐỪNG chọn
-          Enable Window Ink ở mục "Digital Pen", nếu không nét sẽ thô cứng. - Chọn Mouse mode để xài
-          như chuột Giao hàng: - Hộp móp góc - Hàng quốc tế có nhắc trước thời gian giao là tương
-          đối, nhưng tiki vẫn nhắn tin xin lỗi hàng đến trễ 1 ngày nên ok hài lòng - Bạn shipper
-          lịch sự cám ơn khách. Xin lỗi bạn shipper vì quá trông mong và mê mẩn con hàng mà quên cảm
-          ơn lại :)))
+          {
+            'Mình đặt hàng khi em này đề giá 999k, thêm cái mã giảm được 40k. Mò mẫm em nửa ngày rút ra vài thông tin: Về sản phẩm: - Đầy đủ phụ kiện, bảng vẽ mới cóng không trầy xước - Nặng hơn H610 pro v2. Nếu H610 mỏng nhẹ và hơi cong ở hai mép thì em này mặt dưới phẳng hoàn toàn - Độ bền chưa rõ, nhưng thấy hoạt động ok - Cảm giác tiếp xúc giữa đầu bút và mặt bảng hơi nhám, với mình thì chấp nhận được Về kết nối: - Vào huion.com/download tải driver rồi cài đặt - Cắm bảng vẽ vào lap và mở driver để điều chỉnh các thông số (giao diện driver như hình) - Từ đây có thể kích hoạt các nút bấm, đổi chức năng cho nút bấm ở mục "Press keys". Ví dụ: dùng phím tắt Clrl + Z (lệnh undo) cho nút đầu tiên - Dùng paint tool sai ĐỪNG chọn Enable Window Ink ở mục "Digital Pen", nếu không nét sẽ thô cứng. - Chọn Mouse mode để xài như chuột Giao hàng: - Hộp móp góc - Hàng quốc tế có nhắc trước thời gian giao là tương đối, nhưng tiki vẫn nhắn tin xin lỗi hàng đến trễ 1 ngày nên ok hài lòng - Bạn shipper lịch sự cám ơn khách. Xin lỗi bạn shipper vì quá trông mong và mê mẩn con hàng mà quên cảm ơn lại :)))'
+          }
         </Typography>
         <Typography variant="caption">Reviewed 5 months ago</Typography>
         <Stack direction="row" alignItems="center" spacing={2} my={1}>

@@ -2,14 +2,16 @@ import { Stack, Typography, useMediaQuery, useTheme } from '@mui/material';
 import { Carousel } from './_external_/react-slick';
 import { Link } from './overrides';
 import { STYLE } from '@/configs/constants';
-import ProductCard from './ProductCard.component';
+import { ProductCard } from '@/components';
+import { IProduct } from '@/models/interfaces';
 
 interface ProductSectionProps {
   id: string;
   title?: string;
+  products?: IProduct.Product[];
 }
 
-const ProductSection = ({ id, title }: ProductSectionProps) => {
+const ProductSection = ({ id, title, products }: ProductSectionProps) => {
   const theme = useTheme();
   const isMdDown = useMediaQuery(theme.breakpoints.down('md'));
   return (
@@ -23,20 +25,23 @@ const ProductSection = ({ id, title }: ProductSectionProps) => {
           </Typography>
         </Link>
       </Stack>
-      <Carousel
-        settings={{
-          className: 'slider variable-width',
-          variableWidth: true,
-          slidesToShow: isMdDown
-            ? STYLE.MOBILE.PRODUCT_SECTION.SLIDE_TO_SHOW
-            : STYLE.DESKTOP.PRODUCT_SECTION.SLIDE_TO_SHOW,
-          dots: false,
-        }}
-      >
-        {[...Array(10)].map((_, index) => (
-          <ProductCard key={index} />
-        ))}
-      </Carousel>
+      {products && products.length && (
+        <Carousel
+          settings={{
+            className: 'slider variable-width',
+            variableWidth: true,
+            slidesToShow: isMdDown
+              ? STYLE.MOBILE.PRODUCT_SECTION.SLIDE_TO_SHOW
+              : STYLE.DESKTOP.PRODUCT_SECTION.SLIDE_TO_SHOW,
+            dots: false,
+            infinite: products.length > 5 ? true : false,
+          }}
+        >
+          {products.map((product, index) => (
+            <ProductCard key={index} product={product} />
+          ))}
+        </Carousel>
+      )}
     </Stack>
   );
 };

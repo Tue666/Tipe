@@ -6,7 +6,7 @@ import { NextPage } from 'next';
 import type { AppProps } from 'next/app';
 import Providers from './_providers';
 import ThemeConfig from '@/theme';
-import Modal from '@/components/Modal.component';
+import { Modal } from '@/components';
 import MainLayout from '@/layouts/main';
 
 export type PageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {

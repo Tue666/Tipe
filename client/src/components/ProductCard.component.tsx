@@ -3,20 +3,46 @@ import { Image, Link } from './overrides';
 import { Stars, Ellipsis } from '@/components';
 import { STYLE } from '@/configs/constants';
 import { PATH_MAIN } from '@/configs/routers';
+import { IProduct } from '@/models/interfaces';
+import { appConfig } from '@/configs/apis';
+import { toVND } from '@/utils';
 
-const ProductCard = () => {
+interface PriceProps {
+  tag: 'sale' | 'normal';
+}
+
+interface ProductCardProps {
+  product: IProduct.Product;
+}
+
+const ProductCard = (props: ProductCardProps) => {
   const theme = useTheme();
+  const { product } = props;
+  const {
+    _id,
+    name,
+    images,
+    discount,
+    discount_rate,
+    original_price,
+    price,
+    quantity_sold,
+    rating_average,
+    slug,
+  } = product;
   return (
     <Root>
-      <Link href={PATH_MAIN.product('slug-product-item', '1')}>
+      <Link href={PATH_MAIN.product(slug, _id)}>
         <Image
-          src="/product-card-2.jpg"
+          src={`${appConfig.image_storage_url}/${images[0]}`}
           alt=""
           sx={{
             height: STYLE.DESKTOP.PRODUCT.CARD_HEIGHT,
             overflow: 'hidden',
-            '& > img:hover': {
+            '& > img': {
               transition: '0.5s',
+            },
+            '& > img:hover': {
               transform: 'scale(1.02)',
             },
             [theme.breakpoints.down('md')]: {
@@ -25,12 +51,11 @@ const ProductCard = () => {
           }}
         />
         <CardContent sx={{ height: STYLE.DESKTOP.PRODUCT.CONTENT_HEIGHT }}>
-          <Tooltip placement="top" title="Product name" arrow>
+          <Tooltip placement="top" title={name} arrow>
             <div>
               <Ellipsis
                 variant="body2"
-                text="Thú Bông Chó Shiba Hóa Trang Cosplay Ngộ Nghĩnh 25cm Quà Tặng Siêu
-              Dễ Thương Thú Bông Chó Shiba Thú Bông Chó Shiba"
+                text={name}
                 sx={{
                   '&:hover': {
                     color: theme.palette.primary.main,
@@ -40,16 +65,24 @@ const ProductCard = () => {
             </div>
           </Tooltip>
           <Stack direction="row" alignItems="center" spacing={1}>
-            <Stars total={5} rating={4} sx={{ fontSize: '15px' }} />
-            <Tooltip placement="top" title="12" arrow>
-              <Typography variant="body2">12</Typography>
-            </Tooltip>
+            {rating_average > 0 && (
+              <Stars total={5} rating={rating_average} sx={{ fontSize: '15px' }} />
+            )}
+            {quantity_sold.value > 0 && (
+              <Tooltip placement="top" title={quantity_sold.value} arrow>
+                <Typography variant="caption">{quantity_sold.text}</Typography>
+              </Tooltip>
+            )}
           </Stack>
           <Stack direction="row" spacing={1} alignItems="center">
-            <Price>123</Price>
-            <Tooltip placement="top" title="-12%" arrow>
-              <SaleTag>-12%</SaleTag>
-            </Tooltip>
+            <Price tag={discount_rate !== 0 ? 'sale' : 'normal'}>
+              {discount_rate === 0 ? toVND(original_price) : toVND(price)}
+            </Price>
+            {discount_rate !== 0 && (
+              <Tooltip placement="top" title={`-${toVND(discount)}`} arrow>
+                <SaleTag>-{discount_rate}%</SaleTag>
+              </Tooltip>
+            )}
           </Stack>
         </CardContent>
       </Link>
@@ -90,10 +123,10 @@ const SaleTag = styled('div')({
   color: 'rgb(255, 66, 78)',
 });
 
-const Price = styled(Typography)(({ theme }) => ({
+const Price = styled(Typography)<PriceProps>(({ theme, tag }) => ({
   fontWeight: 'bold',
   fontSize: '16px',
-  // color: tag === 'sale' ? 'red' : theme.palette.text.primary,
+  color: tag === 'sale' ? 'red' : theme.palette.text.primary,
 }));
 
 export default ProductCard;

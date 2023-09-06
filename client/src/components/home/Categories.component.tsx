@@ -1,10 +1,11 @@
 import { styled, Grid, Stack, Tooltip, Typography, Skeleton } from '@mui/material';
-import { Image, Link } from '../overrides';
+import { Image } from '../overrides';
 import Ellipsis from '../Ellipsis.component';
 import { STYLE } from '@/configs/constants';
 import { ICategory } from '@/models/interfaces';
 import { appConfig } from '@/configs/apis';
 import { PATH_MAIN } from '@/configs/routers';
+import Link from 'next/link';
 
 interface CategoriesProps {
   id: string;

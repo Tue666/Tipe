@@ -10,6 +10,7 @@ export const PATH_MAIN = {
     return RouterUtil.combinePath(ROOT_MAIN, `p/${slug}/${_id}`);
   },
   cart: RouterUtil.combinePath(ROOT_MAIN, 'cart'),
+  news: RouterUtil.combinePath(ROOT_MAIN, 'news'),
 };
 
 const ROOT_CUSTOMER = '/customer';

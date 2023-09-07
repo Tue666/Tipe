@@ -1,10 +1,6 @@
-export interface Category {
-  _id: number;
-  name: string;
-  image: string;
-  banners?: string[];
-  slug: string;
-}
+import { CategorySchema } from '../schema';
+
+export interface Category extends CategorySchema {}
 
 export interface NestedCategory extends Category {
   parents: Pick<Category, '_id' | 'name' | 'slug'>[];

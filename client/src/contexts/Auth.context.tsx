@@ -3,6 +3,8 @@ import { useEffect, useReducer, createContext, ReactNode } from 'react';
 import accountApi from '../apis/accountApi';
 import { SignInBody, SignUpBody } from '@/models/interfaces/account';
 import { getToken, isValidToken, setToken } from '@/utils';
+import { useAppDispatch } from '@/redux/hooks';
+import { initCart } from '@/redux/slices/cart.slice';
 
 interface AuthContextState {
   isInitialized: boolean;
@@ -11,7 +13,6 @@ interface AuthContextState {
 
 interface AuthContextStateMethod {
   signIn: (signInBody: SignInBody) => Promise<string>;
-  // socialLogin: () => Promise<void>;
   signUp: (signUpBody: SignUpBody) => Promise<void>;
   signOut: () => void;
 }
@@ -20,7 +21,6 @@ const initialState: AuthContextState & AuthContextStateMethod = {
   isInitialized: false,
   isAuthenticated: false,
   signIn: () => Promise.resolve(''),
-  // socialLogin: () => Promise.resolve(),
   signUp: () => Promise.resolve(),
   signOut: () => {},
 };
@@ -63,47 +63,39 @@ interface AuthProviderProps {
 }
 
 const AuthProvider = ({ children }: AuthProviderProps) => {
-  // const [state, dispatch] = useReducer(reducer, initialState);
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const appDispatch = useAppDispatch();
 
-  // useEffect(() => {
-  //   const initialize = async () => {
-  //     try {
-  //       const token = getToken();
-  //       const isAuthenticated = await isValidToken(token);
-  //       if (isAuthenticated) {
-  //         // Fetch data account goes here...
-  //       }
-  //       dispatch({
-  //         type: 'INITIALIZE',
-  //         payload: { isAuthenticated },
-  //       });
-  //     } catch (error) {
-  //       console.log(error);
-  //       dispatch({
-  //         type: 'INITIALIZE',
-  //         payload: { isAuthenticated: false },
-  //       });
-  //     }
-  //   };
-  //   initialize();
-  // }, []);
+  useEffect(() => {
+    const initialize = async () => {
+      try {
+        const token = getToken();
+        const isAuthenticated = await isValidToken(token);
+        if (isAuthenticated) {
+          // Fetch necessary data here...
+          appDispatch(initCart());
+        }
+        dispatch({
+          type: 'INITIALIZE',
+          payload: { isAuthenticated },
+        });
+      } catch (error) {
+        console.log(error);
+        dispatch({
+          type: 'INITIALIZE',
+          payload: { isAuthenticated: false },
+        });
+      }
+    };
+    initialize();
+  }, []);
 
   const signIn = async (signInBody: SignInBody): Promise<string> => {
     const { name, accessToken } = await accountApi.signIn(signInBody);
     setToken(accessToken);
-    // dispatch({ type: 'LOGIN' });
+    dispatch({ type: 'LOGIN' });
     return name;
   };
-
-  // const socialLogin = async (body) => {
-  //   const response = await accountApi.socialLogin(body);
-  //   const { name, tokens } = response;
-  //   setToken(tokens);
-  //   dispatchSlice(getProfile());
-  //   dispatchSlice(getCart());
-  //   dispatch({ type: 'LOGIN' });
-  //   return name;
-  // };
 
   const signUp = async (signUpBody: SignUpBody) => {
     await accountApi.signUp(signUpBody);
@@ -111,17 +103,15 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const signOut = () => {
     setToken(null);
-    // dispatch({
-    //   type: 'LOGOUT',
-    // });
+    dispatch({
+      type: 'LOGOUT',
+    });
   };
   return (
     <AuthContext.Provider
       value={{
-        isInitialized: true,
-        isAuthenticated: false,
+        ...state,
         signIn,
-        // socialLogin,
         signUp,
         signOut,
       }}

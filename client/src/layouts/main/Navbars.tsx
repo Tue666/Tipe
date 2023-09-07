@@ -6,6 +6,7 @@ import useModal from '@/hooks/useModal';
 import useAuth from '@/hooks/useAuth.hook';
 import AccountPopover from './AccountPopover';
 import { STYLE } from '@/configs/constants';
+import { PATH_MAIN } from '@/configs/routers';
 
 const CONNECTS = [
   {
@@ -26,7 +27,7 @@ const APPS = [
   {
     icon: <i className="bi bi-file-earmark-richtext" />,
     title: 'News',
-    href: '',
+    href: PATH_MAIN.news,
     target: '_self',
   },
   {

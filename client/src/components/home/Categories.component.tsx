@@ -1,4 +1,4 @@
-import { styled, Grid, Stack, Tooltip, Typography, Skeleton } from '@mui/material';
+import { styled, Grid, Stack, Tooltip, Typography } from '@mui/material';
 import { Image } from '../overrides';
 import Ellipsis from '../Ellipsis.component';
 import { STYLE } from '@/configs/constants';
@@ -10,60 +10,51 @@ import Link from 'next/link';
 interface CategoriesProps {
   id: string;
   title: string;
-  categories: ICategory.Category[];
+  categories: ICategory.FindResponse['categories'];
 }
 
-const Categories = ({ id, title, categories }: CategoriesProps) => {
+const Categories = (props: CategoriesProps) => {
+  const { id, title, categories } = props;
   return (
     <Root id={id}>
       <Stack spacing={1}>
         <Typography variant="subtitle2">{title}</Typography>
         <Grid container justifyContent="center">
-          {categories?.length &&
-            categories.map((category) => {
-              const { _id, name, image, slug } = category;
-              return (
-                <Grid item lg={2} sm={3} xs={6} key={_id}>
-                  <Link href={PATH_MAIN.category(slug, _id)}>
-                    <Category direction="row" alignItems="center" spacing={2}>
-                      <Image
-                        src={`${appConfig.image_storage_url}/${image}`}
-                        alt=""
-                        sx={{
-                          width: parseInt(STYLE.DESKTOP.CATEGORIES.ICON_SIZE),
-                          height: parseInt(STYLE.DESKTOP.CATEGORIES.ICON_SIZE),
-                          '& > img': {
-                            borderRadius: STYLE.DESKTOP.CATEGORIES.ICON_BORDER_RADIUS,
-                          },
-                        }}
-                      />
-                      <Tooltip placement="top" title={name} arrow>
-                        <div style={{ flex: 1 }}>
-                          <Ellipsis
-                            variant="body2"
-                            text={name}
-                            sx={{
-                              '&:hover': {
-                                color: (theme) => theme.palette.primary.main,
-                              },
-                            }}
-                          />
-                        </div>
-                      </Tooltip>
-                    </Category>
-                  </Link>
-                </Grid>
-              );
-            })}
-          {!categories?.length &&
-            [...Array(12)].map((_, index) => (
-              <Grid item lg={2} sm={3} xs={6} key={index}>
-                <Category>
-                  <Skeleton variant="circular" width={49} height={49} />
-                  <Skeleton variant="rectangular" width={80} height={45} />
-                </Category>
+          {categories.map((category) => {
+            const { _id, name, image, slug } = category;
+            return (
+              <Grid item lg={2} sm={3} xs={6} key={_id}>
+                <Link href={PATH_MAIN.category(slug, _id)}>
+                  <Category direction="row" alignItems="center" spacing={2}>
+                    <Image
+                      src={`${appConfig.image_storage_url}/${image}`}
+                      alt=""
+                      sx={{
+                        width: parseInt(STYLE.DESKTOP.CATEGORIES.ICON_SIZE),
+                        height: parseInt(STYLE.DESKTOP.CATEGORIES.ICON_SIZE),
+                        '& > img': {
+                          borderRadius: STYLE.DESKTOP.CATEGORIES.ICON_BORDER_RADIUS,
+                        },
+                      }}
+                    />
+                    <Tooltip placement="top" title={name} arrow>
+                      <div style={{ flex: 1 }}>
+                        <Ellipsis
+                          variant="body2"
+                          text={name}
+                          sx={{
+                            '&:hover': {
+                              color: (theme) => theme.palette.primary.main,
+                            },
+                          }}
+                        />
+                      </div>
+                    </Tooltip>
+                  </Category>
+                </Link>
               </Grid>
-            ))}
+            );
+          })}
         </Grid>
       </Stack>
     </Root>

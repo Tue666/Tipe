@@ -11,7 +11,9 @@ class CategoriesAPI {
         parent_id: null,
         status: 'active',
       }).select('_id name image slug');
-      res.status(200).json(categories);
+      res.status(200).json({
+        categories,
+      });
     } catch (error) {
       console.error(error);
       next({ status: 500, msg: error.message });

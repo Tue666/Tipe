@@ -7,7 +7,8 @@ interface LinkProps extends MUILinkProps {
   children: ReactNode;
 }
 
-const Link = ({ children, sx, ...props }: LinkProps) => {
+const Link = (props: LinkProps) => {
+  const { children, sx, ...rest } = props;
   return (
     <MUILink
       component={NextLink}
@@ -16,7 +17,7 @@ const Link = ({ children, sx, ...props }: LinkProps) => {
         textDecoration: 'none',
         color: 'text.primary',
       }}
-      {...props}
+      {...rest}
     >
       {children}
     </MUILink>

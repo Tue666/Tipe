@@ -8,7 +8,8 @@ interface SearchBarProps {
   sx?: CSSProperties;
 }
 
-const SearchBar = ({ sx }: SearchBarProps) => {
+const SearchBar = (props: SearchBarProps) => {
+  const { sx } = props;
   return (
     <Stack alignItems="center" justifyContent="center" sx={{ position: 'relative' }}>
       <SearchField placeholder="Enter what are you looking for here ... <3" style={{ ...sx }} />

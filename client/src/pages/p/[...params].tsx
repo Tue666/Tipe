@@ -10,8 +10,8 @@ import { IProduct } from '@/models/interfaces';
 import { productApi } from '@/apis';
 
 interface ProductProps {
-  product: IProduct.Product;
-  similarWidget: IProduct.Product[];
+  product: IProduct.NestedProduct;
+  similarWidget: IProduct.FindForWidgetResponse;
   suggestion: IProduct.FindForSuggestionResponse;
 }
 
@@ -55,13 +55,13 @@ const Product = (props: ProductProps) => {
             <Information {...informationProps} />
           </Stack>
         </Wrapper>
-        {similarWidget.length && (
+        {similarWidget.products.length && (
           <Wrapper>
             <Title>Similar Products</Title>
             <ProductSection
               id={ids['similar-section']}
               title={titles['similar-section']}
-              products={similarWidget}
+              products={similarWidget.products}
             />
           </Wrapper>
         )}
@@ -96,37 +96,44 @@ export const getStaticPaths: GetStaticPaths = async () => {
 };
 
 export const getStaticProps: GetStaticProps = async (context) => {
-  const { params } = context;
-  if (!params?.params?.[1]) {
-    console.log('Product generated with error: params not found');
+  try {
+    const { params } = context;
+    if (!params?.params?.[1]) {
+      console.log('Product generated with error: params not found');
+      return {
+        notFound: true,
+      };
+    }
+
+    const _id = params.params[1];
+    const product = await productApi.findById(_id);
+    const similarWidget = await productApi.findForWidget('similar', {
+      _id,
+      limit: LIMIT_WIDGET_NUMBER,
+    });
+    const suggestion = await productApi.findForSuggestion({
+      limit: LIMIT_SUGGESTION_NUMBER,
+    });
+    if (_.isNil(product) || _.isEmpty(product)) {
+      console.log('Product generated with error: resources not found');
+      return {
+        notFound: true,
+      };
+    }
+
+    return {
+      props: {
+        product,
+        similarWidget,
+        suggestion,
+      },
+    };
+  } catch (error) {
+    console.log('Product generated with error:', error);
     return {
       notFound: true,
     };
   }
-
-  const _id = params.params[1];
-  const { data: product } = await productApi.staticFindById(_id);
-  const { data: similarWidget } = await productApi.staticFindForWidget('similar', {
-    _id,
-    limit: LIMIT_WIDGET_NUMBER,
-  });
-  const { data: suggestion } = await productApi.staticFindForSuggestion({
-    limit: LIMIT_SUGGESTION_NUMBER,
-  });
-  if (_.isNil(product) || _.isEmpty(product)) {
-    console.log('Product generated with error: resources not found');
-    return {
-      notFound: true,
-    };
-  }
-
-  return {
-    props: {
-      product,
-      similarWidget,
-      suggestion,
-    },
-  };
 };
 
 const Wrapper = styled('div')(({ theme }) => ({

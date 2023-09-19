@@ -17,7 +17,8 @@ interface AccountPopoverProps {
   signOut: () => void;
 }
 
-const AccountPopover = ({ signOut }: AccountPopoverProps) => {
+const AccountPopover = (props: AccountPopoverProps) => {
+  const { signOut } = props;
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleClick = (e: MouseEvent<HTMLElement>) => {
@@ -54,14 +55,16 @@ const AccountPopover = ({ signOut }: AccountPopoverProps) => {
             }}
           />
           <MenuList dense sx={{ width: '100%' }}>
-            {MENU_OPTIONS.map((menu) => (
-              <Link key={menu.label} href={menu.href}>
-                <MenuItem>
-                  <ListItemIcon>{menu.icon}</ListItemIcon>
-                  {menu.label}
-                </MenuItem>
-              </Link>
-            ))}
+            {MENU_OPTIONS.map((menu) => {
+              return (
+                <Link key={menu.label} href={menu.href}>
+                  <MenuItem>
+                    <ListItemIcon>{menu.icon}</ListItemIcon>
+                    {menu.label}
+                  </MenuItem>
+                </Link>
+              );
+            })}
             <Divider />
             <MenuItem onClick={signOut}>
               <ListItemIcon>

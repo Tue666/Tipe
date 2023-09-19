@@ -8,7 +8,8 @@ interface BannersProps {
   id: string;
 }
 
-const Banners = ({ id }: BannersProps) => {
+const Banners = (props: BannersProps) => {
+  const { id } = props;
   const theme = useTheme();
   return (
     <Stack
@@ -37,19 +38,21 @@ const Banners = ({ id }: BannersProps) => {
             autoplaySpeed: STYLE.DESKTOP.BANNERS.AUTOPLAY_SPEED,
           }}
         >
-          {[...Array(5)].map((_, index) => (
-            <Image
-              key={index}
-              src="https://cdn.123job.vn/123job//uploads/images/flash%20sale.jpg"
-              alt=""
-              sx={{
-                height: STYLE.DESKTOP.BANNERS.MAIN_HEIGHT,
-                [theme.breakpoints.down('md')]: {
-                  height: STYLE.MOBILE.BANNERS.MAIN_HEIGHT,
-                },
-              }}
-            />
-          ))}
+          {[...Array(5)].map((_, index) => {
+            return (
+              <Image
+                key={index}
+                src="https://cdn.123job.vn/123job//uploads/images/flash%20sale.jpg"
+                alt=""
+                sx={{
+                  height: STYLE.DESKTOP.BANNERS.MAIN_HEIGHT,
+                  [theme.breakpoints.down('md')]: {
+                    height: STYLE.MOBILE.BANNERS.MAIN_HEIGHT,
+                  },
+                }}
+              />
+            );
+          })}
         </Carousel>
       </Box>
       <Stack

@@ -3,8 +3,14 @@ import { Checkbox, IconButton, Stack, Tooltip, Typography, styled } from '@mui/m
 import CartItem from './CartItem.component';
 import { Hidden } from '@/components';
 import { STYLE } from '@/configs/constants';
+import { ICart } from '@/models/interfaces';
 
-const CartList = () => {
+interface CartListProps {
+  items: ICart.CartItem[];
+}
+
+const CartList = (props: CartListProps) => {
+  const { items } = props;
   return (
     <Root>
       <Heading>
@@ -28,8 +34,9 @@ const CartList = () => {
           {/* Seller */}
           {/* Intended */}
           <Stack spacing={3}>
-            {[...Array(10)].map((_, index) => {
-              return <CartItem key={index} />;
+            {items.map((item) => {
+              const { _id } = item;
+              return <CartItem key={_id} item={item} />;
             })}
           </Stack>
           {/* Seller discount */}

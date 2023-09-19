@@ -12,7 +12,8 @@ interface TeleportProps {
   actions?: ActionProps[];
 }
 
-const Teleport = ({ actions }: TeleportProps) => {
+const Teleport = (props: TeleportProps) => {
+  const { actions } = props;
   return (
     <Root ariaLabel="SpeedDial openIcon" icon={<Api />}>
       <SpeedDialAction
@@ -22,9 +23,11 @@ const Teleport = ({ actions }: TeleportProps) => {
         onClick={() => window.scrollTo(0, 0)}
       />
       {actions &&
-        actions.map((action) => (
-          <SpeedDialAction key={action.title} icon={action.icon} tooltipTitle={action.title} />
-        ))}
+        actions.map((action) => {
+          return (
+            <SpeedDialAction key={action.title} icon={action.icon} tooltipTitle={action.title} />
+          );
+        })}
     </Root>
   );
 };

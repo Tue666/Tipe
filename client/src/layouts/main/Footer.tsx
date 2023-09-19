@@ -65,30 +65,36 @@ const Footer = () => {
         <Blocks>
           <Typography variant="subtitle2">Customer support</Typography>
           {CUSTOMER_SUPPORT &&
-            CUSTOMER_SUPPORT.map((item, index) => (
-              <Typography key={index} variant="caption">
-                {item}
-              </Typography>
-            ))}
+            CUSTOMER_SUPPORT.map((item, index) => {
+              return (
+                <Typography key={index} variant="caption">
+                  {item}
+                </Typography>
+              );
+            })}
         </Blocks>
         <Blocks>
           <Typography variant="subtitle2">Shop</Typography>
           {SHOP &&
-            SHOP.map((item, index) => (
-              <Typography key={index} variant="caption">
-                {item}
-              </Typography>
-            ))}
+            SHOP.map((item, index) => {
+              return (
+                <Typography key={index} variant="caption">
+                  {item}
+                </Typography>
+              );
+            })}
         </Blocks>
         <Stack>
           <Blocks>
             <Typography variant="subtitle2">Cooperation and association</Typography>
             {COOPERATION &&
-              COOPERATION.map((item, index) => (
-                <Typography key={index} variant="caption">
-                  {item}
-                </Typography>
-              ))}
+              COOPERATION.map((item, index) => {
+                return (
+                  <Typography key={index} variant="caption">
+                    {item}
+                  </Typography>
+                );
+              })}
           </Blocks>
           <Blocks>
             <Typography variant="subtitle2">Certified by</Typography>

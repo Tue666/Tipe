@@ -15,6 +15,7 @@ export interface SignInResponse {
   accessToken: Tokens['AC_T'];
 }
 
-export interface SignUpBody extends PartialBy<Account, '_id'> {
+export interface SignUpBody
+  extends Pick<Account, 'phone_number' | 'name' | 'password' | 'account_type'> {
   passwordConfirm: string;
 }

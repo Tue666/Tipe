@@ -62,7 +62,8 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-const AuthProvider = ({ children }: AuthProviderProps) => {
+const AuthProvider = (props: AuthProviderProps) => {
+  const { children } = props;
   const [state, dispatch] = useReducer(reducer, initialState);
   const appDispatch = useAppDispatch();
 

@@ -6,7 +6,8 @@ interface EllipsisProps extends TypographyProps {
   clamp?: number;
 }
 
-const Ellipsis = ({ text, clamp, sx, ...props }: EllipsisProps) => {
+const Ellipsis = (props: EllipsisProps) => {
+  const { text, clamp, sx, ...rest } = props;
   return (
     <Typography
       sx={{
@@ -17,7 +18,7 @@ const Ellipsis = ({ text, clamp, sx, ...props }: EllipsisProps) => {
         overflow: 'hidden',
         ...sx,
       }}
-      {...props}
+      {...rest}
     >
       {text}
     </Typography>

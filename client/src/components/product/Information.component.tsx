@@ -15,16 +15,18 @@ interface PriceWrapperProps {
   tag: 'sale' | 'normal';
 }
 
-interface InformationProps {
-  name: string;
-  discount_rate: number;
-  original_price: number;
-  price: number;
-  quantity_sold: IProduct.QuantitySold;
-  rating_average: number;
-  review_count: number;
-  inventory_status: IProduct.InventoryStatus;
-}
+interface InformationProps
+  extends Pick<
+    IProduct.NestedProduct,
+    | 'name'
+    | 'discount_rate'
+    | 'original_price'
+    | 'price'
+    | 'quantity_sold'
+    | 'rating_average'
+    | 'review_count'
+    | 'inventory_status'
+  > {}
 
 const Information = (props: InformationProps) => {
   const {

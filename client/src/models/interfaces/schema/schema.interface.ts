@@ -7,26 +7,26 @@ export type Type = {
 export interface AccountSchema extends TimestampsSchema, SoftDeleteSchema {
   _id: string;
   phone_number: string;
-  is_phone_verified?: boolean;
+  is_phone_verified: boolean;
   password: string;
-  email?: string;
-  is_email_verified?: boolean;
-  name?: string;
-  avatar_url?: string;
-  refreshToken?: string;
-  roles?: string[];
+  email: string;
+  is_email_verified: boolean;
+  name: string;
+  avatar_url: string;
+  refreshToken: string;
+  roles: string[];
   account_type: Type[keyof Type];
 }
 
 export interface Social {
   _id: boolean;
-  id?: string;
-  type?: string;
+  id: string;
+  type: string;
 }
 
 export interface CustomerSchema extends AccountSchema {
-  gender?: string;
-  socials?: Social[];
+  gender: string;
+  socials: Social[];
 }
 
 export interface AdministratorSchema extends AccountSchema {}
@@ -37,15 +37,15 @@ export interface CategorySchema extends MetaSchema, TimestampsSchema, SoftDelete
   _id: number;
   name: string;
   image: string;
-  banners?: string[];
-  parent_id?: number;
+  banners: string[];
+  parent_id: number;
   slug: string;
-  status?: CategoryStatus;
+  status: CategoryStatus;
 }
 
 export interface QuantitySold {
-  text?: string;
-  value?: number;
+  text: string;
+  value: number;
 }
 
 export type InventoryStatus = 'available' | 'out_of_stock';
@@ -56,21 +56,21 @@ export interface ProductSchema extends MetaSchema, TimestampsSchema, SoftDeleteS
   images: string[];
   quantity: number;
   category: CategorySchema['_id'];
-  limit?: number;
-  discount?: number;
-  discount_rate?: number;
-  original_price?: number;
-  price?: number;
-  description?: string;
+  limit: number;
+  discount: number;
+  discount_rate: number;
+  original_price: number;
+  price: number;
+  description: string;
   quantity_sold: QuantitySold;
-  rating_average?: number;
-  review_count?: number;
-  favorite_count?: number;
-  view_count?: number;
+  rating_average: number;
+  review_count: number;
+  favorite_count: number;
+  view_count: number;
   slug: string;
-  shippable?: boolean;
-  preview?: boolean;
-  inventory_status?: InventoryStatus;
+  shippable: boolean;
+  preview: boolean;
+  inventory_status: InventoryStatus;
 }
 
 export interface CartSchema {

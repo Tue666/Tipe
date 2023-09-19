@@ -2,12 +2,15 @@ import { Badge, IconButton } from '@mui/material';
 import { ShoppingCartOutlined } from '@mui/icons-material';
 import { Link } from '@/components/overrides';
 import { PATH_MAIN } from '@/configs/routers';
+import { useAppSelector } from '@/redux/hooks';
+import { selectCart } from '@/redux/slices/cart.slice';
 
 const CartPopover = () => {
+  const { items } = useAppSelector(selectCart);
   return (
     <Badge
       color="primary"
-      badgeContent={10}
+      badgeContent={items.length}
       max={99}
       anchorOrigin={{
         vertical: 'top',

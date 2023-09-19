@@ -33,6 +33,12 @@ export const getTitles = <T extends string>(teleport: TeleportProps<T>[]): Title
 export const getActions = <T extends string>(teleport: TeleportProps<T>[]) => {
   return teleport.map((port) => {
     const { id, title, icon } = port;
-    return { title, icon: combineLink(id, icon) };
+    return {
+      title,
+      icon: combineLink({
+        to: id,
+        children: icon,
+      }),
+    };
   });
 };

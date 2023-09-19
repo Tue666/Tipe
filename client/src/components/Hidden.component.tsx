@@ -7,7 +7,8 @@ interface HiddenProps {
   children: ReactNode;
 }
 
-const Hidden = ({ breakpoint, type, children }: HiddenProps) => {
+const Hidden = (props: HiddenProps) => {
+  const { breakpoint, type, children } = props;
   const theme = useTheme();
   const hiddenUp = useMediaQuery(theme.breakpoints.up(breakpoint));
   const hiddenDown = useMediaQuery(theme.breakpoints.down(breakpoint));

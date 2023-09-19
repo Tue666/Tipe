@@ -6,8 +6,8 @@ interface PageProps {
   children: ReactNode;
 }
 
-const Page = ({ children, ...props }: PageProps) => {
-  const { title } = props;
+const Page = (props: PageProps) => {
+  const { title, children } = props;
   return (
     <Fragment>
       {/* For SEO like title, meta, ... tags */}

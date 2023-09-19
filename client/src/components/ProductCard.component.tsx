@@ -12,11 +12,10 @@ interface PriceProps {
 }
 
 interface ProductCardProps {
-  product: IProduct.Product;
+  product: IProduct.ProductCard;
 }
 
 const ProductCard = (props: ProductCardProps) => {
-  const theme = useTheme();
   const { product } = props;
   const {
     _id,
@@ -30,6 +29,7 @@ const ProductCard = (props: ProductCardProps) => {
     rating_average,
     slug,
   } = product;
+  const theme = useTheme();
   return (
     <Root>
       <Link href={PATH_MAIN.product(slug, _id)}>

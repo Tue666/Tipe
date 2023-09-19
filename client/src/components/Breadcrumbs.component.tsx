@@ -12,7 +12,8 @@ interface BreadcrumbsProps {
   links?: LinkItemProps[];
 }
 
-const Breadcrumbs = ({ current, links }: BreadcrumbsProps) => {
+const Breadcrumbs = (props: BreadcrumbsProps) => {
+  const { current, links } = props;
   return (
     <MUIBreadcrumbs separator=">" sx={{ my: 1 }}>
       <Link href={PATH_MAIN.home}>

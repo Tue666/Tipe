@@ -6,8 +6,9 @@ interface ContainerProps extends MUIContainerProps {
   children: ReactNode;
 }
 
-const Container = ({ children, ...props }: ContainerProps) => {
-  return <MUIContainer {...props}>{children}</MUIContainer>;
+const Container = (props: ContainerProps) => {
+  const { children, ...rest } = props;
+  return <MUIContainer {...rest}>{children}</MUIContainer>;
 };
 
 export default Container;

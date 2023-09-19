@@ -1,6 +1,7 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { AppDispatch, RootState } from '../store';
 import { ICart } from '@/models/interfaces';
+import cartApi from '@/apis/cartApi';
 
 export interface CartState {
   items: ICart.CartItem[];
@@ -28,7 +29,8 @@ export default reducer;
 
 export const initCart = () => async (dispatch: AppDispatch) => {
   try {
-    dispatch(slice.actions.initCartSuccess({ items: [] }));
+    const cartItems = await cartApi.findByCustomerId();
+    dispatch(slice.actions.initCartSuccess({ items: cartItems }));
   } catch (error) {
     console.log(error);
   }

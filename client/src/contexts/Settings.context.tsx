@@ -20,7 +20,8 @@ interface SettingsProviderProps {
   children: ReactNode;
 }
 
-const SettingsProvider = ({ children }: SettingsProviderProps) => {
+const SettingsProvider = (props: SettingsProviderProps) => {
+  const { children } = props;
   const [settings, setSettings] = useLocalStorage<SettingsContextState>('settings', {
     themeMode: 'light',
   });

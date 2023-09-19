@@ -5,7 +5,8 @@ interface CollapseProps {
   children: ReactNode;
 }
 
-const Collapse = ({ children }: CollapseProps) => {
+const Collapse = (props: CollapseProps) => {
+  const { children } = props;
   const [isCollapsed, setIsCollapsed] = useState(true);
   return (
     <div>

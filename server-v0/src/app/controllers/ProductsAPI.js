@@ -117,6 +117,9 @@ class ProductsAPI {
       const totalProduct = await Product.count({ inventory_status: 'available' });
       const totalPage = Math.ceil(totalProduct / limit);
       const products = await Product.find({ inventory_status: 'available' })
+        .select(
+          '_id name images discount discount_rate original_price price quantity_sold rating_average slug'
+        )
         .skip(newest)
         .limit(limit);
       res.status(200).json({
@@ -509,7 +512,9 @@ class ProductsAPI {
           $limit: limit,
         },
       ]);
-      res.status(200).json(products);
+      res.status(200).json({
+        products,
+      });
     } catch (error) {
       console.error(error);
       next({ status: 500, msg: error.message });
@@ -545,7 +550,9 @@ class ProductsAPI {
           'name images discount discount_rate original_price price slug quantity_sold rating_average'
         )
         .limit(limit);
-      res.status(200).json(products);
+      res.status(200).json({
+        products,
+      });
     } catch (error) {
       console.error(error);
       next({ status: 500, msg: error.message });

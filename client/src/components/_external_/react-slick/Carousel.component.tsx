@@ -7,7 +7,8 @@ interface CarouselProps {
   settings?: Settings;
 }
 
-const Carousel = ({ children, settings }: CarouselProps) => {
+const Carousel = (props: CarouselProps) => {
+  const { children, settings } = props;
   return (
     <Slider {...defaultSettings} {...settings}>
       {children}

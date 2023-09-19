@@ -1,7 +1,6 @@
 import _ from 'lodash';
 import Cookies from 'js-cookie';
-import { accountApi } from '@/apis';
-import axiosInstance from '@/apis/axiosInstance';
+import { ApiClient, accountApi } from '@/apis';
 import { Tokens } from '@/models/interfaces/account';
 
 const getToken = () => {
@@ -12,10 +11,10 @@ const getToken = () => {
 const setToken = (accessToken: Tokens['AC_T'] | null) => {
   if (!_.isNil(accessToken)) {
     Cookies.set('AC_T', accessToken, { expires: 2 });
-    axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+    ApiClient.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
   } else {
     Cookies.remove('AC_T');
-    delete axiosInstance.defaults.headers.common['Authorization'];
+    delete ApiClient.defaults.headers.common['Authorization'];
   }
 };
 

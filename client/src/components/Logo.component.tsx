@@ -7,7 +7,8 @@ interface LogoProps {
   title?: string;
 }
 
-const Logo = ({ title }: LogoProps) => {
+const Logo = (props: LogoProps) => {
+  const { title } = props;
   const theme = useTheme();
   return (
     <Link href={PATH_MAIN.home}>

@@ -7,9 +7,10 @@ interface ImageProps extends BoxProps {
   alt: string;
 }
 
-const Image = ({ src, alt, sx, ...props }: ImageProps) => {
+const Image = (props: ImageProps) => {
+  const { src, alt, sx, ...rest } = props;
   return (
-    <Box sx={{ position: 'relative', ...sx }} {...props}>
+    <Box sx={{ position: 'relative', ...sx }} {...rest}>
       <NextImage
         src={src}
         alt={alt}

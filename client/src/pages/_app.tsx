@@ -17,7 +17,8 @@ interface AppPropsWithLayout extends AppProps {
   Component: PageWithLayout;
 }
 
-const App = ({ Component, pageProps }: AppPropsWithLayout) => {
+const App = (props: AppPropsWithLayout) => {
+  const { Component, pageProps } = props;
   const getLayout = Component.getLayout ?? ((page) => <MainLayout>{page}</MainLayout>);
   return (
     <Providers>

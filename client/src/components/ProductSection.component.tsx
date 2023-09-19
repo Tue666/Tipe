@@ -8,10 +8,11 @@ import { IProduct } from '@/models/interfaces';
 interface ProductSectionProps {
   id: string;
   title?: string;
-  products?: IProduct.Product[];
+  products?: IProduct.FindForWidgetResponse['products'];
 }
 
-const ProductSection = ({ id, title, products }: ProductSectionProps) => {
+const ProductSection = (props: ProductSectionProps) => {
+  const { id, title, products } = props;
   const theme = useTheme();
   const isMdDown = useMediaQuery(theme.breakpoints.down('md'));
   return (
@@ -37,9 +38,9 @@ const ProductSection = ({ id, title, products }: ProductSectionProps) => {
             infinite: products.length > 5 ? true : false,
           }}
         >
-          {products.map((product, index) => (
-            <ProductCard key={index} product={product} />
-          ))}
+          {products.map((product, index) => {
+            return <ProductCard key={index} product={product} />;
+          })}
         </Carousel>
       )}
     </Stack>

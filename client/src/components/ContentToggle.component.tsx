@@ -5,7 +5,8 @@ interface ContentToggleProps {
   children: ReactNode;
 }
 
-const ContentToggle = ({ children }: ContentToggleProps) => {
+const ContentToggle = (props: ContentToggleProps) => {
+  const { children } = props;
   return (
     <Root>
       <Input type="checkbox" id="toggle-input" />

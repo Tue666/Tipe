@@ -8,20 +8,23 @@ interface StarsProps {
   sx?: SxProps;
 }
 
-const Stars = ({ total, rating, sx }: StarsProps) => {
+const Stars = (props: StarsProps) => {
+  const { total, rating, sx } = props;
   return (
     <Stack direction="row" alignItems="center">
-      {[...Array(total)].map((e, i) => (
-        <Fragment key={i}>
-          {i + 1 <= Math.floor(rating) ? (
-            <StarRounded sx={{ color: 'warning.main', ...sx }} fontSize="small" />
-          ) : i + 1 - rating >= 0.35 && i + 1 - rating <= 0.65 ? (
-            <StarHalfRounded sx={{ color: 'warning.main', ...sx }} fontSize="small" />
-          ) : (
-            <StarRounded sx={{ color: 'rgb(199, 199, 199)', ...sx }} fontSize="small" />
-          )}
-        </Fragment>
-      ))}
+      {[...Array(total)].map((e, i) => {
+        return (
+          <Fragment key={i}>
+            {i + 1 <= Math.floor(rating) ? (
+              <StarRounded sx={{ color: 'warning.main', ...sx }} fontSize="small" />
+            ) : i + 1 - rating >= 0.35 && i + 1 - rating <= 0.65 ? (
+              <StarHalfRounded sx={{ color: 'warning.main', ...sx }} fontSize="small" />
+            ) : (
+              <StarRounded sx={{ color: 'rgb(199, 199, 199)', ...sx }} fontSize="small" />
+            )}
+          </Fragment>
+        );
+      })}
     </Stack>
   );
 };

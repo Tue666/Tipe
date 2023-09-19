@@ -5,7 +5,8 @@ interface AvatarProps extends MUIAvatarProps {
   name: string;
 }
 
-const Avatar = ({ name, src, sx }: AvatarProps) => {
+const Avatar = (props: AvatarProps) => {
+  const { name, src, sx } = props;
   return <MAvatar alt={name} src={src} sx={{ width: 60, height: 60, ...sx }} />;
 };
 

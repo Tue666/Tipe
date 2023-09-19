@@ -4,25 +4,28 @@ import { Image, Link } from '@/components/overrides';
 import { appConfig } from '@/configs/apis';
 import { CartList, PriceStatistics } from '@/components/cart';
 import { STYLE } from '@/configs/constants';
+import { useAppSelector } from '@/redux/hooks';
+import { selectCart } from '@/redux/slices/cart.slice';
 
 const Cart = () => {
+  const { items } = useAppSelector(selectCart);
   return (
     <Page title="Cart | Tipe">
       <Breadcrumbs current="Cart" />
       <Typography variant="subtitle1" sx={{ mb: 2 }}>
         {`Check out what you've ordered`}
       </Typography>
-      {10 > 0 && (
+      {items.length > 0 && (
         <Stack
           direction={{ xs: 'column', sm: 'column', lg: 'row' }}
           justifyContent="space-between"
           spacing={1}
         >
-          <CartList />
+          <CartList items={items} />
           <PriceStatistics />
         </Stack>
       )}
-      {10 <= 0 && (
+      {items.length <= 0 && (
         <Stack
           alignItems="center"
           spacing={1}

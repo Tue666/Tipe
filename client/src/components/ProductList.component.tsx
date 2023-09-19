@@ -10,7 +10,8 @@ interface ProductListProps {
   suggestion: IProduct.FindForSuggestionResponse;
 }
 
-const ProductList = ({ id, title, suggestion }: ProductListProps) => {
+const ProductList = (props: ProductListProps) => {
+  const { id, title, suggestion } = props;
   const { products } = suggestion;
   const { handleNextPage, isLoading, hasMore, infiniteProducts } = useInfiniteProduct({
     initFromScratch: false,
@@ -21,9 +22,9 @@ const ProductList = ({ id, title, suggestion }: ProductListProps) => {
       {title && <Typography variant="subtitle2">{title}</Typography>}
       {!title && <div></div>}
       <Wrapper>
-        {[...products, ...infiniteProducts].map((product, index) => (
-          <ProductCard key={index} product={product} />
-        ))}
+        {[...products, ...infiniteProducts].map((product, index) => {
+          return <ProductCard key={index} product={product} />;
+        })}
       </Wrapper>
       {hasMore && (
         <LoadingButton

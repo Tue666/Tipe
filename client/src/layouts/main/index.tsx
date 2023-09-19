@@ -7,7 +7,8 @@ interface MainLayoutProps {
   children: ReactNode;
 }
 
-const MainLayout = ({ children }: MainLayoutProps) => {
+const MainLayout = (props: MainLayoutProps) => {
+  const { children } = props;
   return (
     <Fragment>
       <Header />

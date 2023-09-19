@@ -43,28 +43,35 @@ export const getStaticPaths: GetStaticPaths = async () => {
 };
 
 export const getStaticProps: GetStaticProps = async (context) => {
-  const { params } = context;
-  if (!params?.params?.[1]) {
-    console.log('Category generated with error: params not found');
+  try {
+    const { params } = context;
+    if (!params?.params?.[1]) {
+      console.log('Category generated with error: params not found');
+      return {
+        notFound: true,
+      };
+    }
+
+    const _id = params.params[1];
+    const category = await categoryApi.findById(parseInt(_id));
+    if (_.isNil(category) || _.isEmpty(category)) {
+      console.log('Category generated with error: resources not found');
+      return {
+        notFound: true,
+      };
+    }
+
+    return {
+      props: {
+        category,
+      },
+    };
+  } catch (error) {
+    console.log('Category generated with error:', error);
     return {
       notFound: true,
     };
   }
-
-  const _id = params.params[1];
-  const { data: category } = await categoryApi.staticFindById(parseInt(_id));
-  if (_.isNil(category) || _.isEmpty(category)) {
-    console.log('Category generated with error: resources not found');
-    return {
-      notFound: true,
-    };
-  }
-
-  return {
-    props: {
-      category,
-    },
-  };
 };
 
 export default Category;

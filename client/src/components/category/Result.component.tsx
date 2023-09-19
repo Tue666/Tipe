@@ -41,9 +41,9 @@ const Result = (props: ResultProps) => {
       <Wrapper sx={{ position: 'relative' }}>
         <FilterWrapper direction="row" alignItems="center">
           <FilterText className="active">Popular</FilterText>
-          {[...Array(5)].map((_, index) => (
-            <FilterText key={index}>Newest</FilterText>
-          ))}
+          {[...Array(5)].map((_, index) => {
+            return <FilterText key={index}>Newest</FilterText>;
+          })}
         </FilterWrapper>
         <Stack direction="row" alignItems="center" spacing={1} sx={{ m: 2 }}>
           {[...Array(2)].map((_, index) => {

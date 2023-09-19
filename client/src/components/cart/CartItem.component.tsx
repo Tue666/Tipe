@@ -3,16 +3,46 @@ import { DeleteForeverOutlined, Favorite } from '@mui/icons-material';
 import { Image, Link } from '../overrides';
 import { Hidden, QuantityInput } from '@/components';
 import { STYLE } from '@/configs/constants';
+import { ICart } from '@/models/interfaces';
+import { appConfig } from '@/configs/apis';
+import { PATH_MAIN } from '@/configs/routers';
+import { toVND } from '@/utils';
 
-const CartItem = () => {
+interface CartItemProps {
+  item: ICart.CartItem;
+}
+
+const CartItem = (props: CartItemProps) => {
+  const { item } = props;
+  const { _id, quantity, selected, product } = item;
+  const {
+    name,
+    images,
+    quantity: productQuantity,
+    discount_rate,
+    original_price,
+    price,
+    slug,
+    inventory_status,
+  } = product;
+  const link = PATH_MAIN.product(slug, _id);
   return (
-    <Root>
+    <Root
+      sx={
+        inventory_status !== 'available' || productQuantity < 1
+          ? {
+              pointerEvents: 'none',
+              opacity: '0.5',
+            }
+          : {}
+      }
+    >
       <ItemGroup>
-        <Checkbox size="small" checkedIcon={<Favorite />} color="error" />
-        <Link href="#">
+        <Checkbox size="small" checked={selected} checkedIcon={<Favorite />} color="error" />
+        <Link href={link}>
           <Image
-            alt=""
-            src="/product-card-2.jpg"
+            alt={name}
+            src={`${appConfig.image_storage_url}/${images[0]}`}
             sx={{
               width: '80px',
               height: '80px',
@@ -20,17 +50,19 @@ const CartItem = () => {
           />
         </Link>
         <Stack spacing={1} sx={{ pl: 1 }}>
-          <Link href="#">
-            <Name>Thú nhồi bông</Name>
+          <Link href={link}>
+            <Name>{name}</Name>
           </Link>
           <Hidden breakpoint="md" type="Up">
             <Stack spacing={1} direction="row" alignItems="center">
               <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
-                10.000.000
+                {toVND(price)}
               </Typography>
-              <Typography variant="caption" sx={{ textDecoration: 'line-through' }}>
-                20.000.000
-              </Typography>
+              {discount_rate > 0 && (
+                <Typography variant="caption" sx={{ textDecoration: 'line-through' }}>
+                  {toVND(original_price)}
+                </Typography>
+              )}
             </Stack>
             <QuantityInput />
           </Hidden>
@@ -39,15 +71,17 @@ const CartItem = () => {
       <Hidden breakpoint="md" type="Down">
         <div>
           <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
-            10.000.000
+            {toVND(price)}
           </Typography>
-          <Typography variant="caption" sx={{ textDecoration: 'line-through' }}>
-            20.000.000
-          </Typography>
+          {discount_rate > 0 && (
+            <Typography variant="caption" sx={{ textDecoration: 'line-through' }}>
+              {toVND(original_price)}
+            </Typography>
+          )}
         </div>
         <QuantityInput />
         <Typography variant="subtitle2" color="error" sx={{ fontWeight: 'bold' }}>
-          20.000.000
+          {toVND(quantity * price)}
         </Typography>
       </Hidden>
       <IconButton color="error">

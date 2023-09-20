@@ -24,25 +24,14 @@ const accountApi = {
 
   // [POST] {{URL}}/api/accounts/sign-in
   signIn: (signInBody: IAccount.SignInBody): Promise<IAccount.SignInResponse> => {
-    const { phone_number, password } = signInBody;
     const url = `/accounts/sign-in`;
-    return ApiClient.post(url, {
-      phone_number,
-      password,
-    });
+    return ApiClient.post(url, signInBody);
   },
 
   // [POST] {{URL}}/api/accounts/sign-up
   signUp: (signUpBody: IAccount.SignUpBody): Promise<void> => {
-    const { phone_number, password, passwordConfirm, account_type, ...rest } = signUpBody;
     const url = `/accounts/sign-up`;
-    return ApiClient.post(url, {
-      phone_number,
-      password,
-      passwordConfirm,
-      account_type,
-      ...rest,
-    });
+    return ApiClient.post(url, signUpBody);
   },
 };
 

@@ -8,6 +8,7 @@ import { PRODUCT_TELEPORTS } from '@/configs/teleport/product.teleport';
 import { LIMIT_SUGGESTION_NUMBER, LIMIT_WIDGET_NUMBER, STYLE } from '@/configs/constants';
 import { IProduct } from '@/models/interfaces';
 import { productApi } from '@/apis';
+import { PATH_MAIN } from '@/configs/routers';
 
 interface ProductProps {
   product: IProduct.NestedProduct;
@@ -19,8 +20,11 @@ const Product = (props: ProductProps) => {
   const { ids, titles, actions } = PRODUCT_TELEPORTS;
   const { product, similarWidget, suggestion } = props;
   const {
+    _id,
     name,
     images,
+    quantity,
+    limit,
     discount_rate,
     original_price,
     price,
@@ -29,9 +33,13 @@ const Product = (props: ProductProps) => {
     rating_average,
     review_count,
     inventory_status,
+    breadcrumbs,
   } = product;
   const informationProps = {
+    _id,
     name,
+    quantity,
+    limit,
     discount_rate,
     original_price,
     price,
@@ -44,7 +52,16 @@ const Product = (props: ProductProps) => {
     <Page title={`${name} | Tipe Shop`}>
       <Teleport actions={actions} />
       <Fragment>
-        <Breadcrumbs current="Thú nhồi bông" />
+        <Breadcrumbs
+          links={breadcrumbs.map((breadcrumb) => {
+            const { _id, name, slug } = breadcrumb;
+            return {
+              title: name,
+              path: PATH_MAIN.category(slug, _id),
+            };
+          })}
+          current={name}
+        />
         <Wrapper id={ids['information']}>
           <Stack
             direction={{ xs: 'column', sm: 'row', lg: 'row' }}

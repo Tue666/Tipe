@@ -4,6 +4,8 @@ import CartItem from './CartItem.component';
 import { Hidden } from '@/components';
 import { STYLE } from '@/configs/constants';
 import { ICart } from '@/models/interfaces';
+import { useAppDispatch } from '@/redux/hooks';
+import { switchSelect } from '@/redux/slices/cart.slice';
 
 interface CartListProps {
   items: ICart.CartItem[];
@@ -11,12 +13,18 @@ interface CartListProps {
 
 const CartList = (props: CartListProps) => {
   const { items } = props;
+  const dispatch = useAppDispatch();
+  const isSelectedAll = items.filter((item) => !item.selected).length === 0;
+
+  const handleCheckCartItem = (_id?: string) => {
+    dispatch(switchSelect());
+  };
   return (
     <Root>
       <Heading>
         <Stack spacing={1} direction="row" alignItems="center" sx={{ cursor: 'pointer' }}>
-          <Checkbox size="small" checkedIcon={<Favorite />} color="error" />
-          <Typography variant="subtitle2">All (10 products)</Typography>
+          <Checkbox size="small" checked={isSelectedAll} checkedIcon={<Favorite />} color="error" />
+          <Typography variant="subtitle2">All ({items.length} products)</Typography>
         </Stack>
         <Hidden breakpoint="md" type="Down">
           <Typography variant="subtitle2">Single</Typography>

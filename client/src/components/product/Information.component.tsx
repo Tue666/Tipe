@@ -1,4 +1,4 @@
-import { Fragment } from 'react';
+import { Fragment, useState } from 'react';
 import { Link as ScrollLink } from 'react-scroll';
 import { Button, Chip, Stack, Tooltip, Typography, styled } from '@mui/material';
 import { Stars, QuantityInput } from '@/components';
@@ -7,6 +7,8 @@ import { STYLE } from '@/configs/constants';
 import { IProduct } from '@/models/interfaces';
 import { toVND } from '@/utils';
 import { Image } from '../overrides';
+import { useAppDispatch } from '@/redux/hooks';
+import { addCart } from '@/redux/slices/cart.slice';
 
 const WRAPPER_PADDING = '10px';
 const MAX_WARRANTY_IN_LINE = 3;
@@ -18,7 +20,10 @@ interface PriceWrapperProps {
 interface InformationProps
   extends Pick<
     IProduct.NestedProduct,
+    | '_id'
     | 'name'
+    | 'quantity'
+    | 'limit'
     | 'discount_rate'
     | 'original_price'
     | 'price'
@@ -30,7 +35,10 @@ interface InformationProps
 
 const Information = (props: InformationProps) => {
   const {
+    _id,
     name,
+    quantity,
+    limit,
     discount_rate,
     original_price,
     price,
@@ -39,6 +47,17 @@ const Information = (props: InformationProps) => {
     review_count,
     inventory_status,
   } = props;
+  const [input, setInput] = useState('1');
+  const dispatch = useAppDispatch();
+
+  const handleClickAddToCart = () => {
+    dispatch(
+      addCart({
+        product_id: _id,
+        quantity: parseInt(input),
+      })
+    );
+  };
   return (
     <Root>
       <Typography variant="h6">{name}</Typography>
@@ -104,9 +123,23 @@ const Information = (props: InformationProps) => {
               <Fragment>
                 <Stack spacing={1}>
                   <Typography variant="subtitle2">Quantity</Typography>
-                  <QuantityInput />
+                  <QuantityInput
+                    isInCart={false}
+                    input={input}
+                    quantity={quantity}
+                    limit={limit}
+                    setInput={(newInput) => setInput(newInput)}
+                  />
                 </Stack>
-                <Button variant="contained" color="error" disableElevation>
+                <Button
+                  variant="contained"
+                  color="error"
+                  onClick={handleClickAddToCart}
+                  disableElevation
+                >
+                  ADD TO CART
+                </Button>
+                <Button variant="outlined" disableElevation>
                   BUY
                 </Button>
               </Fragment>

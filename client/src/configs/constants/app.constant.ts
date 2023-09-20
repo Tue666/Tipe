@@ -128,3 +128,4 @@ export const STYLE = {
 
 export const LIMIT_WIDGET_NUMBER = 24;
 export const LIMIT_SUGGESTION_NUMBER = 30;
+export const SHOW_STOCK_QUANTITY_WHEN_REACH_NUMBER = 5;

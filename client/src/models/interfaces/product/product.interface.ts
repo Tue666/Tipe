@@ -3,7 +3,18 @@ import { Pagination, PaginationQuery } from '../common';
 
 export interface Product extends ProductSchema {}
 
-export interface NestedProduct extends Product {}
+export interface Breadcrumb {
+  _id: number;
+  name: string;
+  meta_description: string;
+  meta_keywords: string;
+  meta_title: string;
+  slug: string;
+}
+
+export interface NestedProduct extends Product {
+  breadcrumbs: Breadcrumb[];
+}
 
 export interface ProductCard
   extends Pick<

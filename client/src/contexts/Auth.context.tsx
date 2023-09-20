@@ -94,6 +94,7 @@ const AuthProvider = (props: AuthProviderProps) => {
   const signIn = async (signInBody: SignInBody): Promise<string> => {
     const { name, accessToken } = await accountApi.signIn(signInBody);
     setToken(accessToken);
+    appDispatch(initCart());
     dispatch({ type: 'LOGIN' });
     return name;
   };

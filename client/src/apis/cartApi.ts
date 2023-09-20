@@ -7,6 +7,12 @@ const cartApi = {
     const url = `/cart`;
     return ApiClient.get(url);
   },
+
+  // [POST] {{URL}}/api/cart
+  insert: (insertBody: ICart.InsertBody): Promise<ICart.InsertResponse> => {
+    const url = `/cart`;
+    return ApiClient.post(url, insertBody);
+  },
 };
 
 export default cartApi;

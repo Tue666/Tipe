@@ -16,16 +16,22 @@ const CartItem = (props: CartItemProps) => {
   const { item } = props;
   const { _id, quantity, selected, product } = item;
   const {
+    _id: productId,
     name,
     images,
     quantity: productQuantity,
+    limit,
     discount_rate,
     original_price,
     price,
     slug,
     inventory_status,
   } = product;
-  const link = PATH_MAIN.product(slug, _id);
+  const link = PATH_MAIN.product(slug, productId);
+
+  const handleChangeQuantity = (newQuantity: string) => {
+    console.log('new quantity:', newQuantity);
+  };
   return (
     <Root
       sx={
@@ -64,7 +70,13 @@ const CartItem = (props: CartItemProps) => {
                 </Typography>
               )}
             </Stack>
-            <QuantityInput />
+            <QuantityInput
+              isInCart={true}
+              input={quantity.toString()}
+              quantity={productQuantity}
+              limit={limit}
+              setInput={(newInput) => handleChangeQuantity(newInput)}
+            />
           </Hidden>
         </Stack>
       </ItemGroup>
@@ -79,7 +91,13 @@ const CartItem = (props: CartItemProps) => {
             </Typography>
           )}
         </div>
-        <QuantityInput />
+        <QuantityInput
+          isInCart={true}
+          input={quantity.toString()}
+          quantity={productQuantity}
+          limit={limit}
+          setInput={(newInput) => handleChangeQuantity(newInput)}
+        />
         <Typography variant="subtitle2" color="error" sx={{ fontWeight: 'bold' }}>
           {toVND(quantity * price)}
         </Typography>

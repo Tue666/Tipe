@@ -1,4 +1,5 @@
 import { Provider as ReduxProvider } from 'react-redux';
+import { ConfirmProvider } from 'material-ui-confirm';
 import { store } from '@/redux/store';
 import { SettingsProvider } from '@/contexts/Settings.context';
 import { AuthProvider } from '@/contexts/Auth.context';
@@ -12,7 +13,9 @@ const Providers = (props: ProvidersProps) => {
   return (
     <ReduxProvider store={store}>
       <SettingsProvider>
-        <AuthProvider>{children}</AuthProvider>
+        <ConfirmProvider>
+          <AuthProvider>{children}</AuthProvider>
+        </ConfirmProvider>
       </SettingsProvider>
     </ReduxProvider>
   );

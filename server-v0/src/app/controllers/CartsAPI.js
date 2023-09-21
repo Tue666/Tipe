@@ -203,20 +203,27 @@ class CartsAPI {
     }
   }
 
-  // [PATCH] /carts/selected
+  // [PATCH] /cart/switch-select
   /*
-		type: String, [all, item]
 		_id: ObjectId as String | Boolean,
 	*/
-  async editSelected(req, res, next) {
+  async switchSelect(req, res, next) {
     try {
       let customer_id = req.account._id;
       customer_id = mongoose.Types.ObjectId(customer_id);
-      let { type, _id } = req.body;
-      _id = typeof _id === 'boolean' ? _id : mongoose.Types.ObjectId(_id);
+      let { _id } = req.body;
 
-      switch (type) {
-        case 'item':
+      switch (typeof _id) {
+        case 'boolean':
+          // _id will be the value to check select all or not
+          await Cart.updateMany(
+            { customer_id },
+            {
+              selected: _id,
+            }
+          );
+          break;
+        case 'string':
           // _id of the cart item to be changed
           await Cart.findByIdAndUpdate(_id, [
             {
@@ -226,25 +233,13 @@ class CartsAPI {
             },
           ]);
           break;
-        case 'all':
-          // _id will be the value to check select all or not
-          await Cart.updateMany(
-            { customer_id },
-            {
-              selected: _id,
-            }
-          );
-          break;
         default:
           break;
       }
 
       res.status(200).json({
         msg: 'Update select cart item successfully!',
-        filter_selected: {
-          type,
-          _id,
-        },
+        switched: _id,
       });
     } catch (error) {
       console.error(error);
@@ -256,7 +251,7 @@ class CartsAPI {
   /*
 		_id: ObjectId as String,
 	*/
-  async remove(req, res, next) {
+  async removeCart(req, res, next) {
     try {
       let customer_id = req.account._id;
       customer_id = mongoose.Types.ObjectId(customer_id);
@@ -273,7 +268,7 @@ class CartsAPI {
       }
 
       res.status(200).json({
-        _id,
+        removed: _id,
         removed_count: result.deletedCount,
       });
     } catch (error) {

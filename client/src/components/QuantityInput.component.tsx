@@ -10,10 +10,11 @@ interface QuantityInputProps {
   quantity: IProduct.NestedProduct['quantity'];
   limit: IProduct.NestedProduct['limit'];
   setInput: (newInput: string) => void;
+  onSelfRemove?: () => void;
 }
 
 const QuantityInput = (props: QuantityInputProps) => {
-  const { isInCart, input, quantity, limit, setInput } = props;
+  const { isInCart, input, quantity, limit, setInput, onSelfRemove } = props;
   const theme = useTheme();
   const buttonStyle = {
     width: '30px',
@@ -29,6 +30,33 @@ const QuantityInput = (props: QuantityInputProps) => {
     }),
   };
 
+  const handlePrepareInput = (newInput: number): number | undefined => {
+    // Handle remove item if quantity less than 1
+    if (newInput < 1) {
+      if (!isInCart) return;
+      onSelfRemove && onSelfRemove();
+      return;
+    }
+
+    // Validate quantity before change
+    const prepareChange = {
+      hasError: false,
+      errorMessage: '',
+    };
+    if (newInput > quantity) {
+      prepareChange.hasError = true;
+      prepareChange.errorMessage = `The remaining quantity of the product is ${quantity}`;
+    }
+    if (newInput > limit && limit < quantity) {
+      prepareChange.hasError = true;
+      prepareChange.errorMessage = `Maximum purchase quantity for this product is ${limit}`;
+    }
+    if (prepareChange.hasError) {
+      console.log(prepareChange.errorMessage);
+      return;
+    }
+    return newInput;
+  };
   const handleBlurInput = (e: FocusEvent<HTMLInputElement>) => {
     const value = e.target.value;
     if (_.isEmpty(value)) setInput('1');
@@ -37,12 +65,13 @@ const QuantityInput = (props: QuantityInputProps) => {
     let value = e.target.value;
     if (!/^\d*$/.test(value)) return;
     if (value === '0') value = '1';
-    setInput(value);
+    const preparedInput = handlePrepareInput(parseInt(value));
+    preparedInput && setInput(preparedInput.toString());
   };
   const handleClickGroupButton = (sign: 1 | -1) => {
     const newInput = parseInt(input) + 1 * sign;
-    if (newInput < 1) return;
-    setInput(newInput.toString());
+    const preparedInput = handlePrepareInput(newInput);
+    preparedInput && setInput(preparedInput.toString());
   };
   return (
     <Stack>

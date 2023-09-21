@@ -1,8 +1,21 @@
 import { Button, Divider, Stack, Typography, styled } from '@mui/material';
 import { Link } from '../overrides';
 import { STYLE } from '@/configs/constants';
+import { productAvailable, toVND } from '@/utils';
+import { StatisticsGroup, CartState } from '@/redux/slices/cart.slice';
 
-const PriceStatistics = () => {
+interface PriceStatisticsProps extends CartState {}
+
+const PriceStatistics = (props: PriceStatisticsProps) => {
+  const { items, statistics } = props;
+  const selectedCount = items.filter((item) => {
+    const { selected, product } = item;
+    return selected && productAvailable(product.inventory_status, product.quantity);
+  }).length;
+  const totalPrice = (Object.keys(statistics) as Array<StatisticsGroup>).reduce(
+    (sum, group) => sum + statistics[group].value * statistics[group].sign,
+    0
+  );
   return (
     <Root>
       <ContentInner>
@@ -26,11 +39,14 @@ const PriceStatistics = () => {
           </Typography>
         </Wrapper>
         <Wrapper>
-          {[...Array(5)].map((_, index) => {
+          {(Object.keys(statistics) as Array<StatisticsGroup>).map((group, index) => {
+            const { value, sign } = statistics[group];
             return (
               <Stack key={index} direction="row" justifyContent="space-between" alignItems="center">
-                <Typography variant="subtitle2">123</Typography>
-                <Typography variant="subtitle1">10.000.000</Typography>
+                <Typography variant="subtitle2" sx={{ textTransform: 'capitalize' }}>
+                  {group}
+                </Typography>
+                <Typography variant="subtitle1">{toVND(value * sign)}</Typography>
               </Stack>
             );
           })}
@@ -39,15 +55,17 @@ const PriceStatistics = () => {
             <Typography variant="subtitle2">Total</Typography>
             <Stack alignItems="end">
               <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: 'error.main' }}>
-                20.000.000
+                {selectedCount > 0 ? toVND(totalPrice) : 'Choose a product, please!'}
               </Typography>
               <Typography variant="caption">(VAT includes)</Typography>
             </Stack>
           </Stack>
         </Wrapper>
-        <Button variant="contained" color="error" disableElevation sx={{ width: '100%' }}>
-          Check out (10)
-        </Button>
+        {selectedCount > 0 && (
+          <Button variant="contained" color="error" disableElevation sx={{ width: '100%' }}>
+            Check out ({selectedCount})
+          </Button>
+        )}
       </ContentInner>
     </Root>
   );

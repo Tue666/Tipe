@@ -6,14 +6,18 @@ import { STYLE } from '@/configs/constants';
 import { ICart } from '@/models/interfaces';
 import { appConfig } from '@/configs/apis';
 import { PATH_MAIN } from '@/configs/routers';
-import { toVND } from '@/utils';
+import { productAvailable, toVND } from '@/utils';
+import { useAppDispatch } from '@/redux/hooks';
+import { editQuantity } from '@/redux/slices/cart.slice';
 
 interface CartItemProps {
   item: ICart.CartItem;
+  handleCheckCartItem: (params: ICart.SwitchSelectBody) => void;
+  handleRemoveCartItem: (_id?: ICart.CartItem['_id']) => Promise<void>;
 }
 
 const CartItem = (props: CartItemProps) => {
-  const { item } = props;
+  const { item, handleCheckCartItem, handleRemoveCartItem } = props;
   const { _id, quantity, selected, product } = item;
   const {
     _id: productId,
@@ -28,30 +32,41 @@ const CartItem = (props: CartItemProps) => {
     inventory_status,
   } = product;
   const link = PATH_MAIN.product(slug, productId);
+  const dispatch = useAppDispatch();
 
   const handleChangeQuantity = (newQuantity: string) => {
-    console.log('new quantity:', newQuantity);
+    dispatch(
+      editQuantity({
+        _id,
+        product_id: productId,
+        new_quantity: parseInt(newQuantity),
+      })
+    );
   };
   return (
     <Root
-      sx={
-        inventory_status !== 'available' || productQuantity < 1
-          ? {
-              pointerEvents: 'none',
-              opacity: '0.5',
-            }
-          : {}
-      }
+      sx={{
+        ...(!productAvailable(inventory_status, productQuantity) && {
+          pointerEvents: 'none',
+          opacity: '0.5',
+        }),
+      }}
     >
       <ItemGroup>
-        <Checkbox size="small" checked={selected} checkedIcon={<Favorite />} color="error" />
+        <Checkbox
+          size="small"
+          checked={selected}
+          checkedIcon={<Favorite />}
+          color="error"
+          onClick={() => handleCheckCartItem({ _id })}
+        />
         <Link href={link}>
           <Image
             alt={name}
             src={`${appConfig.image_storage_url}/${images[0]}`}
             sx={{
-              width: '80px',
-              height: '80px',
+              width: STYLE.DESKTOP.CART.ITEM_IMAGE_SIZE,
+              height: STYLE.DESKTOP.CART.ITEM_IMAGE_SIZE,
             }}
           />
         </Link>
@@ -76,6 +91,7 @@ const CartItem = (props: CartItemProps) => {
               quantity={productQuantity}
               limit={limit}
               setInput={(newInput) => handleChangeQuantity(newInput)}
+              onSelfRemove={() => handleRemoveCartItem(_id)}
             />
           </Hidden>
         </Stack>
@@ -97,12 +113,13 @@ const CartItem = (props: CartItemProps) => {
           quantity={productQuantity}
           limit={limit}
           setInput={(newInput) => handleChangeQuantity(newInput)}
+          onSelfRemove={() => handleRemoveCartItem(_id)}
         />
         <Typography variant="subtitle2" color="error" sx={{ fontWeight: 'bold' }}>
           {toVND(quantity * price)}
         </Typography>
       </Hidden>
-      <IconButton color="error">
+      <IconButton color="error" onClick={() => handleRemoveCartItem(_id)}>
         <DeleteForeverOutlined />
       </IconButton>
     </Root>

@@ -52,6 +52,7 @@ export const STYLE = {
     CART: {
       GRID_TEMPLATE_COLUMS: '44% 20% 15.5% 15.5% 5%',
       LIST_WIDTH: '850px',
+      ITEM_IMAGE_SIZE: '80px',
       EMPTY_IMAGE_WIDTH: '190px',
       EMPTY_IMAGE_HEIGHT: '160px',
     },
@@ -107,6 +108,7 @@ export const STYLE = {
     },
     CART: {
       GRID_TEMPLATE_COLUMS: '88% 12%',
+      LIST_WIDTH: '400px',
     },
     PRODUCT_SECTION: {
       SLIDE_TO_SHOW: 2,
@@ -126,6 +128,14 @@ export const STYLE = {
   },
 };
 
+export const EVENT_FREE_SHIPPING_LEVEL_1 = {
+  REACH: 100000,
+  FREE_SHIP: 20000,
+};
+export const EVENT_FREE_SHIPPING_LEVEL_2 = {
+  REACH: 300000,
+  FREE_SHIP: 50000,
+};
 export const LIMIT_WIDGET_NUMBER = 24;
 export const LIMIT_SUGGESTION_NUMBER = 30;
 export const SHOW_STOCK_QUANTITY_WHEN_REACH_NUMBER = 5;

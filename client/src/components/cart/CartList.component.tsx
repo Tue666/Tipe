@@ -19,7 +19,7 @@ interface ProgressBarProps {
 
 interface MarkProps {
   position: 'first' | 'end';
-  achieved?: boolean;
+  achieved?: number;
 }
 
 interface TextMarkProps {
@@ -28,12 +28,61 @@ interface TextMarkProps {
 
 interface CartListProps extends CartState {}
 
+const POINTS = [
+  {
+    value: 100000,
+    free_ship: 20000,
+  },
+  {
+    value: 162000,
+    free_ship: 30000,
+  },
+  {
+    value: 300000,
+    free_ship: 50000,
+  },
+];
+
+const renderPoints = (totalGuess: number) => {
+  const startPointDOM = (
+    <Mark position="first">
+      <TextMark location="bottom">Buy</TextMark>
+    </Mark>
+  );
+  const points = [startPointDOM];
+  for (let i = 0; i < POINTS.length; i++) {
+    const { value, free_ship } = POINTS[i];
+    const missing = value - totalGuess;
+    const achieved = (value / POINTS[POINTS.length - 1].value) * 100;
+    const pointDOM = (
+      <Tooltip
+        placement="top"
+        title={
+          missing > 0
+            ? `Let's buy ${toVND(missing)} to get free delivery of ${toAbbreviated(free_ship)}`
+            : 'Got it'
+        }
+        arrow
+      >
+        <Mark position="end" achieved={achieved}>
+          {totalGuess >= value && <Check color="success" sx={{ fontSize: '14px' }} />}
+          <TextMark location="top">-{toAbbreviated(free_ship)}</TextMark>
+          <TextMark location="bottom">{toAbbreviated(value)}</TextMark>
+        </Mark>
+      </Tooltip>
+    );
+    points.push(pointDOM);
+  }
+  return points;
+};
+
 const CartList = (props: CartListProps) => {
   const { items, statistics } = props;
   const dispatch = useAppDispatch();
   const confirm = useConfirm();
   const isSelectedAll = items.filter((item) => !item.selected).length === 0;
   const totalGuess = statistics['guess'].value;
+  const progressBar = (totalGuess / POINTS[POINTS.length - 1].value) * 100;
 
   const handleCheckCartItem = (params: ICart.SwitchSelectBody) => {
     dispatch(switchSelect(params));
@@ -66,77 +115,35 @@ const CartList = (props: CartListProps) => {
   };
   return (
     <Root>
-      <Heading>
-        <Stack spacing={1} direction="row" alignItems="center" sx={{ cursor: 'pointer' }}>
-          <Checkbox
-            size="small"
-            checked={isSelectedAll}
-            checkedIcon={<Favorite />}
-            color="error"
-            onClick={() => handleCheckCartItem({ _id: !isSelectedAll })}
-          />
-          <Typography variant="subtitle2">All ({items.length} products)</Typography>
-        </Stack>
-        <Hidden breakpoint="md" type="Down">
-          <Typography variant="subtitle2">Single</Typography>
-          <Typography variant="subtitle2">Quantity</Typography>
-          <Typography variant="subtitle2">Price</Typography>
-        </Hidden>
-        <Tooltip placement="bottom" title="Remove selected items" arrow>
-          <IconButton color="error" onClick={() => handleRemoveCartItem()}>
-            <DeleteForeverOutlined />
-          </IconButton>
-        </Tooltip>
-        <ProgressBar
-          achieved={
-            (totalGuess * 100) / EVENT_FREE_SHIPPING_LEVEL_2.REACH <= 100
-              ? (totalGuess * 100) / EVENT_FREE_SHIPPING_LEVEL_2.REACH
-              : 100
-          }
-        >
-          <Mark position="first">
-            <TextMark location="bottom">Buy</TextMark>
-          </Mark>
-          <Tooltip
-            placement="top"
-            title={`Let's buy ${toVND(
-              EVENT_FREE_SHIPPING_LEVEL_1.REACH - totalGuess
-            )} to get free delivery of ${toAbbreviated(EVENT_FREE_SHIPPING_LEVEL_1.FREE_SHIP)}`}
-            arrow
-          >
-            <Mark position="end" achieved={totalGuess >= EVENT_FREE_SHIPPING_LEVEL_1.REACH}>
-              {totalGuess >= EVENT_FREE_SHIPPING_LEVEL_1.REACH && (
-                <Check color="success" sx={{ fontSize: '14px' }} />
-              )}
-              <TextMark location="top">
-                -{toAbbreviated(EVENT_FREE_SHIPPING_LEVEL_1.FREE_SHIP)}
-              </TextMark>
-              <TextMark location="bottom">
-                {toAbbreviated(EVENT_FREE_SHIPPING_LEVEL_1.REACH)}
-              </TextMark>
-            </Mark>
+      <Anchor>
+        <Heading>
+          <Stack spacing={1} direction="row" alignItems="center" sx={{ cursor: 'pointer' }}>
+            <Checkbox
+              size="small"
+              checked={isSelectedAll}
+              checkedIcon={<Favorite />}
+              color="error"
+              onClick={() => handleCheckCartItem({ _id: !isSelectedAll })}
+            />
+            <Typography variant="subtitle2">All ({items.length} products)</Typography>
+          </Stack>
+          <Hidden breakpoint="md" type="Down">
+            <Typography variant="subtitle2">Single</Typography>
+            <Typography variant="subtitle2">Quantity</Typography>
+            <Typography variant="subtitle2">Price</Typography>
+          </Hidden>
+          <Tooltip placement="bottom" title="Remove selected items" arrow>
+            <IconButton color="error" onClick={() => handleRemoveCartItem()}>
+              <DeleteForeverOutlined />
+            </IconButton>
           </Tooltip>
-          <Tooltip
-            placement="top"
-            title={`Let's buy ${toVND(
-              EVENT_FREE_SHIPPING_LEVEL_2.REACH - totalGuess
-            )} to get free delivery of ${toAbbreviated(EVENT_FREE_SHIPPING_LEVEL_2.FREE_SHIP)}`}
-            arrow
-          >
-            <Mark position="end" achieved={totalGuess >= EVENT_FREE_SHIPPING_LEVEL_2.REACH}>
-              {totalGuess >= EVENT_FREE_SHIPPING_LEVEL_2.REACH && (
-                <Check color="success" sx={{ fontSize: '14px' }} />
-              )}
-              <TextMark location="top">
-                -{toAbbreviated(EVENT_FREE_SHIPPING_LEVEL_2.FREE_SHIP)}
-              </TextMark>
-              <TextMark location="bottom">
-                {toAbbreviated(EVENT_FREE_SHIPPING_LEVEL_2.REACH)}
-              </TextMark>
-            </Mark>
-          </Tooltip>
-        </ProgressBar>
-      </Heading>
+        </Heading>
+        <Points>
+          <ProgressBar achieved={progressBar < 100 ? progressBar : 100}>
+            {renderPoints(totalGuess)}
+          </ProgressBar>
+        </Points>
+      </Anchor>
       <Stack spacing={2}>
         <ContentGroup>
           {/* Seller */}
@@ -168,15 +175,9 @@ const Root = styled('div')(({ theme }) => ({
   },
 }));
 
-const Heading = styled('div')(({ theme }) => ({
-  display: 'grid',
-  gridTemplateColumns: STYLE.DESKTOP.CART.GRID_TEMPLATE_COLUMS,
-  alignItems: 'center',
-  backgroundColor: theme.palette.background.paper,
-  borderRadius: '5px',
+const Anchor = styled(Stack)(({ theme }) => ({
   position: 'sticky',
   top: `calc(${STYLE.DESKTOP.HEADER.HEIGHT} + 10px)`,
-  padding: '5px',
   zIndex: 99,
   '&:before, &:after': {
     content: '""',
@@ -191,8 +192,17 @@ const Heading = styled('div')(({ theme }) => ({
   '&:after': {
     bottom: '-10px',
   },
+}));
+
+const Heading = styled('div')(({ theme }) => ({
+  display: 'grid',
+  gridTemplateColumns: STYLE.DESKTOP.CART.GRID_TEMPLATE_COLUMNS,
+  alignItems: 'center',
+  backgroundColor: theme.palette.background.paper,
+  borderRadius: '5px',
+  padding: '5px',
   [theme.breakpoints.down('md')]: {
-    gridTemplateColumns: STYLE.MOBILE.CART.GRID_TEMPLATE_COLUMS,
+    gridTemplateColumns: STYLE.MOBILE.CART.GRID_TEMPLATE_COLUMNS,
   },
 }));
 
@@ -203,22 +213,24 @@ const ContentGroup = styled('div')(({ theme }) => ({
   marginTop: '10px',
 }));
 
+const Points = styled('div')(({ theme }) => ({
+  padding: '30px',
+  backgroundColor: theme.palette.background.paper,
+}));
+
 const ProgressBar = styled('div')<ProgressBarProps>(({ theme, achieved }) => ({
   position: 'relative',
   display: 'flex',
-  justifyContent: 'space-between',
-  width: `calc(${STYLE.DESKTOP.CART.LIST_WIDTH} - 100px)`,
-  margin: '17px 20px',
+  alignItems: 'center',
   '&:before': {
     content: '""',
     position: 'absolute',
     backgroundColor: theme.palette.background.default,
+    width: '100%',
     borderRadius: '100px',
-    width: `calc(${STYLE.DESKTOP.CART.LIST_WIDTH} - 100px)`,
     height: '6px',
     transform: 'translateY(-50%)',
     top: '50%',
-    zIndex: 0,
   },
   '&:after': {
     content: '""',
@@ -229,7 +241,6 @@ const ProgressBar = styled('div')<ProgressBarProps>(({ theme, achieved }) => ({
     height: '6px',
     transform: 'translateY(-50%)',
     top: '50%',
-    zIndex: 1,
     transition: 'width 0.5s ease-in 0s',
   },
   [theme.breakpoints.down('md')]: {
@@ -241,7 +252,8 @@ const ProgressBar = styled('div')<ProgressBarProps>(({ theme, achieved }) => ({
 }));
 
 const Mark = styled('div')<MarkProps>(({ theme, position, achieved }) => ({
-  position: 'relative',
+  position: 'absolute',
+  left: `calc(${achieved}% - 8px)`, // width / 2
   display: 'flex',
   justifyContent: 'center',
   zIndex: 2,

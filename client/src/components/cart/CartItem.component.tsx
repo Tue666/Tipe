@@ -128,10 +128,10 @@ const CartItem = (props: CartItemProps) => {
 
 const Root = styled('div')(({ theme }) => ({
   display: 'grid',
-  gridTemplateColumns: STYLE.DESKTOP.CART.GRID_TEMPLATE_COLUMS,
+  gridTemplateColumns: STYLE.DESKTOP.CART.GRID_TEMPLATE_COLUMNS,
   alignItems: 'center',
   [theme.breakpoints.down('md')]: {
-    gridTemplateColumns: STYLE.MOBILE.CART.GRID_TEMPLATE_COLUMS,
+    gridTemplateColumns: STYLE.MOBILE.CART.GRID_TEMPLATE_COLUMNS,
   },
 }));
 

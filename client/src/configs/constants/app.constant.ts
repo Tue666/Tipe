@@ -50,7 +50,7 @@ export const STYLE = {
       ICON_BORDER_RADIUS: '50%',
     },
     CART: {
-      GRID_TEMPLATE_COLUMS: '44% 20% 15.5% 15.5% 5%',
+      GRID_TEMPLATE_COLUMNS: '44% 20% 15.5% 15.5% 5%',
       LIST_WIDTH: '850px',
       ITEM_IMAGE_SIZE: '80px',
       EMPTY_IMAGE_WIDTH: '190px',
@@ -107,7 +107,7 @@ export const STYLE = {
       SUB_HEIGHT: '100px',
     },
     CART: {
-      GRID_TEMPLATE_COLUMS: '88% 12%',
+      GRID_TEMPLATE_COLUMNS: '88% 12%',
       LIST_WIDTH: '400px',
     },
     PRODUCT_SECTION: {

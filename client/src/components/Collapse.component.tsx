@@ -34,9 +34,9 @@ const Text = styled('span')(({ theme }) => ({
   alignItems: 'center',
   paddingBlock: '5px',
   cursor: 'pointer',
-  color: theme.palette.error.main,
+  color: theme.palette.primary.main,
   '&:hover': {
-    color: theme.palette.error.light,
+    color: theme.palette.primary.light,
   },
 }));
 

@@ -51,6 +51,7 @@ const Review = () => {
       </Stack>
       <PaginationWrapper>
         <Pagination
+          color="primary"
           page={1}
           count={10}
           // hidePrevButton={pagination.page <= 1}
@@ -91,7 +92,7 @@ const Filter = styled('div')(({ theme }) => ({
   margin: '0px 12px 12px 0px',
   cursor: 'pointer',
   '&:hover': {
-    backgroundColor: '#f53d2d',
+    backgroundColor: theme.palette.primary.main,
     color: '#fff',
     transition: '0.3s',
   },

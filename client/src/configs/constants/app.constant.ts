@@ -24,6 +24,9 @@ export const STYLE = {
       WIDTH: '180px',
       AVATAR_SIZE: '65px',
     },
+    CUSTOMER: {
+      WIDTH: '575px',
+    },
     AUTH_FORM: {
       WIDTH: '800px',
       FORM_WIDTH: '500px',
@@ -100,6 +103,9 @@ export const STYLE = {
       WIDTH: '50px',
       HEIGHT: '50px',
     },
+    CUSTOMER: {
+      WIDTH: '100%',
+    },
     BANNERS: {
       MAIN_WIDTH: '100%',
       MAIN_HEIGHT: '300px',
@@ -128,14 +134,6 @@ export const STYLE = {
   },
 };
 
-export const EVENT_FREE_SHIPPING_LEVEL_1 = {
-  REACH: 100000,
-  FREE_SHIP: 20000,
-};
-export const EVENT_FREE_SHIPPING_LEVEL_2 = {
-  REACH: 300000,
-  FREE_SHIP: 50000,
-};
 export const LIMIT_WIDGET_NUMBER = 24;
 export const LIMIT_SUGGESTION_NUMBER = 30;
 export const SHOW_STOCK_QUANTITY_WHEN_REACH_NUMBER = 5;

@@ -6,10 +6,10 @@ const ApplyPrice = () => {
   return (
     <Fragment>
       <Stack direction="row" spacing={2} my={2}>
-        <TextField label="From" variant="standard" color="error" />
-        <TextField label="To" variant="standard" color="error" />
+        <TextField label="From" variant="standard" />
+        <TextField label="To" variant="standard" />
       </Stack>
-      <Button color="error" variant="contained" startIcon={<ReadMore />} disableElevation>
+      <Button variant="contained" startIcon={<ReadMore />} disableElevation>
         Apply
       </Button>
     </Fragment>

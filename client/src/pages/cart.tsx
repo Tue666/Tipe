@@ -7,9 +7,10 @@ import { STYLE } from '@/configs/constants';
 import { useAppSelector } from '@/redux/hooks';
 import { selectCart } from '@/redux/slices/cart.slice';
 import { PATH_MAIN } from '@/configs/routers';
+import { toAbbreviated } from '@/utils';
 
 const Cart = () => {
-  const { items, statistics } = useAppSelector(selectCart);
+  const { items, statistics, freeShippingPoints } = useAppSelector(selectCart);
   return (
     <Page title="Cart | Tipe">
       <Breadcrumbs current="Cart" />
@@ -17,10 +18,13 @@ const Cart = () => {
         {`Check out what you've ordered`}
       </Typography>
       {/* Events start */}
-      <Alert severity="info">
-        <AlertTitle>Promotional events</AlertTitle>
-        Free shipping for orders from 50M <strong>(Jan 2023 - Dec 2023)</strong>
-      </Alert>
+      {freeShippingPoints?.length > 0 && (
+        <Alert severity="info" sx={{ mb: 2 }}>
+          <AlertTitle>Promotional events</AlertTitle>
+          Free shipping for orders from {toAbbreviated(freeShippingPoints[0].value)}{' '}
+          <strong>(Jan 2023 - Dec 2023)</strong>
+        </Alert>
+      )}
       {/* Events end */}
       {items.length > 0 && (
         <Stack
@@ -28,7 +32,7 @@ const Cart = () => {
           justifyContent="space-between"
           spacing={1}
         >
-          <CartList items={items} statistics={statistics} />
+          <CartList items={items} statistics={statistics} freeShippingPoints={freeShippingPoints} />
           <PriceStatistics items={items} statistics={statistics} />
         </Stack>
       )}

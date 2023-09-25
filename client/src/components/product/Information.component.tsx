@@ -131,12 +131,7 @@ const Information = (props: InformationProps) => {
                     setInput={(newInput) => setInput(newInput)}
                   />
                 </Stack>
-                <Button
-                  variant="contained"
-                  color="error"
-                  onClick={handleClickAddToCart}
-                  disableElevation
-                >
+                <Button variant="contained" onClick={handleClickAddToCart} disableElevation>
                   ADD TO CART
                 </Button>
                 <Button variant="outlined" disableElevation>
@@ -162,7 +157,7 @@ const Information = (props: InformationProps) => {
                       key={index}
                       label="Toys"
                       variant="filled"
-                      color="error"
+                      color="primary"
                       size="small"
                       sx={{ m: '3px' }}
                     />

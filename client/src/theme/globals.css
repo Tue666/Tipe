@@ -38,7 +38,3 @@ a {
 .slick-arrow:before {
   display: none;
 }
-
-.slick-dots li.slick-active div {
-  background-color: #F53D2D;
-}

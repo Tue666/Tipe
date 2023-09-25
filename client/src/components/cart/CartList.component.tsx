@@ -2,11 +2,7 @@ import { Check, DeleteForeverOutlined, Favorite } from '@mui/icons-material';
 import { Checkbox, IconButton, Stack, Tooltip, Typography, Alert, styled } from '@mui/material';
 import CartItem from './CartItem.component';
 import { Hidden } from '@/components';
-import {
-  EVENT_FREE_SHIPPING_LEVEL_1,
-  EVENT_FREE_SHIPPING_LEVEL_2,
-  STYLE,
-} from '@/configs/constants';
+import { STYLE } from '@/configs/constants';
 import { ICart } from '@/models/interfaces';
 import { useAppDispatch } from '@/redux/hooks';
 import { CartState, removeCart, switchSelect } from '@/redux/slices/cart.slice';
@@ -26,63 +22,57 @@ interface TextMarkProps {
   location: 'top' | 'bottom';
 }
 
-interface CartListProps extends CartState {}
-
-const POINTS = [
-  {
-    value: 100000,
-    free_ship: 20000,
-  },
-  {
-    value: 162000,
-    free_ship: 30000,
-  },
-  {
-    value: 300000,
-    free_ship: 50000,
-  },
-];
-
-const renderPoints = (totalGuess: number) => {
-  const startPointDOM = (
-    <Mark position="first">
-      <TextMark location="bottom">Buy</TextMark>
-    </Mark>
-  );
-  const points = [startPointDOM];
-  for (let i = 0; i < POINTS.length; i++) {
-    const { value, free_ship } = POINTS[i];
-    const missing = value - totalGuess;
-    const achieved = (value / POINTS[POINTS.length - 1].value) * 100;
-    const pointDOM = (
-      <Tooltip
-        placement="top"
-        title={
-          missing > 0
-            ? `Let's buy ${toVND(missing)} to get free delivery of ${toAbbreviated(free_ship)}`
-            : 'Got it'
-        }
-        arrow
-      >
-        <Mark position="end" achieved={achieved}>
-          {totalGuess >= value && <Check color="success" sx={{ fontSize: '14px' }} />}
-          <TextMark location="top">-{toAbbreviated(free_ship)}</TextMark>
-          <TextMark location="bottom">{toAbbreviated(value)}</TextMark>
-        </Mark>
-      </Tooltip>
-    );
-    points.push(pointDOM);
-  }
-  return points;
-};
+interface CartListProps extends Pick<CartState, 'items' | 'statistics' | 'freeShippingPoints'> {}
 
 const CartList = (props: CartListProps) => {
-  const { items, statistics } = props;
+  const { items, statistics, freeShippingPoints } = props;
   const dispatch = useAppDispatch();
   const confirm = useConfirm();
   const isSelectedAll = items.filter((item) => !item.selected).length === 0;
   const totalGuess = statistics['guess'].value;
-  const progressBar = (totalGuess / POINTS[POINTS.length - 1].value) * 100;
+  const renderPoints = () => {
+    const finishPoint = freeShippingPoints[freeShippingPoints.length - 1];
+    const totalAchieved = (totalGuess / finishPoint.value) * 100;
+    const startPointDOM = (
+      <Mark key={0} position="first">
+        <TextMark location="bottom">Buy</TextMark>
+      </Mark>
+    );
+    const points = [startPointDOM];
+    for (let i = 0; i < freeShippingPoints.length; i++) {
+      const freeShippingPoint = freeShippingPoints[i];
+      const missing = freeShippingPoint.value - totalGuess;
+      const achieved = (freeShippingPoint.value / finishPoint.value) * 100;
+      const pointDOM = (
+        <Tooltip
+          key={i + 1}
+          placement="top"
+          title={
+            missing > 0
+              ? `Let's buy more ${toVND(missing)} to get free delivery of ${toVND(
+                  freeShippingPoint.minus
+                )}`
+              : 'Got it'
+          }
+          arrow
+        >
+          <Mark position="end" achieved={achieved}>
+            {totalGuess >= freeShippingPoint.value && (
+              <Check color="success" sx={{ fontSize: '14px' }} />
+            )}
+            <TextMark location="top">-{toAbbreviated(freeShippingPoint.minus)}</TextMark>
+            <TextMark location="bottom">{toAbbreviated(freeShippingPoint.value)}</TextMark>
+          </Mark>
+        </Tooltip>
+      );
+      points.push(pointDOM);
+    }
+    return (
+      <Points>
+        <ProgressBar achieved={totalAchieved < 100 ? totalAchieved : 100}>{points}</ProgressBar>
+      </Points>
+    );
+  };
 
   const handleCheckCartItem = (params: ICart.SwitchSelectBody) => {
     dispatch(switchSelect(params));
@@ -122,7 +112,6 @@ const CartList = (props: CartListProps) => {
               size="small"
               checked={isSelectedAll}
               checkedIcon={<Favorite />}
-              color="error"
               onClick={() => handleCheckCartItem({ _id: !isSelectedAll })}
             />
             <Typography variant="subtitle2">All ({items.length} products)</Typography>
@@ -133,16 +122,12 @@ const CartList = (props: CartListProps) => {
             <Typography variant="subtitle2">Price</Typography>
           </Hidden>
           <Tooltip placement="bottom" title="Remove selected items" arrow>
-            <IconButton color="error" onClick={() => handleRemoveCartItem()}>
+            <IconButton color="primary" onClick={() => handleRemoveCartItem()}>
               <DeleteForeverOutlined />
             </IconButton>
           </Tooltip>
         </Heading>
-        <Points>
-          <ProgressBar achieved={progressBar < 100 ? progressBar : 100}>
-            {renderPoints(totalGuess)}
-          </ProgressBar>
-        </Points>
+        {freeShippingPoints?.length > 0 && renderPoints()}
       </Anchor>
       <Stack spacing={2}>
         <ContentGroup>
@@ -242,12 +227,6 @@ const ProgressBar = styled('div')<ProgressBarProps>(({ theme, achieved }) => ({
     transform: 'translateY(-50%)',
     top: '50%',
     transition: 'width 0.5s ease-in 0s',
-  },
-  [theme.breakpoints.down('md')]: {
-    width: `calc(${STYLE.MOBILE.CART.LIST_WIDTH} - 100px)`,
-    '&:before': {
-      width: `calc(${STYLE.MOBILE.CART.LIST_WIDTH} - 100px)`,
-    },
   },
 }));
 

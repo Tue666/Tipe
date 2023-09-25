@@ -3,8 +3,9 @@ import { AppDispatch, RootState } from '../store';
 import { ICart } from '@/models/interfaces';
 import cartApi from '@/apis/cartApi';
 import { productAvailable } from '@/utils';
+import { FreeShippingPoint } from '@/models/interfaces/cart';
 
-export type StatisticsGroup = 'guess';
+export type StatisticsGroup = 'guess' | 'free ship';
 
 export type Statistics = {
   [K in StatisticsGroup]: {
@@ -16,28 +17,57 @@ export type Statistics = {
 export interface CartState {
   items: ICart.CartItem[];
   statistics: Statistics;
+  freeShippingPoints: ICart.FreeShippingPoint[];
 }
 
 export interface CalculateStatisticsProps {
-  guess: {
+  guess?: {
     items: CartState['items'];
   };
+  freeShippingPoints?: FreeShippingPoint[];
 }
+
+const getFreeShippingPoint = (
+  totalGuess: number,
+  freeShippingPoints: FreeShippingPoint[]
+): FreeShippingPoint => {
+  for (let i = freeShippingPoints.length - 1; i >= 0; i--) {
+    const freeShippingPoint = freeShippingPoints[i];
+    if (totalGuess >= freeShippingPoint.value) return freeShippingPoint;
+  }
+  return {
+    value: 0,
+    minus: 0,
+  };
+};
 
 const calculateStatistics = (calculateStatisticsProps: CalculateStatisticsProps) => {
   const statistics: Partial<Statistics> = {};
-  for (const group in calculateStatisticsProps) {
+  const { freeShippingPoints, ...calculateGroups } = calculateStatisticsProps;
+  for (const group in calculateGroups) {
     switch (group) {
       case 'guess':
-        const { items } = calculateStatisticsProps[group];
+        const { items } = calculateStatisticsProps[group]!;
         const selectedItems = items.filter((item) => {
           const { product } = item;
           return item.selected && productAvailable(product.inventory_status, product.quantity);
         });
+        const totalGuess = selectedItems.reduce(
+          (sum, item) => sum + item.quantity * item.product.price,
+          0
+        );
         statistics[group] = {
-          value: selectedItems.reduce((sum, item) => sum + item.quantity * item.product.price, 0),
+          value: totalGuess,
           sign: 1,
         };
+
+        if (freeShippingPoints && freeShippingPoints.length) {
+          const freeShippingPoint = getFreeShippingPoint(totalGuess, freeShippingPoints);
+          statistics['free ship'] = {
+            value: freeShippingPoint.minus,
+            sign: -1,
+          };
+        }
         break;
       default:
         break;
@@ -49,6 +79,20 @@ const calculateStatistics = (calculateStatisticsProps: CalculateStatisticsProps)
 const initialState: CartState = {
   items: [],
   statistics: {} as CartState['statistics'],
+  freeShippingPoints: [
+    {
+      value: 100000,
+      minus: 20000,
+    },
+    {
+      value: 162000,
+      minus: 30000,
+    },
+    {
+      value: 300000,
+      minus: 50000,
+    },
+  ],
 };
 
 export const slice = createSlice({
@@ -60,7 +104,10 @@ export const slice = createSlice({
       state.items = items;
       state.statistics = {
         ...state.statistics,
-        ...calculateStatistics({ guess: { items: state.items } }),
+        ...calculateStatistics({
+          guess: { items: state.items },
+          freeShippingPoints: state.freeShippingPoints,
+        }),
       };
     },
     addCartSuccess(state: CartState, action: PayloadAction<ICart.CartItem>) {
@@ -68,7 +115,10 @@ export const slice = createSlice({
       state.items = [...state.items, cartItem];
       state.statistics = {
         ...state.statistics,
-        ...calculateStatistics({ guess: { items: state.items } }),
+        ...calculateStatistics({
+          guess: { items: state.items },
+          freeShippingPoints: state.freeShippingPoints,
+        }),
       };
     },
     editQuantitySuccess(state: CartState, action: PayloadAction<ICart.CartItem>) {
@@ -76,7 +126,10 @@ export const slice = createSlice({
       state.items = state.items.map((item) => (item._id === _id ? { ...item, quantity } : item));
       state.statistics = {
         ...state.statistics,
-        ...calculateStatistics({ guess: { items: state.items } }),
+        ...calculateStatistics({
+          guess: { items: state.items },
+          freeShippingPoints: state.freeShippingPoints,
+        }),
       };
     },
     switchSelectSuccess(
@@ -90,7 +143,10 @@ export const slice = createSlice({
           state.items = state.items.map((item) => ({ ...item, selected: switched }));
           state.statistics = {
             ...state.statistics,
-            ...calculateStatistics({ guess: { items: state.items } }),
+            ...calculateStatistics({
+              guess: { items: state.items },
+              freeShippingPoints: state.freeShippingPoints,
+            }),
           };
           break;
         case 'string':
@@ -100,7 +156,10 @@ export const slice = createSlice({
           );
           state.statistics = {
             ...state.statistics,
-            ...calculateStatistics({ guess: { items: state.items } }),
+            ...calculateStatistics({
+              guess: { items: state.items },
+              freeShippingPoints: state.freeShippingPoints,
+            }),
           };
           break;
         default:
@@ -117,13 +176,19 @@ export const slice = createSlice({
         state.items = state.items.filter((item) => !item.selected);
         state.statistics = {
           ...state.statistics,
-          ...calculateStatistics({ guess: { items: state.items } }),
+          ...calculateStatistics({
+            guess: { items: state.items },
+            freeShippingPoints: state.freeShippingPoints,
+          }),
         };
       } else {
         state.items = state.items.filter((item) => item._id !== removed);
         state.statistics = {
           ...state.statistics,
-          ...calculateStatistics({ guess: { items: state.items } }),
+          ...calculateStatistics({
+            guess: { items: state.items },
+            freeShippingPoints: state.freeShippingPoints,
+          }),
         };
       }
     },

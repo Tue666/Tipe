@@ -72,11 +72,14 @@ const Button = styled('button')(({ side }: { side: ArrowSide }) => ({
   },
 }));
 
-const Dots = styled('ul')({
+const Dots = styled('ul')(({ theme }) => ({
   display: 'flex !important',
   justifyContent: 'end',
   bottom: '0 !important',
-});
+  '& li.slick-active div': {
+    backgroundColor: theme.palette.primary.main,
+  },
+}));
 
 const Paging = styled('div')({
   width: DOT_SIZE,

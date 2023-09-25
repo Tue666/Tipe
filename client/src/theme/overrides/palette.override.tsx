@@ -9,6 +9,15 @@ const PRIMARY = {
   contrastText: '#FFF',
 };
 
+const SECONDARY = {
+  lighter: '#8DD7F1',
+  light: '#71C5E3',
+  main: '#3FB7E4',
+  dark: '#2CA4D0',
+  darker: '#2591B8',
+  contrastText: '#FFF',
+};
+
 const ERROR = {
   lighter: '#FFA48D',
   light: '#FF867B',
@@ -38,6 +47,7 @@ const WARNING = {
 
 const COMMON = {
   primary: { ...PRIMARY },
+  secondary: { ...SECONDARY },
   error: { ...ERROR },
   success: { ...SUCCESS },
   warning: { ...WARNING },

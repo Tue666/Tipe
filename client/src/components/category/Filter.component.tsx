@@ -15,7 +15,7 @@ const Filter = (props: FilterProps) => {
     [...Array(5)].map((_, index) => {
       return (
         <Text key={index}>
-          {multi_select && <Checkbox size="small" color="error" sx={{ p: '5px', mr: '5px' }} />}
+          {multi_select && <Checkbox size="small" sx={{ p: '5px', mr: '5px' }} />}
           Samsung
         </Text>
       );
@@ -55,8 +55,8 @@ const Filter = (props: FilterProps) => {
             <Chip
               key={index}
               label="From 400.000 to 13.500.000"
-              color="error"
               variant="outlined"
+              color="primary"
               sx={{ my: '2px' }}
               size="small"
             />
@@ -109,7 +109,7 @@ const Text = styled('span')(({ theme }) => ({
   paddingBottom: '5px',
   cursor: 'pointer',
   '&:hover': {
-    color: theme.palette.error.main,
+    color: theme.palette.primary.main,
   },
 }));
 

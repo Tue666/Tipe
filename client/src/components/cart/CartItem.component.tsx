@@ -57,7 +57,6 @@ const CartItem = (props: CartItemProps) => {
           size="small"
           checked={selected}
           checkedIcon={<Favorite />}
-          color="error"
           onClick={() => handleCheckCartItem({ _id })}
         />
         <Link href={link}>
@@ -115,11 +114,11 @@ const CartItem = (props: CartItemProps) => {
           setInput={(newInput) => handleChangeQuantity(newInput)}
           onSelfRemove={() => handleRemoveCartItem(_id)}
         />
-        <Typography variant="subtitle2" color="error" sx={{ fontWeight: 'bold' }}>
+        <Typography color="primary" variant="subtitle2" sx={{ fontWeight: 'bold' }}>
           {toVND(quantity * price)}
         </Typography>
       </Hidden>
-      <IconButton color="error" onClick={() => handleRemoveCartItem(_id)}>
+      <IconButton color="primary" onClick={() => handleRemoveCartItem(_id)}>
         <DeleteForeverOutlined />
       </IconButton>
     </Root>
@@ -153,7 +152,7 @@ const Name = styled('span')(({ theme }) => ({
   textOverflow: 'ellipsis',
   overflow: 'hidden',
   '&:hover': {
-    color: theme.palette.error.main,
+    color: theme.palette.primary.main,
   },
 }));
 

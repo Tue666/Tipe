@@ -40,7 +40,7 @@ const ToggleButton = styled('label')(({ theme }) => ({
   fontSize: '17px',
   zIndex: 9,
   '&:hover': {
-    backgroundColor: theme.palette.error.main,
+    backgroundColor: theme.palette.primary.main,
     color: '#fff',
   },
 }));
@@ -51,7 +51,7 @@ const Input = styled('input')(({ theme }) => ({
   display: 'none',
   '&:checked + label': {
     transform: 'rotate(180deg)',
-    backgroundColor: theme.palette.error.main,
+    backgroundColor: theme.palette.primary.main,
     color: '#fff',
     boxShadow: '0px -2px 7px rgb(233 129 129)',
   },

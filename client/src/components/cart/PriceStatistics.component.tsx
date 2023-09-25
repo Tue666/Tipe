@@ -4,7 +4,7 @@ import { STYLE } from '@/configs/constants';
 import { productAvailable, toVND } from '@/utils';
 import { StatisticsGroup, CartState } from '@/redux/slices/cart.slice';
 
-interface PriceStatisticsProps extends CartState {}
+interface PriceStatisticsProps extends Pick<CartState, 'items' | 'statistics'> {}
 
 const PriceStatistics = (props: PriceStatisticsProps) => {
   const { items, statistics } = props;
@@ -54,7 +54,7 @@ const PriceStatistics = (props: PriceStatisticsProps) => {
           <Stack direction="row" justifyContent="space-between" alignItems="center">
             <Typography variant="subtitle2">Total</Typography>
             <Stack alignItems="end">
-              <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: 'error.main' }}>
+              <Typography variant="subtitle1" color="primary" sx={{ fontWeight: 'bold' }}>
                 {selectedCount > 0 ? toVND(totalPrice) : 'Choose a product, please!'}
               </Typography>
               <Typography variant="caption">(VAT includes)</Typography>
@@ -62,7 +62,7 @@ const PriceStatistics = (props: PriceStatisticsProps) => {
           </Stack>
         </Wrapper>
         {selectedCount > 0 && (
-          <Button variant="contained" color="error" disableElevation sx={{ width: '100%' }}>
+          <Button variant="contained" disableElevation sx={{ width: '100%' }}>
             Check out ({selectedCount})
           </Button>
         )}

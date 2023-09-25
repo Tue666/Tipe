@@ -48,10 +48,10 @@ const Result = (props: ResultProps) => {
         <Stack direction="row" alignItems="center" spacing={1} sx={{ m: 2 }}>
           {[...Array(2)].map((_, index) => {
             return (
-              <Chip key={index} label="From 400.000 to 13.500.000" color="error" size="small" />
+              <Chip key={index} label="From 400.000 to 13.500.000" color="primary" size="small" />
             );
           })}
-          <Typography variant="subtitle2" color="error" sx={{ cursor: 'pointer' }}>
+          <Typography variant="subtitle2" color="primary" sx={{ cursor: 'pointer' }}>
             Remove all
           </Typography>
         </Stack>
@@ -72,7 +72,7 @@ const Result = (props: ResultProps) => {
       </Wrapper>
       {99 > 0 && (
         <PaginationWrapper>
-          <Pagination />
+          <Pagination color="primary" />
         </PaginationWrapper>
       )}
     </Root>
@@ -105,17 +105,17 @@ const FilterWrapper = styled(Stack)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
 }));
 
-const FilterText = styled('span')({
+const FilterText = styled('span')(({ theme }) => ({
   textTransform: 'capitalize',
   cursor: 'pointer',
   fontSize: '14px',
   margin: '0 16px',
   padding: '8px',
   '&:hover, &.active': {
-    color: '#f53d2d',
-    borderBottom: '4px solid #f53d2d',
+    color: theme.palette.primary.main,
+    borderBottom: `4px solid ${theme.palette.primary.main}`,
   },
-});
+}));
 
 const PaginationWrapper = styled('div')({
   marginTop: '20px',

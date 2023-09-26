@@ -13,9 +13,9 @@ const Link = (props: LinkProps) => {
     <MUILink
       component={NextLink}
       sx={{
-        ...sx,
         textDecoration: 'none',
         color: 'text.primary',
+        ...sx,
       }}
       {...rest}
     >

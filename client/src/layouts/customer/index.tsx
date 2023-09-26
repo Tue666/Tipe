@@ -4,22 +4,23 @@ import { AccountBox, ImportContacts, LocalMall } from '@mui/icons-material';
 import { Avatar, Container } from '@/components/overrides';
 import { Breadcrumbs, Hidden } from '@/components';
 import Navbars from './Navbars';
+import { PATH_CUSTOMER } from '@/configs/routers';
 
 const MENUS = [
   {
     title: 'Customer information',
     icon: <AccountBox />,
-    href: '#',
+    href: PATH_CUSTOMER.profile,
   },
   {
     title: 'Order management',
     icon: <LocalMall />,
-    href: '#',
+    href: PATH_CUSTOMER.orders,
   },
   {
     title: 'Addresses book',
     icon: <ImportContacts />,
-    href: '#',
+    href: PATH_CUSTOMER.addresses,
   },
 ];
 

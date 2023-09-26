@@ -80,3 +80,37 @@ export interface CartSchema {
   quantity: number;
   selected: boolean;
 }
+
+export type Country = 'VN';
+
+export interface RegionSchema {
+  _id: string;
+  name: string;
+  code: string;
+}
+
+export interface WardSchema extends RegionSchema {}
+
+export interface DistrictSchema extends RegionSchema {
+  wards: WardSchema[];
+}
+
+export interface LocationSchema extends RegionSchema {
+  country: Country;
+  districts: DistrictSchema[];
+}
+
+export interface AddressSchema extends TimestampsSchema {
+  _id: string;
+  customer_id: string;
+  name: string;
+  company: string;
+  phone_number: AccountSchema['phone_number'];
+  region_id: LocationSchema['_id'];
+  district_id: DistrictSchema['_id'];
+  ward_id: WardSchema['_id'];
+  street: string;
+  delivery_address_type: 'home' | 'company';
+  is_default: boolean;
+  country: Country;
+}

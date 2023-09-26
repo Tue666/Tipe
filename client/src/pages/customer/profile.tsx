@@ -1,6 +1,5 @@
 import {
   Button,
-  Divider,
   FormControl,
   FormControlLabel,
   Radio,
@@ -10,7 +9,7 @@ import {
   Typography,
   styled,
 } from '@mui/material';
-import { Page } from '@/components';
+import { LoadingButton } from '@mui/lab';
 import {
   AttachEmail,
   FacebookOutlined,
@@ -18,10 +17,13 @@ import {
   PermPhoneMsgOutlined,
   SyncLockOutlined,
 } from '@mui/icons-material';
+import { Page } from '@/components';
 import { DateOfBirth } from '@/components/customer';
 import { PageWithLayout } from '../_app';
 import MainLayout from '@/layouts/main';
 import CustomerLayout from '@/layouts/customer';
+import { Avatar } from '@/components/overrides';
+import { STYLE } from '@/configs/constants';
 
 const SOCIAL = [
   {
@@ -42,11 +44,22 @@ const Profile: PageWithLayout = () => {
       <Root direction={{ xs: 'column', md: 'row' }} spacing={2}>
         <Stack spacing={2} p={2} sx={{ flex: 1 }}>
           <Typography variant="subtitle2">Personal information</Typography>
-          <Stack direction="row" spacing={3}>
-            <Stack></Stack>
+          <Stack spacing={3}>
+            <Avatar
+              name="Tuệ (Customer)"
+              src="/product-card-2.jpg"
+              sx={{
+                width: STYLE.DESKTOP.CUSTOMER.PROFILE.AVATAR_SIZE,
+                height: STYLE.DESKTOP.CUSTOMER.PROFILE.AVATAR_SIZE,
+                alignSelf: 'center',
+              }}
+            />
             <Stack spacing={2} sx={{ flex: 1 }}>
               <Stack direction="row" alignItems="center" spacing={3}>
-                <Typography variant="subtitle2" sx={{ width: '70px' }}>
+                <Typography
+                  variant="subtitle2"
+                  sx={{ width: STYLE.DESKTOP.CUSTOMER.PROFILE.TITLE_SPACE }}
+                >
                   Customer name
                 </Typography>
                 <TextField
@@ -57,13 +70,19 @@ const Profile: PageWithLayout = () => {
                 />
               </Stack>
               <Stack direction="row" alignItems="center" spacing={3}>
-                <Typography variant="subtitle2" sx={{ width: '70px' }}>
+                <Typography
+                  variant="subtitle2"
+                  sx={{ width: STYLE.DESKTOP.CUSTOMER.PROFILE.TITLE_SPACE }}
+                >
                   Date of birth
                 </Typography>
                 <DateOfBirth />
               </Stack>
               <Stack direction="row" alignItems="center" spacing={3}>
-                <Typography variant="subtitle2" sx={{ width: '70px' }}>
+                <Typography
+                  variant="subtitle2"
+                  sx={{ width: STYLE.DESKTOP.CUSTOMER.PROFILE.TITLE_SPACE }}
+                >
                   Gender
                 </Typography>
                 <FormControl>
@@ -86,9 +105,9 @@ const Profile: PageWithLayout = () => {
                   </RadioGroup>
                 </FormControl>
               </Stack>
-              {/* <LoadingButton loading={false} variant="contained" color="error" disableElevation>
+              <LoadingButton loading={false} variant="contained" disableElevation>
                 SAVE CHANGE
-              </LoadingButton> */}
+              </LoadingButton>
             </Stack>
           </Stack>
         </Stack>

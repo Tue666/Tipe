@@ -1,5 +1,10 @@
-import { PartialBy } from '../common';
-import { AccountSchema, AdministratorSchema, CustomerSchema } from '../schema';
+import {
+  AccountSchema,
+  AdministratorSchema,
+  CustomerSchema,
+  AddressSchema,
+  RegionSchema,
+} from '../schema';
 import { Tokens } from './auth.interface';
 
 export interface Account extends AccountSchema {}
@@ -18,4 +23,16 @@ export interface SignInResponse {
 export interface SignUpBody
   extends Pick<Account, 'phone_number' | 'name' | 'password' | 'account_type'> {
   passwordConfirm: string;
+}
+
+export interface Address
+  extends Omit<AddressSchema, 'customer_id' | 'region_id' | 'district_id' | 'ward_id'> {
+  region: RegionSchema;
+  district: RegionSchema;
+  ward: RegionSchema;
+}
+
+export interface InitCustomerResponse {
+  profile: Omit<Account, 'password' | 'refreshToken'>;
+  addresses: Address[];
 }

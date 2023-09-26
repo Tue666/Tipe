@@ -10,16 +10,17 @@ interface Menu {
 
 interface NavbarsProps {
   menus: Menu[];
+  currentHref: Menu['href'];
 }
 
 const Navbars = (props: NavbarsProps) => {
-  const { menus } = props;
+  const { menus, currentHref } = props;
   return (
     <List component="nav" dense>
       {menus.map((menu, index) => {
         const { title, icon, href } = menu;
         return (
-          <ListItemButton key={title} selected={index === 0}>
+          <ListItemButton key={title} selected={href === currentHref}>
             <ListItemIcon>{icon}</ListItemIcon>
             <Link href={href}>
               <ListItemText primary={title} />

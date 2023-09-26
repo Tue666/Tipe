@@ -26,6 +26,13 @@ export const STYLE = {
     },
     CUSTOMER: {
       WIDTH: '575px',
+      NAVBARS: {
+        AVATAR_SIZE: '65px',
+      },
+      PROFILE: {
+        AVATAR_SIZE: '100px',
+        TITLE_SPACE: '70px',
+      },
     },
     AUTH_FORM: {
       WIDTH: '800px',

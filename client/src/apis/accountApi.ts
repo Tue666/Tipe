@@ -33,6 +33,12 @@ const accountApi = {
     const url = `/accounts/sign-up`;
     return ApiClient.post(url, signUpBody);
   },
+
+  // [GET] {{URL}}/api/accounts/profile
+  getProfile: (): Promise<IAccount.InitCustomerResponse> => {
+    const url = `/accounts/profile`;
+    return ApiClient.get(url);
+  },
 };
 
 export default accountApi;

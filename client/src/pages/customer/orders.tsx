@@ -4,18 +4,47 @@ import { Page } from '@/components';
 import { PageWithLayout } from '../_app';
 import MainLayout from '@/layouts/main';
 import CustomerLayout from '@/layouts/customer';
+import { OrderPanel } from '@/components/order';
+
+const ORDER_TABS = [
+  {
+    value: 'all',
+    label: 'ALL ORDERS',
+  },
+  {
+    value: 'awaiting_payment',
+    label: 'UNPAID',
+  },
+  {
+    value: 'processing',
+    label: 'PROCESSING',
+  },
+  {
+    value: 'transporting',
+    label: 'TRANSPORTING',
+  },
+  {
+    value: 'delivered',
+    label: 'DELIVERED',
+  },
+  {
+    value: 'canceled',
+    label: 'CANCELED',
+  },
+];
 
 const Orders: PageWithLayout = () => {
   return (
     <Page title="Orders">
       <Stack spacing={1}>
         <Tabs
-          value={1}
+          value="all"
           variant="fullWidth"
           sx={{ bgcolor: (theme) => theme.palette.background.paper }}
         >
-          {[...Array(5)].map((_, index) => {
-            return <Tab key={index} label={index} value={index} />;
+          {ORDER_TABS.map((tab) => {
+            const { value, label } = tab;
+            return <Tab key={value} label={label} value={value} />;
           })}
         </Tabs>
         <Stack direction="row" alignItems="center">
@@ -23,6 +52,7 @@ const Orders: PageWithLayout = () => {
             fullWidth
             variant="outlined"
             size="small"
+            color="secondary"
             placeholder="Find order by order number"
             InputProps={{
               startAdornment: (
@@ -34,11 +64,10 @@ const Orders: PageWithLayout = () => {
             sx={{ bgcolor: (theme) => theme.palette.background.paper }}
           />
         </Stack>
-        {/* {ORDER_TABS.map((tab) => {
+        {ORDER_TABS.map((tab) => {
           const { value } = tab;
-          const isActive = value === current.value;
-          return isActive && <OrderPanel key={value} orders={state[current.value].orders} />;
-        })} */}
+          return <OrderPanel key={value} />;
+        })}
         <Pagination color="primary" sx={{ alignSelf: 'end' }} />
       </Stack>
     </Page>

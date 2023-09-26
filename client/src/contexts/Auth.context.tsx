@@ -4,6 +4,7 @@ import accountApi from '../apis/accountApi';
 import { SignInBody, SignUpBody } from '@/models/interfaces/account';
 import { getToken, isValidToken, setToken } from '@/utils';
 import { useAppDispatch } from '@/redux/hooks';
+import { initCustomer } from '@/redux/slices/customer.slice';
 import { initCart } from '@/redux/slices/cart.slice';
 
 interface AuthContextState {
@@ -74,6 +75,7 @@ const AuthProvider = (props: AuthProviderProps) => {
         const isAuthenticated = await isValidToken(token);
         if (isAuthenticated) {
           // Fetch necessary data here...
+          appDispatch(initCustomer());
           appDispatch(initCart());
         }
         dispatch({
@@ -94,6 +96,8 @@ const AuthProvider = (props: AuthProviderProps) => {
   const signIn = async (signInBody: SignInBody): Promise<string> => {
     const { name, accessToken } = await accountApi.signIn(signInBody);
     setToken(accessToken);
+    // Fetch necessary data here...
+    appDispatch(initCustomer());
     appDispatch(initCart());
     dispatch({ type: 'LOGIN' });
     return name;

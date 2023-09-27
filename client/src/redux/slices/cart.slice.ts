@@ -192,11 +192,15 @@ export const slice = createSlice({
         };
       }
     },
+    clearCart(state: CartState) {
+      state.items = [];
+      state.statistics = {} as CartState['statistics'];
+    },
   },
 });
 
 const { reducer, actions } = slice;
-export const {} = actions;
+export const { clearCart } = actions;
 export const selectCart = (state: RootState) => state.cart;
 export default reducer;
 

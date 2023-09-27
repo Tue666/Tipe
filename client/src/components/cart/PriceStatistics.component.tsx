@@ -3,11 +3,15 @@ import { Link } from '../overrides';
 import { STYLE } from '@/configs/constants';
 import { productAvailable, toVND } from '@/utils';
 import { StatisticsGroup, CartState } from '@/redux/slices/cart.slice';
+import { useAppSelector } from '@/redux/hooks';
+import { selectCustomer } from '@/redux/slices/customer.slice';
+import { PATH_CHECKOUT } from '@/configs/routers';
 
 interface PriceStatisticsProps extends Pick<CartState, 'items' | 'statistics'> {}
 
 const PriceStatistics = (props: PriceStatisticsProps) => {
   const { items, statistics } = props;
+  const { addresses } = useAppSelector(selectCustomer);
   const selectedCount = items.filter((item) => {
     const { selected, product } = item;
     return selected && productAvailable(product.inventory_status, product.quantity);
@@ -16,19 +20,22 @@ const PriceStatistics = (props: PriceStatisticsProps) => {
     (sum, group) => sum + statistics[group].value * statistics[group].sign,
     0
   );
+  const defaultAddress = addresses.find((address) => address.is_default);
   return (
     <Root>
       <ContentInner>
-        <Wrapper>
-          <Stack direction="row" justifyContent="space-between" alignItems="center">
-            <Typography variant="subtitle2">Ship Address</Typography>
-            <Linking href="#">Change</Linking>
-          </Stack>
-          <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-            VN | 0586181641
-          </Typography>
-          <Typography variant="body2">123, Ward 4, District 8, HCM City</Typography>
-        </Wrapper>
+        {defaultAddress && (
+          <Wrapper>
+            <Stack direction="row" justifyContent="space-between" alignItems="center">
+              <Typography variant="subtitle2">Ship Address</Typography>
+              <Linking href={PATH_CHECKOUT.shipping}>Change</Linking>
+            </Stack>
+            <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+              {defaultAddress.name} | {defaultAddress.phone_number}
+            </Typography>
+            <Typography variant="body2">{`${defaultAddress.street}, ${defaultAddress.ward.name}, ${defaultAddress.district.name}, ${defaultAddress.region.name}`}</Typography>
+          </Wrapper>
+        )}
         <Wrapper>
           <Typography variant="subtitle2">Tipe Promotion</Typography>
           <Typography

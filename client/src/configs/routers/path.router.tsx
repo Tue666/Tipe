@@ -25,6 +25,13 @@ export const PATH_CUSTOMER = {
   orderDetail: RouterUtil.combinePath(ROOT_CUSTOMER, '/orders/view'),
 };
 
+const ROOT_CHECKOUT = '/checkout';
+export const PATH_CHECKOUT = {
+  shipping: RouterUtil.combinePath(ROOT_CHECKOUT, '/shipping'),
+  payment: RouterUtil.combinePath(ROOT_CHECKOUT, '/payment'),
+  result: RouterUtil.combinePath(ROOT_CHECKOUT, '/result'),
+};
+
 const ROOT_IMAGE = '/';
 export const PATH_IMAGE = {
   root: ROOT_IMAGE,

@@ -22,10 +22,15 @@ export const slice = createSlice({
       state.profile = profile;
       state.addresses = addresses;
     },
+    clearCustomer(state: CustomerState) {
+      state.profile = {} as CustomerState['profile'];
+      state.addresses = [];
+    },
   },
 });
 
-const { reducer } = slice;
+const { reducer, actions } = slice;
+export const { clearCustomer } = actions;
 export const selectCustomer = (state: RootState) => state.customer;
 export default reducer;
 

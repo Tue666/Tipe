@@ -4,8 +4,8 @@ import accountApi from '../apis/accountApi';
 import { SignInBody, SignUpBody } from '@/models/interfaces/account';
 import { getToken, isValidToken, setToken } from '@/utils';
 import { useAppDispatch } from '@/redux/hooks';
-import { initCustomer } from '@/redux/slices/customer.slice';
-import { initCart } from '@/redux/slices/cart.slice';
+import { clearCustomer, initCustomer } from '@/redux/slices/customer.slice';
+import { clearCart, initCart } from '@/redux/slices/cart.slice';
 
 interface AuthContextState {
   isInitialized: boolean;
@@ -109,6 +109,8 @@ const AuthProvider = (props: AuthProviderProps) => {
 
   const signOut = () => {
     setToken(null);
+    appDispatch(clearCustomer());
+    appDispatch(clearCart());
     dispatch({
       type: 'LOGOUT',
     });

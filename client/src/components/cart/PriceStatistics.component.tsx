@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router';
 import { Button, Divider, Stack, Typography, styled } from '@mui/material';
 import { Link } from '../overrides';
 import { STYLE } from '@/configs/constants';
@@ -5,13 +6,14 @@ import { productAvailable, toVND } from '@/utils';
 import { StatisticsGroup, CartState } from '@/redux/slices/cart.slice';
 import { useAppSelector } from '@/redux/hooks';
 import { selectCustomer } from '@/redux/slices/customer.slice';
-import { PATH_CHECKOUT } from '@/configs/routers';
+import { PATH_CHECKOUT, PATH_MAIN } from '@/configs/routers';
 
 interface PriceStatisticsProps extends Pick<CartState, 'items' | 'statistics'> {}
 
 const PriceStatistics = (props: PriceStatisticsProps) => {
   const { items, statistics } = props;
   const { addresses } = useAppSelector(selectCustomer);
+  const { pathname } = useRouter();
   const selectedCount = items.filter((item) => {
     const { selected, product } = item;
     return selected && productAvailable(product.inventory_status, product.quantity);
@@ -21,6 +23,7 @@ const PriceStatistics = (props: PriceStatisticsProps) => {
     0
   );
   const defaultAddress = addresses.find((address) => address.is_default);
+  const isIntendedCart = pathname === PATH_MAIN.cart;
   return (
     <Root>
       <ContentInner>
@@ -28,7 +31,11 @@ const PriceStatistics = (props: PriceStatisticsProps) => {
           <Wrapper>
             <Stack direction="row" justifyContent="space-between" alignItems="center">
               <Typography variant="subtitle2">Ship Address</Typography>
-              <Linking href={PATH_CHECKOUT.shipping}>Change</Linking>
+              <Linking
+                href={`${PATH_CHECKOUT.shipping}${isIntendedCart ? '?is_intended_cart=1' : ''}`}
+              >
+                Change
+              </Linking>
             </Stack>
             <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
               {defaultAddress.name} | {defaultAddress.phone_number}

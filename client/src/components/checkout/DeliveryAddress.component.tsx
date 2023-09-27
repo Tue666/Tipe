@@ -1,12 +1,26 @@
+import { IAccount } from '@/models/interfaces';
 import { Button, Stack, Typography, styled } from '@mui/material';
 
-const DeliveryAddress = () => {
+interface AddressProps {
+  is_default: boolean;
+}
+
+interface DeliveryAddressProps {
+  address: IAccount.Address;
+  handleSwitchAddress: (_id: IAccount.Address['_id']) => void;
+  handleRemoveAddress: (_id: IAccount.Address['_id']) => Promise<void>;
+}
+
+const DeliveryAddress = (props: DeliveryAddressProps) => {
+  const { address, handleSwitchAddress, handleRemoveAddress } = props;
+  const { _id, name, phone_number, ward, district, region, street, is_default } = address;
+  const delivery_address = `${street}, ${ward.name}, ${district.name}, ${region.name}`;
   return (
-    <Address>
+    <Address is_default={is_default}>
       <Stack sx={{ width: '100%' }}>
         <div>
           <Typography component="span" sx={{ textTransform: 'uppercase', fontWeight: 'bold' }}>
-            name
+            {name}
           </Typography>
         </div>
         <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -14,7 +28,7 @@ const DeliveryAddress = () => {
             Address:&nbsp;
           </Typography>
           <Typography component="span" variant="subtitle2">
-            delivery_address
+            {delivery_address}
           </Typography>
         </div>
         <div>
@@ -22,7 +36,7 @@ const DeliveryAddress = () => {
             Phone number:&nbsp;
           </Typography>
           <Typography component="span" variant="subtitle2">
-            phone_number
+            {phone_number}
           </Typography>
         </div>
         <Stack direction="row" alignItems="center" spacing={1} mt={1}>
@@ -31,7 +45,7 @@ const DeliveryAddress = () => {
             color="secondary"
             size="small"
             disableElevation
-            onClick={() => {}}
+            onClick={() => handleSwitchAddress(_id)}
           >
             Delivery to this address
           </Button>
@@ -44,25 +58,35 @@ const DeliveryAddress = () => {
           >
             Edit
           </Button>
-          <Button variant="outlined" color="error" size="small" disableElevation onClick={() => {}}>
-            Remove
-          </Button>
+          {!is_default && (
+            <Button
+              variant="outlined"
+              color="error"
+              size="small"
+              disableElevation
+              onClick={() => handleRemoveAddress(_id)}
+            >
+              Remove
+            </Button>
+          )}
         </Stack>
       </Stack>
-      <Default variant="caption" color="success.main">
-        <i className="bi bi-check-circle"></i> Default address
-      </Default>
+      {is_default && (
+        <Default variant="caption" color="success.main">
+          <i className="bi bi-check-circle"></i> Default address
+        </Default>
+      )}
     </Address>
   );
 };
 
-const Address = styled('div')(({ theme }) => ({
+const Address = styled('div')<AddressProps>(({ theme, is_default }) => ({
   backgroundColor: theme.palette.background.paper,
   padding: theme.spacing(2),
   borderRadius: '5px',
   display: 'flex',
   justifyContent: 'space-between',
-  border: true ? `1px dashed ${theme.palette.success.main}` : `1px solid rgb(221, 221, 221)`,
+  border: is_default ? `1px dashed ${theme.palette.success.main}` : `1px solid rgb(221, 221, 221)`,
   position: 'relative',
 }));
 

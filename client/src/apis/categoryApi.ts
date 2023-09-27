@@ -11,7 +11,7 @@ const categoryApi = {
   },
 
   // [GET] {{URL}}/api/categories/:_id
-  findById: (_id: number): Promise<ICategory.NestedCategory> => {
+  findById: (_id: ICategory.Category['_id']): Promise<ICategory.NestedCategory> => {
     const url = `/categories/${_id}`;
     return ApiClient.get(url);
   },

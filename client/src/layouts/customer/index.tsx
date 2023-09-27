@@ -33,7 +33,7 @@ interface CustomerLayoutProps {
 const CustomerLayout = (props: CustomerLayoutProps) => {
   const { children } = props;
   const { pathname } = useRouter();
-  const currentMenu = MENUS.filter((menu) => menu.href === pathname)[0];
+  const currentMenu = MENUS.filter((menu) => pathname.indexOf(menu.href) !== -1)[0];
   return (
     <Container>
       <Breadcrumbs current={currentMenu.title} />

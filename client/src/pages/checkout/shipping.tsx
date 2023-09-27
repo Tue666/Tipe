@@ -1,14 +1,44 @@
 import { Fragment } from 'react';
-import { Grid, Stack, Typography } from '@mui/material';
+import { useRouter } from 'next/router';
+import { useSearchParams } from 'next/navigation';
+import { Alert, Grid, Stack, Typography } from '@mui/material';
 import { Page } from '@/components';
 import { PageWithLayout } from '../_app';
 import CheckoutLayout from '@/layouts/checkout';
-import { useAppSelector } from '@/redux/hooks';
-import { selectCustomer } from '@/redux/slices/customer.slice';
+import { useAppDispatch, useAppSelector } from '@/redux/hooks';
+import { removeAddress, selectCustomer, switchDefault } from '@/redux/slices/customer.slice';
 import { DeliveryAddress } from '@/components/checkout';
+import { useConfirm } from 'material-ui-confirm';
+import { IAccount } from '@/models/interfaces';
+import { PATH_CHECKOUT, PATH_MAIN } from '@/configs/routers';
 
 const Shipping: PageWithLayout = () => {
   const { addresses } = useAppSelector(selectCustomer);
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const confirm = useConfirm();
+
+  const handleSwitchAddress = (_id: IAccount.Address['_id']) => {
+    dispatch(switchDefault(_id));
+    const isInCart = searchParams.get('is_intended_cart');
+    if (isInCart) router.push(PATH_MAIN.cart);
+    else router.push(PATH_CHECKOUT.payment);
+  };
+  const handleRemoveAddress = async (_id: IAccount.Address['_id']) => {
+    try {
+      await confirm({
+        title: 'Remove address',
+        content: <Alert severity="error">Do you want to remove the selected address?</Alert>,
+        confirmationButtonProps: {
+          color: 'error',
+        },
+      });
+      dispatch(removeAddress(_id));
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <Page title="Shipment details | Tipe">
       <Stack spacing={1}>
@@ -25,7 +55,11 @@ const Shipping: PageWithLayout = () => {
                 const { _id } = address;
                 return (
                   <Grid key={_id} item md={6} sm={12} xs={12}>
-                    <DeliveryAddress />
+                    <DeliveryAddress
+                      address={address}
+                      handleSwitchAddress={handleSwitchAddress}
+                      handleRemoveAddress={handleRemoveAddress}
+                    />
                   </Grid>
                 );
               })}

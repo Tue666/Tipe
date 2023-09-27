@@ -23,7 +23,7 @@ const productApi = {
   },
 
   // [GET] {{URL}}/api/products/:_id
-  findById: (_id: string): Promise<IProduct.NestedProduct> => {
+  findById: (_id: IProduct.Product['_id']): Promise<IProduct.NestedProduct> => {
     const url = `/products/${_id}`;
     return ApiClient.get(url);
   },

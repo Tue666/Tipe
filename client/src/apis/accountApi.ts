@@ -39,6 +39,18 @@ const accountApi = {
     const url = `/accounts/profile`;
     return ApiClient.get(url);
   },
+
+  // [PATCH] {{URL}}/api/accounts/addresses/switch-default/:_id
+  switchDefault: (_id: IAccount.Address['_id']): Promise<IAccount.SwitchDefaultResponse> => {
+    const url = `/accounts/addresses/switch-default/${_id}`;
+    return ApiClient.patch(url);
+  },
+
+  // [DELETE] {{URL}}/api/accounts/addresses/:_id
+  removeAddress: (_id: IAccount.Address['_id']): Promise<IAccount.RemoveAddressResponse> => {
+    const url = `/accounts/addresses/${_id}`;
+    return ApiClient.delete(url);
+  },
 };
 
 export default accountApi;

@@ -1,7 +1,7 @@
 import { Alert, Stack, Typography, styled } from '@mui/material';
 import { AddLocationAltOutlined } from '@mui/icons-material';
 import { Page } from '@/components';
-import { PageWithLayout } from '../_app';
+import { PageWithLayout } from '../../_app';
 import MainLayout from '@/layouts/main';
 import CustomerLayout from '@/layouts/customer';
 import { Link } from '@/components/overrides';
@@ -29,7 +29,7 @@ const Addresses: PageWithLayout = () => {
   };
   return (
     <Page title="Addresses book | Tipe">
-      <Add href={PATH_CUSTOMER.createAddress}>
+      <Add href={PATH_CUSTOMER.addressForm}>
         <AddLocationAltOutlined />
         Add new address
       </Add>
@@ -79,7 +79,7 @@ const Addresses: PageWithLayout = () => {
                 </div>
                 <div>
                   <Link
-                    href={`${PATH_CUSTOMER.editAddress(_id)}`}
+                    href={`${PATH_CUSTOMER.addressForm}?_id=${_id}`}
                     sx={{
                       fontSize: '14px',
                       fontWeight: 'bold',

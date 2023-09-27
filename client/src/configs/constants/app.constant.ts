@@ -33,6 +33,9 @@ export const STYLE = {
         AVATAR_SIZE: '100px',
         TITLE_SPACE: '70px',
       },
+      ADDRESSES: {
+        TITLE_SPACE: '300px',
+      },
     },
     AUTH_FORM: {
       WIDTH: '800px',

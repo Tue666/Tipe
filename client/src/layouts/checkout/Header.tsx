@@ -1,30 +1,43 @@
-import { Step, StepLabel, Stepper, Tooltip, styled } from '@mui/material';
+import { useRouter } from 'next/router';
+import { Step, StepLabel, Stepper, styled } from '@mui/material';
 import { Logo } from '@/components';
 import { STYLE } from '@/configs/constants';
-import { Image } from '@/components/overrides';
+import { PATH_CHECKOUT } from '@/configs/routers';
 
-const STEPS = ['Sign in', 'Delivery address', 'Order & Payment'];
+const STEPS = [
+  {
+    href: '',
+    value: 0,
+    label: 'Sign in',
+  },
+  {
+    href: PATH_CHECKOUT.shipping,
+    value: 1,
+    label: 'Delivery address',
+  },
+  {
+    href: PATH_CHECKOUT.payment,
+    value: 2,
+    label: 'Order & Payment',
+  },
+];
 
 const Header = () => {
+  const { pathname } = useRouter();
+  const currentStep = STEPS.find((step) => step.href === pathname);
   return (
     <Root>
       <Logo />
-      <Stepper activeStep={1} alternativeLabel sx={{ flex: '4 1 0%' }}>
-        {STEPS.map((label) => {
+      <Stepper activeStep={currentStep?.value ?? 0} alternativeLabel sx={{ flex: '4 1 0%' }}>
+        {STEPS.map((step) => {
+          const { value, label } = step;
           return (
-            <Step key={label}>
+            <Step key={value}>
               <StepLabel>{label}</StepLabel>
             </Step>
           );
         })}
       </Stepper>
-      <Tooltip placement="bottom" title="Cre from Tiki :D" arrow sx={{ flex: '1 1 0%' }}>
-        <Image
-          alt="Tiki hotline"
-          src="/download/play-store.png"
-          sx={{ width: '176px', height: '42px' }}
-        />
-      </Tooltip>
     </Root>
   );
 };

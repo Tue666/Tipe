@@ -17,10 +17,7 @@ const ROOT_CUSTOMER = '/customer';
 export const PATH_CUSTOMER = {
   profile: RouterUtil.combinePath(ROOT_CUSTOMER, '/profile'),
   addresses: RouterUtil.combinePath(ROOT_CUSTOMER, '/addresses'),
-  createAddress: RouterUtil.combinePath(ROOT_CUSTOMER, '/addresses/create'),
-  editAddress: (_id: string) => {
-    return RouterUtil.combinePath(ROOT_CUSTOMER, `/addresses/edit/${_id}`);
-  },
+  addressForm: RouterUtil.combinePath(ROOT_CUSTOMER, '/addresses/form'),
   orders: RouterUtil.combinePath(ROOT_CUSTOMER, '/orders'),
   orderDetail: RouterUtil.combinePath(ROOT_CUSTOMER, '/orders/view'),
 };

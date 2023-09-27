@@ -36,3 +36,11 @@ export interface InitCustomerResponse {
   profile: Omit<Account, 'password' | 'refreshToken'>;
   addresses: Address[];
 }
+
+export interface SwitchDefaultResponse {
+  _id: Address['_id'];
+}
+
+export interface RemoveAddressResponse {
+  _id: Address['_id'];
+}

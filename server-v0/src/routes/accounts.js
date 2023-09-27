@@ -8,7 +8,7 @@ const verifyToken = require('../app/middlewares/verifyToken');
 const upload = require('../app/middlewares/upload');
 
 router.delete('/addresses/:_id', verifyToken, accountsAPI.removeAddress);
-router.patch('/addresses/default/:_id', verifyToken, accountsAPI.switchDefault);
+router.patch('/addresses/switch-default/:_id', verifyToken, accountsAPI.switchDefault);
 router.put('/addresses', verifyToken, accountsAPI.editAddress);
 router.put('/:_id', upload(false).single('avatar_url'), accountsAPI.update);
 router.post('/addresses', verifyToken, accountsAPI.insertAddress);

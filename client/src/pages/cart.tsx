@@ -10,7 +10,7 @@ import { PATH_MAIN } from '@/configs/routers';
 import { toAbbreviated } from '@/utils';
 
 const Cart = () => {
-  const { items, statistics, freeShippingPoints } = useAppSelector(selectCart);
+  const { items, statistics, freeShippingPoints, payment } = useAppSelector(selectCart);
   return (
     <Page title="Cart | Tipe">
       <Breadcrumbs current="Cart" />
@@ -33,7 +33,7 @@ const Cart = () => {
           spacing={1}
         >
           <CartList items={items} statistics={statistics} freeShippingPoints={freeShippingPoints} />
-          <PriceStatistics items={items} statistics={statistics} />
+          <PriceStatistics items={items} statistics={statistics} payment={payment} />
         </Stack>
       )}
       {items.length <= 0 && (

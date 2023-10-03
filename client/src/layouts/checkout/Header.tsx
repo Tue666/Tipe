@@ -24,7 +24,7 @@ const STEPS = [
 
 const Header = () => {
   const { pathname } = useRouter();
-  const currentStep = STEPS.find((step) => step.href === pathname);
+  const currentStep = STEPS.find((step) => step.href && pathname.indexOf(step.href) !== -1);
   return (
     <Root>
       <Logo />

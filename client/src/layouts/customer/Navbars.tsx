@@ -17,7 +17,7 @@ const Navbars = (props: NavbarsProps) => {
   const { menus, currentHref } = props;
   return (
     <List component="nav" dense>
-      {menus.map((menu, index) => {
+      {menus.map((menu) => {
         const { title, icon, href } = menu;
         return (
           <ListItemButton key={title} selected={href === currentHref}>

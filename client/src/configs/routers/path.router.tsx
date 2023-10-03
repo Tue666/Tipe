@@ -32,6 +32,7 @@ export const PATH_CHECKOUT = {
 const ROOT_IMAGE = '/';
 export const PATH_IMAGE = {
   root: ROOT_IMAGE,
+  icons: RouterUtil.combinePath(ROOT_IMAGE, 'icons'),
   social: RouterUtil.combinePath(ROOT_IMAGE, 'social'),
   download: RouterUtil.combinePath(ROOT_IMAGE, 'download'),
 };

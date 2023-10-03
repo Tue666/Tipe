@@ -15,18 +15,22 @@ import { PATH_CHECKOUT, PATH_CUSTOMER, PATH_MAIN } from '@/configs/routers';
 const Shipping: PageWithLayout = () => {
   const { addresses } = useAppSelector(selectCustomer);
   const dispatch = useAppDispatch();
-  const router = useRouter();
+  const { push } = useRouter();
   const searchParams = useSearchParams();
   const confirm = useConfirm();
+  const isIntendedCart = searchParams.get('is_intended_cart');
 
   const handleNavigateAddress = (_id?: IAccount.Address['_id']) => {
-    router.push(`${PATH_CUSTOMER.addressForm}?is_intended_shipping=1${_id ? `&_id=${_id}` : ''}`);
+    push(
+      `${PATH_CUSTOMER.addressForm}?is_intended_shipping=1${
+        isIntendedCart ? '&is_intended_cart=1' : ''
+      }${_id ? `&_id=${_id}` : ''}`
+    );
   };
   const handleSwitchAddress = (_id: IAccount.Address['_id']) => {
     dispatch(switchDefault(_id));
-    const isInCart = searchParams.get('is_intended_cart');
-    if (isInCart) router.push(PATH_MAIN.cart);
-    else router.push(PATH_CHECKOUT.payment);
+    if (isIntendedCart) push(PATH_MAIN.cart);
+    else push(PATH_CHECKOUT.payment);
   };
   const handleRemoveAddress = async (_id: IAccount.Address['_id']) => {
     try {

@@ -43,9 +43,11 @@ const Form: PageWithLayout<FormProps> = (props: FormProps) => {
   const { locations } = props;
   const { addresses } = useAppSelector(selectCustomer);
   const dispatch = useAppDispatch();
-  const router = useRouter();
+  const { push } = useRouter();
   const searchParams = useSearchParams();
   const currentAddress = addresses.find((address) => address._id === searchParams.get('_id'));
+  const isIntendedCart = searchParams.get('is_intended_cart');
+  const isIntendedShipping = searchParams.get('is_intended_shipping');
   const formik = useFormik({
     initialValues: {
       name: currentAddress?.name || '',
@@ -93,9 +95,9 @@ const Form: PageWithLayout<FormProps> = (props: FormProps) => {
   const { values, touched, errors, isSubmitting, handleBlur, setFieldValue } = formik;
 
   const handleBack = () => {
-    const isInShipping = searchParams.get('is_intended_shipping');
-    if (isInShipping) router.push(PATH_CHECKOUT.shipping);
-    else router.push(PATH_CUSTOMER.addresses);
+    if (isIntendedShipping)
+      push(`${PATH_CHECKOUT.shipping}${isIntendedCart ? '?is_intended_cart=1' : ''}`);
+    else push(PATH_CUSTOMER.addresses);
   };
   const handleChangeInput = (e: FocusEvent<HTMLInputElement>) => {
     handleBlur(e);

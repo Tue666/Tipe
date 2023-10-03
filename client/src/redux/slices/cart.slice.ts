@@ -14,10 +14,18 @@ export type Statistics = {
   };
 };
 
+export type PaymentMethod = null | 'cash' | 'momo' | 'vnpay' | 'international';
+
+export interface Payment {
+  method: PaymentMethod;
+  label: string;
+}
+
 export interface CartState {
   items: ICart.CartItem[];
   statistics: Statistics;
   freeShippingPoints: ICart.FreeShippingPoint[];
+  payment: Payment;
 }
 
 export interface CalculateStatisticsProps {
@@ -27,7 +35,14 @@ export interface CalculateStatisticsProps {
   freeShippingPoints?: FreeShippingPoint[];
 }
 
-const getFreeShippingPoint = (
+export const getSelectedItems = (items: CartState['items']): CartState['items'] => {
+  return items.filter((item) => {
+    const { product } = item;
+    return item.selected && productAvailable(product.inventory_status, product.quantity);
+  });
+};
+
+export const getFreeShippingPoint = (
   totalGuess: number,
   freeShippingPoints: FreeShippingPoint[]
 ): FreeShippingPoint => {
@@ -48,10 +63,7 @@ const calculateStatistics = (calculateStatisticsProps: CalculateStatisticsProps)
     switch (group) {
       case 'guess':
         const { items } = calculateStatisticsProps[group]!;
-        const selectedItems = items.filter((item) => {
-          const { product } = item;
-          return item.selected && productAvailable(product.inventory_status, product.quantity);
-        });
+        const selectedItems = getSelectedItems(items);
         const totalGuess = selectedItems.reduce(
           (sum, item) => sum + item.quantity * item.product.price,
           0
@@ -93,6 +105,10 @@ const initialState: CartState = {
       minus: 50000,
     },
   ],
+  payment: {
+    method: null,
+    label: '',
+  },
 };
 
 export const slice = createSlice({
@@ -196,11 +212,15 @@ export const slice = createSlice({
       state.items = [];
       state.statistics = {} as CartState['statistics'];
     },
+    changePayment(state: CartState, action: PayloadAction<CartState['payment']>) {
+      const payment = action.payload;
+      state.payment = payment;
+    },
   },
 });
 
 const { reducer, actions } = slice;
-export const { clearCart } = actions;
+export const { clearCart, changePayment } = actions;
 export const selectCart = (state: RootState) => state.cart;
 export default reducer;
 

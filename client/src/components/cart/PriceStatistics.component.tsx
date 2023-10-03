@@ -3,17 +3,17 @@ import { Button, Divider, Stack, Typography, styled } from '@mui/material';
 import { Link } from '../overrides';
 import { STYLE } from '@/configs/constants';
 import { productAvailable, toVND } from '@/utils';
-import { StatisticsGroup, CartState } from '@/redux/slices/cart.slice';
+import { StatisticsGroup, CartState, getSelectedItems } from '@/redux/slices/cart.slice';
 import { useAppSelector } from '@/redux/hooks';
 import { selectCustomer } from '@/redux/slices/customer.slice';
 import { PATH_CHECKOUT, PATH_MAIN } from '@/configs/routers';
 
-interface PriceStatisticsProps extends Pick<CartState, 'items' | 'statistics'> {}
+interface PriceStatisticsProps extends Pick<CartState, 'items' | 'statistics' | 'payment'> {}
 
 const PriceStatistics = (props: PriceStatisticsProps) => {
-  const { items, statistics } = props;
+  const { items, statistics, payment } = props;
   const { addresses } = useAppSelector(selectCustomer);
-  const { pathname } = useRouter();
+  const { pathname, push } = useRouter();
   const selectedCount = items.filter((item) => {
     const { selected, product } = item;
     return selected && productAvailable(product.inventory_status, product.quantity);
@@ -23,7 +23,35 @@ const PriceStatistics = (props: PriceStatisticsProps) => {
     0
   );
   const defaultAddress = addresses.find((address) => address.is_default);
-  const isIntendedCart = pathname === PATH_MAIN.cart;
+  const isIntendedCart = pathname.indexOf(PATH_MAIN.cart) !== -1;
+  const hrefToShipping = `${PATH_CHECKOUT.shipping}${isIntendedCart ? '?is_intended_cart=1' : ''}`;
+
+  const handleCheckOut = () => {
+    if (defaultAddress) push(PATH_CHECKOUT.payment);
+    else push(hrefToShipping);
+  };
+  const handleOrder = () => {
+    if (!defaultAddress) return;
+    const { region, district, ward, is_default, ...rest } = defaultAddress;
+    const { method, label } = payment;
+    const orderData = {
+      shipping_address: {
+        region: region.name,
+        district: district.name,
+        ward: ward.name,
+        ...rest,
+      },
+      payment_method: {
+        method_key: method,
+        method_text: label,
+        // message: payment?.message || '',
+        // description: payment?.description || '',
+      },
+      items: getSelectedItems(items),
+      price_summary: statistics,
+    };
+    console.log(orderData);
+  };
   return (
     <Root>
       <ContentInner>
@@ -31,11 +59,7 @@ const PriceStatistics = (props: PriceStatisticsProps) => {
           <Wrapper>
             <Stack direction="row" justifyContent="space-between" alignItems="center">
               <Typography variant="subtitle2">Ship Address</Typography>
-              <Linking
-                href={`${PATH_CHECKOUT.shipping}${isIntendedCart ? '?is_intended_cart=1' : ''}`}
-              >
-                Change
-              </Linking>
+              <Linking href={hrefToShipping}>Change</Linking>
             </Stack>
             <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
               {defaultAddress.name} | {defaultAddress.phone_number}
@@ -75,9 +99,19 @@ const PriceStatistics = (props: PriceStatisticsProps) => {
             </Stack>
           </Stack>
         </Wrapper>
-        {selectedCount > 0 && (
-          <Button variant="contained" disableElevation sx={{ width: '100%' }}>
+        {isIntendedCart && selectedCount > 0 && (
+          <Button
+            variant="contained"
+            disableElevation
+            sx={{ width: '100%' }}
+            onClick={handleCheckOut}
+          >
             Check out ({selectedCount})
+          </Button>
+        )}
+        {!isIntendedCart && (
+          <Button variant="contained" disableElevation sx={{ width: '100%' }} onClick={handleOrder}>
+            Order
           </Button>
         )}
       </ContentInner>

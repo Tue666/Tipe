@@ -8,6 +8,8 @@ export type Nullable<T> = {
 
 export type NullableBy<T, K extends keyof T> = Omit<T, K> & Record<K, T[K] | null>;
 
+export type Country = 'VN';
+
 export interface PaginationQuery {
   newest?: number;
   limit: number;

@@ -3,7 +3,7 @@ import {
   AdministratorSchema,
   CustomerSchema,
   AddressSchema,
-  RegionSchema,
+  LocationV2Schema,
 } from '../schema';
 import { Tokens } from './auth.interface';
 
@@ -27,14 +27,28 @@ export interface SignUpBody
 
 export interface Address
   extends Omit<AddressSchema, 'customer_id' | 'region_id' | 'district_id' | 'ward_id'> {
-  region: RegionSchema;
-  district: RegionSchema;
-  ward: RegionSchema;
+  region: LocationV2Schema;
+  district: LocationV2Schema;
+  ward: LocationV2Schema;
 }
 
 export interface InitCustomerResponse {
   profile: Omit<Account, 'password' | 'refreshToken'>;
   addresses: Address[];
+}
+
+export interface InsertAddressBody
+  extends Omit<AddressSchema, '_id' | 'customer_id' | 'country' | 'created_at' | 'updated_at'> {}
+
+export interface InsertAddressResponse {
+  address: Address;
+}
+
+export interface EditAddressBody
+  extends Omit<AddressSchema, 'customer_id' | 'country' | 'created_at' | 'updated_at'> {}
+
+export interface EditAddressResponse {
+  address: Address;
 }
 
 export interface SwitchDefaultResponse {

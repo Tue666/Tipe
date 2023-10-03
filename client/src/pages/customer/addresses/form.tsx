@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { FocusEvent } from 'react';
+import { FocusEvent, ChangeEvent } from 'react';
 import { GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
 import { useSearchParams } from 'next/navigation';
@@ -22,19 +22,27 @@ import CustomerLayout from '@/layouts/customer';
 import MainLayout from '@/layouts/main';
 import { FormikProvider, Form as FormikForm, useFormik } from 'formik';
 import { Location } from '@/components/customer';
-import { useAppSelector } from '@/redux/hooks';
-import { selectCustomer } from '@/redux/slices/customer.slice';
+import { useAppDispatch, useAppSelector } from '@/redux/hooks';
+import { editAddress, insertAddress, selectCustomer } from '@/redux/slices/customer.slice';
 import { STYLE } from '@/configs/constants';
-import locationApi from '@/apis/locationApi';
-import { IAccount } from '@/models/interfaces';
+import locationV2Api from '@/apis/locationV2Api';
+import { ILocation } from '@/models/interfaces';
+import { PATH_CHECKOUT, PATH_CUSTOMER } from '@/configs/routers';
+
+export interface LocationFormProps {
+  region: ILocation.FindResponse['regions'][number]['_id'];
+  district: ILocation.FindResponse['districts'][number]['_id'];
+  ward: ILocation.FindResponse['wards'][number]['_id'];
+}
 
 interface FormProps {
-  regions: IAccount.Address['region'][];
+  locations: ILocation.FindResponse;
 }
 
 const Form: PageWithLayout<FormProps> = (props: FormProps) => {
-  const { regions } = props;
+  const { locations } = props;
   const { addresses } = useAppSelector(selectCustomer);
+  const dispatch = useAppDispatch();
   const router = useRouter();
   const searchParams = useSearchParams();
   const currentAddress = addresses.find((address) => address._id === searchParams.get('_id'));
@@ -59,18 +67,51 @@ const Form: PageWithLayout<FormProps> = (props: FormProps) => {
       isDefault: currentAddress?.is_default || false,
     },
     onSubmit: (values) => {
-      console.log(values);
+      const { phoneNumber, location, addressType, isDefault, ...other } = values;
+      const addressBody = {
+        phone_number: phoneNumber,
+        region_id: location.region,
+        district_id: location.district,
+        ward_id: location.ward,
+        delivery_address_type: addressType,
+        is_default: isDefault,
+        ...other,
+      };
+      if (currentAddress) {
+        dispatch(
+          editAddress({
+            _id: currentAddress._id,
+            ...addressBody,
+          })
+        );
+      } else {
+        dispatch(insertAddress(addressBody));
+      }
+      handleBack();
     },
   });
   const { values, touched, errors, isSubmitting, handleBlur, setFieldValue } = formik;
 
   const handleBack = () => {
-    router.back();
+    const isInShipping = searchParams.get('is_intended_shipping');
+    if (isInShipping) router.push(PATH_CHECKOUT.shipping);
+    else router.push(PATH_CUSTOMER.addresses);
   };
   const handleChangeInput = (e: FocusEvent<HTMLInputElement>) => {
     handleBlur(e);
     const value = e.target.value;
     setFieldValue(e.target.name, value);
+  };
+  const handleSelectedLocation = (changed: Partial<LocationFormProps>) => {
+    setFieldValue('location', { ...values.location, ...changed });
+  };
+  const handleChangeAddressType = (e: ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setFieldValue('addressType', value);
+  };
+  const handleChangeIsDefault = (e: ChangeEvent<HTMLInputElement>) => {
+    const isChecked = e.target.checked;
+    setFieldValue('isDefault', isChecked);
   };
   return (
     <Page title={`${currentAddress ? 'Edit' : 'Add new'} address | Tipe`}>
@@ -138,7 +179,15 @@ const Form: PageWithLayout<FormProps> = (props: FormProps) => {
                 helperText={touched.phoneNumber && errors.phoneNumber}
               />
             </Stack>
-            <Location regions={regions} location={values.location} />
+            <Location
+              locations={locations}
+              currentLocation={{
+                currentRegion: values.location.region,
+                currentDistrict: values.location.district,
+                currentWard: values.location.ward,
+              }}
+              handleSelectedLocation={handleSelectedLocation}
+            />
             <Stack direction={{ xs: 'column', md: 'row' }} alignItems="center">
               <Typography
                 variant="subtitle2"
@@ -167,29 +216,33 @@ const Form: PageWithLayout<FormProps> = (props: FormProps) => {
                 Address type
               </Typography>
               <FormControl>
-                <RadioGroup row value={values.addressType} onChange={() => {}}>
+                <RadioGroup row value={values.addressType} onChange={handleChangeAddressType}>
                   <FormControlLabel
                     value="home"
-                    control={<Radio size="small" />}
+                    control={<Radio size="small" color="secondary" />}
                     label="Private house / Apartment"
                   />
                   <FormControlLabel
                     value="company"
-                    control={<Radio size="small" />}
+                    control={<Radio size="small" color="secondary" />}
                     label="Agency / Company"
                   />
                 </RadioGroup>
               </FormControl>
             </Stack>
             <Stack direction="row" alignItems="center">
-              <Checkbox checked={false} size="small" onClick={() => {}} />
+              <Checkbox
+                checked={values.isDefault}
+                color="secondary"
+                size="small"
+                onChange={handleChangeIsDefault}
+              />
               <Typography variant="subtitle2">I wanna this address is default</Typography>
             </Stack>
             <LoadingButton
               type="submit"
               loading={isSubmitting}
               variant="contained"
-              color="success"
               disableElevation
             >
               SAVE CHANGE
@@ -214,10 +267,10 @@ Form.getLayout = (page) => {
   );
 };
 
-export const getStaticProps: GetStaticProps = async (context) => {
+export const getStaticProps: GetStaticProps = async () => {
   try {
-    const regions = await locationApi.findRegionsByCountry('VN');
-    if (_.isNil(regions) || _.isEmpty(regions)) {
+    const locations = await locationV2Api.find('VN');
+    if (_.isNil(locations) || _.isEmpty(locations)) {
       console.log('Location generated with error: resources not found');
       return {
         notFound: true,
@@ -226,7 +279,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
 
     return {
       props: {
-        regions,
+        locations,
       },
     };
   } catch (error) {

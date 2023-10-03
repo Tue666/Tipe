@@ -5,6 +5,7 @@ const cartsRouter = require('./carts');
 const categoriesRouter = require('./categories');
 const propertiesRouter = require('./properties');
 const locationsRouter = require('./locations');
+const locationsV2Router = require('./locations-v2');
 const ordersRouter = require('./orders');
 const paymentRouter = require('./payment');
 const operationsRouter = require('./operations');
@@ -18,6 +19,7 @@ const initialRoutes = (app) => {
   app.use('/api/categories', categoriesRouter);
   app.use('/api/properties', propertiesRouter);
   app.use('/api/locations', locationsRouter);
+  app.use('/api/locations-v2', locationsV2Router);
   app.use('/api/orders', ordersRouter);
   app.use('/api/payment', paymentRouter);
   app.use('/api/operations', operationsRouter);

@@ -4,3 +4,4 @@ export * as IAccount from './account';
 export * as ICategory from './category';
 export * as IProduct from './product';
 export * as ICart from './cart';
+export * as ILocation from './location';

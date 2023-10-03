@@ -1,20 +1,57 @@
-import { Fragment } from 'react';
+import { ChangeEvent, Fragment } from 'react';
 import { MenuItem, Stack, TextField, Typography } from '@mui/material';
 import { STYLE } from '@/configs/constants';
-import { IAccount } from '@/models/interfaces';
+import { ILocation } from '@/models/interfaces';
+import { LocationFormProps } from '@/pages/customer/addresses/form';
+import { Scope } from '@/models/interfaces/schema';
 
 interface LocationProps {
-  regions: IAccount.Address['region'][];
-  location: {
-    region: IAccount.Address['region']['_id'];
-    district: IAccount.Address['district']['_id'];
-    ward: IAccount.Address['ward']['_id'];
+  locations: ILocation.FindResponse;
+  currentLocation: {
+    currentRegion: ILocation.FindResponse['regions'][number]['_id'];
+    currentDistrict: ILocation.FindResponse['districts'][number]['_id'];
+    currentWard: ILocation.FindResponse['wards'][number]['_id'];
   };
+  handleSelectedLocation: (changed: Partial<LocationFormProps>) => void;
 }
 
 const Location = (props: LocationProps) => {
-  const { regions, location } = props;
-  const region = regions.find((region) => region._id === location.region);
+  const { locations, currentLocation, handleSelectedLocation } = props;
+  const { regions, districts, wards } = locations;
+  const { currentRegion, currentDistrict, currentWard } = currentLocation;
+  const region = regions.find((region) => region._id === currentRegion);
+  const district = districts.find((district) => district._id === currentDistrict);
+  const districtOptions = region
+    ? districts.filter((district) => district.parent_id === region._id)
+    : [];
+  const ward = wards.find((ward) => ward._id === currentWard);
+  const wardOptions = district ? wards.filter((ward) => ward.parent_id === district._id) : [];
+
+  const handleChangeLocation = (e: ChangeEvent<HTMLInputElement>, scope: Scope) => {
+    const value = e.target.value;
+    switch (scope) {
+      case 'REGION':
+        handleSelectedLocation({
+          region: value,
+          district: '',
+          ward: '',
+        });
+        break;
+      case 'DISTRICT':
+        handleSelectedLocation({
+          district: value,
+          ward: '',
+        });
+        break;
+      case 'WARD':
+        handleSelectedLocation({
+          ward: value,
+        });
+        break;
+      default:
+        break;
+    }
+  };
   return (
     <Fragment>
       <Stack direction={{ xs: 'column', md: 'row' }} alignItems="center">
@@ -31,7 +68,7 @@ const Location = (props: LocationProps) => {
           label="Select Province / City"
           size="small"
           color="secondary"
-          //   onChange={handleChangeRegion}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => handleChangeLocation(e, 'REGION')}
           //   error={Boolean(errors.region)}
           //   helperText={errors.region}
         >
@@ -55,26 +92,26 @@ const Location = (props: LocationProps) => {
           District
         </Typography>
         <TextField
-          //   value={hasDistrict?._id || ''}
+          value={district?._id || ''}
           fullWidth
           select
           label="Select District"
           size="small"
           color="secondary"
-          //   onChange={handleChangeDistrict}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => handleChangeLocation(e, 'DISTRICT')}
           //   error={Boolean(errors.district)}
           //   helperText={errors.district}
         >
           <MenuItem value="">Select District</MenuItem>
-          {/* {state.districts.length > 0 &&
-            state.districts.map((district) => {
+          {districtOptions.length > 0 &&
+            districtOptions.map((district) => {
               const { _id, name } = district;
               return (
                 <MenuItem key={_id} value={_id}>
                   {name}
                 </MenuItem>
               );
-            })} */}
+            })}
         </TextField>
       </Stack>
       <Stack direction={{ xs: 'column', md: 'row' }} alignItems="center">
@@ -85,26 +122,26 @@ const Location = (props: LocationProps) => {
           Ward
         </Typography>
         <TextField
-          //   value={hasWard?._id || ''}
+          value={ward?._id || ''}
           fullWidth
           select
           label="Select Ward"
           size="small"
           color="secondary"
-          //   onChange={handleChangeWard}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => handleChangeLocation(e, 'WARD')}
           //   error={Boolean(errors.ward)}
           //   helperText={errors.ward}
         >
           <MenuItem value="">Select Ward</MenuItem>
-          {/* {state.wards.length > 0 &&
-            state.wards.map((ward) => {
+          {wardOptions.length > 0 &&
+            wardOptions.map((ward) => {
               const { _id, name } = ward;
               return (
                 <MenuItem key={_id} value={_id}>
                   {name}
                 </MenuItem>
               );
-            })} */}
+            })}
         </TextField>
       </Stack>
     </Fragment>

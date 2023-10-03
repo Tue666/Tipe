@@ -22,6 +22,38 @@ export const slice = createSlice({
       state.profile = profile;
       state.addresses = addresses;
     },
+    insertAddressSuccess(
+      state: CustomerState,
+      action: PayloadAction<IAccount.InsertAddressResponse['address']>
+    ) {
+      const address = action.payload;
+      const { is_default } = address;
+      state.addresses = is_default
+        ? [address, ...state.addresses.map((address) => ({ ...address, is_default: false }))]
+        : [...state.addresses, address];
+    },
+    editAddressSuccess(
+      state: CustomerState,
+      action: PayloadAction<IAccount.EditAddressResponse['address']>
+    ) {
+      const address = action.payload;
+      const { _id, ...rest } = address;
+      const addressIndex = state.addresses.findIndex((address) => address._id === _id);
+      if (addressIndex !== -1) {
+        const addresses = rest.is_default
+          ? [
+              state.addresses[addressIndex],
+              ...state.addresses.slice(0, addressIndex),
+              ...state.addresses.slice(addressIndex + 1),
+            ]
+          : state.addresses;
+        state.addresses = addresses.map((address) =>
+          address._id === _id
+            ? { ...address, ...rest }
+            : { ...address, is_default: rest.is_default ? false : address.is_default }
+        );
+      }
+    },
     switchDefaultSuccess(
       state: CustomerState,
       action: PayloadAction<IAccount.SwitchDefaultResponse['_id']>
@@ -29,12 +61,12 @@ export const slice = createSlice({
       const _id = action.payload;
       const addressSwitchedIndex = state.addresses.findIndex((address) => address._id === _id);
       if (addressSwitchedIndex !== -1) {
-        const address = [
+        const addresses = [
           state.addresses[addressSwitchedIndex],
           ...state.addresses.slice(0, addressSwitchedIndex),
           ...state.addresses.slice(addressSwitchedIndex + 1),
         ];
-        state.addresses = address.map((address) => ({
+        state.addresses = addresses.map((address) => ({
           ...address,
           is_default: address._id === _id,
         }));
@@ -68,6 +100,25 @@ export const initCustomer = () => async (dispatch: AppDispatch) => {
         addresses,
       })
     );
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const insertAddress =
+  (params: IAccount.InsertAddressBody) => async (dispatch: AppDispatch) => {
+    try {
+      const { address } = await accountApi.insertAddress(params);
+      dispatch(slice.actions.insertAddressSuccess(address));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+export const editAddress = (params: IAccount.EditAddressBody) => async (dispatch: AppDispatch) => {
+  try {
+    const { address } = await accountApi.editAddress(params);
+    dispatch(slice.actions.editAddressSuccess(address));
   } catch (error) {
     console.log(error);
   }

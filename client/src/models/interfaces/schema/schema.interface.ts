@@ -1,3 +1,4 @@
+import { Country } from '../common';
 import { MetaSchema, SoftDeleteSchema, TimestampsSchema } from './common.interface';
 
 export type Type = {
@@ -81,24 +82,34 @@ export interface CartSchema {
   selected: boolean;
 }
 
-export type Country = 'VN';
+// export interface RegionSchema {
+//   _id: string;
+//   name: string;
+//   code: string;
+// }
 
-export interface RegionSchema {
+// export interface WardSchema extends RegionSchema {}
+
+// export interface DistrictSchema extends RegionSchema {
+//   wards: WardSchema[];
+// }
+
+// export interface LocationSchema extends RegionSchema {
+//   country: Country;
+//   districts: DistrictSchema[];
+// }
+
+export type Scope = 'REGION' | 'DISTRICT' | 'WARD' | 'UNSCOPED';
+
+export interface LocationV2Schema {
   _id: string;
   name: string;
   code: string;
+  parent_id: string | null;
+  scope: Scope;
 }
 
-export interface WardSchema extends RegionSchema {}
-
-export interface DistrictSchema extends RegionSchema {
-  wards: WardSchema[];
-}
-
-export interface LocationSchema extends RegionSchema {
-  country: Country;
-  districts: DistrictSchema[];
-}
+export type AddressType = 'home' | 'company';
 
 export interface AddressSchema extends TimestampsSchema {
   _id: string;
@@ -106,11 +117,11 @@ export interface AddressSchema extends TimestampsSchema {
   name: string;
   company: string;
   phone_number: AccountSchema['phone_number'];
-  region_id: LocationSchema['_id'];
-  district_id: DistrictSchema['_id'];
-  ward_id: WardSchema['_id'];
+  region_id: LocationV2Schema['_id'];
+  district_id: LocationV2Schema['_id'];
+  ward_id: LocationV2Schema['_id'];
   street: string;
-  delivery_address_type: 'home' | 'company';
+  delivery_address_type: AddressType;
   is_default: boolean;
   country: Country;
 }

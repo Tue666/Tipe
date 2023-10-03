@@ -40,6 +40,22 @@ const accountApi = {
     return ApiClient.get(url);
   },
 
+  // [POST] {{URL}}/api/accounts/addresses
+  insertAddress: (
+    insertAddressBody: IAccount.InsertAddressBody
+  ): Promise<IAccount.InsertAddressResponse> => {
+    const url = `/accounts/addresses`;
+    return ApiClient.post(url, insertAddressBody);
+  },
+
+  // [PUT] {{URL}}/api/accounts/addresses
+  editAddress: (
+    editAddressBody: IAccount.EditAddressBody
+  ): Promise<IAccount.EditAddressResponse> => {
+    const url = `/accounts/addresses`;
+    return ApiClient.put(url, editAddressBody);
+  },
+
   // [PATCH] {{URL}}/api/accounts/addresses/switch-default/:_id
   switchDefault: (_id: IAccount.Address['_id']): Promise<IAccount.SwitchDefaultResponse> => {
     const url = `/accounts/addresses/switch-default/${_id}`;

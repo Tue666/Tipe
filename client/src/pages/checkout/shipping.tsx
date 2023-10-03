@@ -10,7 +10,7 @@ import { removeAddress, selectCustomer, switchDefault } from '@/redux/slices/cus
 import { DeliveryAddress } from '@/components/checkout';
 import { useConfirm } from 'material-ui-confirm';
 import { IAccount } from '@/models/interfaces';
-import { PATH_CHECKOUT, PATH_MAIN } from '@/configs/routers';
+import { PATH_CHECKOUT, PATH_CUSTOMER, PATH_MAIN } from '@/configs/routers';
 
 const Shipping: PageWithLayout = () => {
   const { addresses } = useAppSelector(selectCustomer);
@@ -19,6 +19,9 @@ const Shipping: PageWithLayout = () => {
   const searchParams = useSearchParams();
   const confirm = useConfirm();
 
+  const handleNavigateAddress = (_id?: IAccount.Address['_id']) => {
+    router.push(`${PATH_CUSTOMER.addressForm}?is_intended_shipping=1${_id ? `&_id=${_id}` : ''}`);
+  };
   const handleSwitchAddress = (_id: IAccount.Address['_id']) => {
     dispatch(switchDefault(_id));
     const isInCart = searchParams.get('is_intended_cart');
@@ -57,6 +60,7 @@ const Shipping: PageWithLayout = () => {
                   <Grid key={_id} item md={6} sm={12} xs={12}>
                     <DeliveryAddress
                       address={address}
+                      handleNavigateAddress={handleNavigateAddress}
                       handleSwitchAddress={handleSwitchAddress}
                       handleRemoveAddress={handleRemoveAddress}
                     />
@@ -74,7 +78,7 @@ const Shipping: PageWithLayout = () => {
             variant="subtitle2"
             component="span"
             sx={{ fontWeight: 'bold', color: 'rgb(26 139 237)', cursor: 'pointer' }}
-            onClick={() => {}}
+            onClick={() => handleNavigateAddress()}
           >
             Add new delivery address
           </Typography>

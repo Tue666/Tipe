@@ -6,12 +6,13 @@ import MainLayout from '@/layouts/main';
 import CustomerLayout from '@/layouts/customer';
 import { Link } from '@/components/overrides';
 import { PATH_CUSTOMER } from '@/configs/routers';
-import { useAppSelector } from '@/redux/hooks';
-import { selectCustomer } from '@/redux/slices/customer.slice';
+import { useAppDispatch, useAppSelector } from '@/redux/hooks';
+import { removeAddress, selectCustomer } from '@/redux/slices/customer.slice';
 import { useConfirm } from 'material-ui-confirm';
 
 const Addresses: PageWithLayout = () => {
   const { addresses } = useAppSelector(selectCustomer);
+  const dispatch = useAppDispatch();
   const confirm = useConfirm();
 
   const handleRemoveAddress = async (_id: string) => {
@@ -23,6 +24,7 @@ const Addresses: PageWithLayout = () => {
           color: 'error',
         },
       });
+      dispatch(removeAddress(_id));
     } catch (error) {
       console.log(error);
     }

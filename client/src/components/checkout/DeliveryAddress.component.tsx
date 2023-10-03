@@ -7,12 +7,13 @@ interface AddressProps {
 
 interface DeliveryAddressProps {
   address: IAccount.Address;
+  handleNavigateAddress: (_id: IAccount.Address['_id']) => void;
   handleSwitchAddress: (_id: IAccount.Address['_id']) => void;
   handleRemoveAddress: (_id: IAccount.Address['_id']) => Promise<void>;
 }
 
 const DeliveryAddress = (props: DeliveryAddressProps) => {
-  const { address, handleSwitchAddress, handleRemoveAddress } = props;
+  const { address, handleNavigateAddress, handleSwitchAddress, handleRemoveAddress } = props;
   const { _id, name, phone_number, ward, district, region, street, is_default } = address;
   const delivery_address = `${street}, ${ward.name}, ${district.name}, ${region.name}`;
   return (
@@ -54,7 +55,7 @@ const DeliveryAddress = (props: DeliveryAddressProps) => {
             color="success"
             size="small"
             disableElevation
-            onClick={() => {}}
+            onClick={() => handleNavigateAddress(_id)}
           >
             Edit
           </Button>

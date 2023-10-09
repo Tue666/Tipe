@@ -10,7 +10,7 @@ export class RouterUtil {
     if (_.isNil(queryObj)) return url;
 
     for (const key in queryObj) {
-      if (ignoreEmpty && _.isNil(queryObj[key])) {
+      if (ignoreEmpty && (_.isNil(queryObj[key]) || _.isEmpty(queryObj[key]))) {
         continue;
       }
 

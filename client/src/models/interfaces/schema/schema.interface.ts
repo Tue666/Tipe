@@ -113,7 +113,7 @@ export type AddressType = 'home' | 'company';
 
 export interface AddressSchema extends TimestampsSchema {
   _id: string;
-  customer_id: string;
+  customer_id: CustomerSchema['_id'];
   name: string;
   company: string;
   phone_number: AccountSchema['phone_number'];
@@ -124,4 +124,37 @@ export interface AddressSchema extends TimestampsSchema {
   delivery_address_type: AddressType;
   is_default: boolean;
   country: Country;
+}
+
+export interface OrderSchema extends TimestampsSchema, SoftDeleteSchema {
+  customer_id: CustomerSchema['_id'];
+  shipping_address: Omit<AddressSchema, 'customer_id' | 'is_default' | keyof TimestampsSchema>;
+  payment_method: {
+    method_text: string;
+    method_key: string;
+    message: string;
+    description: string;
+  };
+  items: Pick<
+    ProductSchema,
+    | '_id'
+    | 'name'
+    | 'images'
+    | 'original_price'
+    | 'price'
+    | 'limit'
+    | 'quantity'
+    | 'inventory_status'
+    | 'slug'
+  >[];
+  price_summary: {
+    name: string;
+    value: number;
+  }[];
+  tracking_info: {
+    status: string;
+    status_text: string;
+    time: string;
+  };
+  note: string;
 }

@@ -97,167 +97,167 @@ class AccountsAPI {
       // const { permissions, ...profile } = result[0];
 
       const profile = await Account.findOne({ _id }).select('-password -refreshToken');
+      const addresses = await Address.aggregate([
+        {
+          $match: {
+            customer_id: _id,
+          },
+        },
+        // // get the location matched for receive region, district, ward
+        // {
+        //   $lookup: {
+        //     from: 'locations',
+        //     let: {
+        //       region_id: '$region_id',
+        //     },
+        //     pipeline: [
+        //       {
+        //         $match: {
+        //           $expr: { $eq: ['$_id', '$$region_id'] },
+        //         },
+        //       },
+        //     ],
+        //     as: 'location',
+        //   },
+        // },
+        // {
+        //   $addFields: {
+        //     location: { $arrayElemAt: ['$location', 0] },
+        //   },
+        // },
+        // {
+        //   $addFields: {
+        //     country: '$location.country',
+        //     region: {
+        //       name: '$location.name',
+        //       code: '$location.code',
+        //       _id: '$location._id',
+        //     },
+        //     district: {
+        //       $arrayElemAt: [
+        //         {
+        //           $filter: {
+        //             input: '$location.districts',
+        //             cond: {
+        //               $eq: ['$$this._id', '$district_id'],
+        //             },
+        //           },
+        //         },
+        //         0,
+        //       ],
+        //     },
+        //   },
+        // },
+        // {
+        //   $addFields: {
+        //     ward: {
+        //       $arrayElemAt: [
+        //         {
+        //           $filter: {
+        //             input: '$district.wards',
+        //             cond: {
+        //               $eq: ['$$this._id', '$ward_id'],
+        //             },
+        //           },
+        //         },
+        //         0,
+        //       ],
+        //     },
+        //   },
+        // },
+        // {
+        //   $project: {
+        //     name: 1,
+        //     company: 1,
+        //     phone_number: 1,
+        //     street: 1,
+        //     delivery_address_type: 1,
+        //     is_default: 1,
+        //     country: 1,
+        //     region: 1,
+        //     district: {
+        //       name: 1,
+        //       code: 1,
+        //       _id: 1,
+        //     },
+        //     ward: 1,
+        //   },
+        // },
+        {
+          $lookup: {
+            from: 'locationsv2',
+            let: {
+              region_id: '$region_id',
+              district_id: '$district_id',
+              ward_id: '$ward_id',
+            },
+            pipeline: [
+              {
+                $match: {
+                  $expr: { $in: ['$_id', ['$$region_id', '$$district_id', '$$ward_id']] },
+                },
+              },
+            ],
+            as: 'locations',
+          },
+        },
+        {
+          $project: {
+            name: 1,
+            company: 1,
+            phone_number: 1,
+            street: 1,
+            delivery_address_type: 1,
+            is_default: 1,
+            region: {
+              $arrayElemAt: [
+                {
+                  $filter: {
+                    input: '$locations',
+                    as: 'location',
+                    cond: { $eq: ['$$location.scope', 'REGION'] },
+                  },
+                },
+                0,
+              ],
+            },
+            district: {
+              $arrayElemAt: [
+                {
+                  $filter: {
+                    input: '$locations',
+                    as: 'location',
+                    cond: { $eq: ['$$location.scope', 'DISTRICT'] },
+                  },
+                },
+                0,
+              ],
+            },
+            ward: {
+              $arrayElemAt: [
+                {
+                  $filter: {
+                    input: '$locations',
+                    as: 'location',
+                    cond: { $eq: ['$$location.scope', 'WARD'] },
+                  },
+                },
+                0,
+              ],
+            },
+          },
+        },
+        {
+          $sort: { is_default: -1 },
+        },
+      ]);
 
       let dependentDetails = {};
       const account_type = profile.account_type;
       switch (account_type) {
         case Types.customer:
-          const addresses = await Address.aggregate([
-            {
-              $match: {
-                customer_id: _id,
-              },
-            },
-            // // get the location matched for receive region, district, ward
-            // {
-            //   $lookup: {
-            //     from: 'locations',
-            //     let: {
-            //       region_id: '$region_id',
-            //     },
-            //     pipeline: [
-            //       {
-            //         $match: {
-            //           $expr: { $eq: ['$_id', '$$region_id'] },
-            //         },
-            //       },
-            //     ],
-            //     as: 'location',
-            //   },
-            // },
-            // {
-            //   $addFields: {
-            //     location: { $arrayElemAt: ['$location', 0] },
-            //   },
-            // },
-            // {
-            //   $addFields: {
-            //     country: '$location.country',
-            //     region: {
-            //       name: '$location.name',
-            //       code: '$location.code',
-            //       _id: '$location._id',
-            //     },
-            //     district: {
-            //       $arrayElemAt: [
-            //         {
-            //           $filter: {
-            //             input: '$location.districts',
-            //             cond: {
-            //               $eq: ['$$this._id', '$district_id'],
-            //             },
-            //           },
-            //         },
-            //         0,
-            //       ],
-            //     },
-            //   },
-            // },
-            // {
-            //   $addFields: {
-            //     ward: {
-            //       $arrayElemAt: [
-            //         {
-            //           $filter: {
-            //             input: '$district.wards',
-            //             cond: {
-            //               $eq: ['$$this._id', '$ward_id'],
-            //             },
-            //           },
-            //         },
-            //         0,
-            //       ],
-            //     },
-            //   },
-            // },
-            // {
-            //   $project: {
-            //     name: 1,
-            //     company: 1,
-            //     phone_number: 1,
-            //     street: 1,
-            //     delivery_address_type: 1,
-            //     is_default: 1,
-            //     country: 1,
-            //     region: 1,
-            //     district: {
-            //       name: 1,
-            //       code: 1,
-            //       _id: 1,
-            //     },
-            //     ward: 1,
-            //   },
-            // },
-            {
-              $lookup: {
-                from: 'locationsv2',
-                let: {
-                  region_id: '$region_id',
-                  district_id: '$district_id',
-                  ward_id: '$ward_id',
-                },
-                pipeline: [
-                  {
-                    $match: {
-                      $expr: { $in: ['$_id', ['$$region_id', '$$district_id', '$$ward_id']] },
-                    },
-                  },
-                ],
-                as: 'locations',
-              },
-            },
-            {
-              $project: {
-                name: 1,
-                company: 1,
-                phone_number: 1,
-                street: 1,
-                delivery_address_type: 1,
-                is_default: 1,
-                region: {
-                  $arrayElemAt: [
-                    {
-                      $filter: {
-                        input: '$locations',
-                        as: 'location',
-                        cond: { $eq: ['$$location.scope', 'REGION'] },
-                      },
-                    },
-                    0,
-                  ],
-                },
-                district: {
-                  $arrayElemAt: [
-                    {
-                      $filter: {
-                        input: '$locations',
-                        as: 'location',
-                        cond: { $eq: ['$$location.scope', 'DISTRICT'] },
-                      },
-                    },
-                    0,
-                  ],
-                },
-                ward: {
-                  $arrayElemAt: [
-                    {
-                      $filter: {
-                        input: '$locations',
-                        as: 'location',
-                        cond: { $eq: ['$$location.scope', 'WARD'] },
-                      },
-                    },
-                    0,
-                  ],
-                },
-              },
-            },
-            {
-              $sort: { is_default: -1 },
-            },
-          ]);
-
-          dependentDetails['addresses'] = addresses;
+          break;
+        case Types.administrator:
           break;
         default:
           break;
@@ -265,6 +265,7 @@ class AccountsAPI {
 
       res.status(200).json({
         profile,
+        addresses,
         ...dependentDetails,
       });
     } catch (error) {

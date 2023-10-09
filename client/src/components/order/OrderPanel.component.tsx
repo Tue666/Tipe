@@ -1,7 +1,14 @@
 import { Button, Divider, Stack, Typography } from '@mui/material';
 import { Image } from '../overrides';
+import { IOrder } from '@/models/interfaces';
 
-const OrderPanel = () => {
+interface OrderPanelProps {
+  orders: IOrder.Order[];
+}
+
+const OrderPanel = (props: OrderPanelProps) => {
+  const { orders } = props;
+  console.log(orders);
   return (
     <Stack spacing={1}>
       <Stack p={2} spacing={1} sx={{ bgcolor: (theme) => theme.palette.background.paper }}>

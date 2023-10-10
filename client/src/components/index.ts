@@ -4,6 +4,7 @@ export { default as ContentToggle } from './ContentToggle.component';
 export { default as Ellipsis } from './Ellipsis.component';
 export { default as Hidden } from './Hidden.component';
 export { default as LightBox } from './LightBox.component';
+export { default as Loading } from './Loading.component';
 export { default as Logo } from './Logo.component';
 export { default as Modal } from './Modal.component';
 export { default as Page } from './Page.component';

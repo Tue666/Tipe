@@ -105,7 +105,7 @@ class ProductsAPI {
 
   // [GET] /products/suggestion
   /*
-		page: Number,
+		newest: Number,
 		number: Number
 	*/
   async findForSuggestion(req, res, next) {

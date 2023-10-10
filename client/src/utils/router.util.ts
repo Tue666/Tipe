@@ -10,11 +10,11 @@ export class RouterUtil {
     if (_.isNil(queryObj)) return url;
 
     for (const key in queryObj) {
-      if (ignoreEmpty && (_.isNil(queryObj[key]) || _.isEmpty(queryObj[key]))) {
+      if (ignoreEmpty && (_.isNil(queryObj[key]) || queryObj[key] === '')) {
         continue;
       }
 
-      if (!_.isEmpty(url)) {
+      if (url !== '') {
         url += '&';
       }
       url += key + '=' + encodeURIComponent(queryObj[key]);

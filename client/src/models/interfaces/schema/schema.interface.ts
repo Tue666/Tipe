@@ -126,7 +126,16 @@ export interface AddressSchema extends TimestampsSchema {
   country: Country;
 }
 
+export type OrderStatus =
+  | 'all'
+  | 'awaiting_payment'
+  | 'processing'
+  | 'transporting'
+  | 'delivered'
+  | 'canceled';
+
 export interface OrderSchema extends TimestampsSchema, SoftDeleteSchema {
+  _id: string;
   customer_id: CustomerSchema['_id'];
   shipping_address: Omit<AddressSchema, 'customer_id' | 'is_default' | keyof TimestampsSchema>;
   payment_method: {
@@ -152,7 +161,7 @@ export interface OrderSchema extends TimestampsSchema, SoftDeleteSchema {
     value: number;
   }[];
   tracking_info: {
-    status: string;
+    status: OrderStatus;
     status_text: string;
     time: string;
   };

@@ -8,13 +8,13 @@ const Product = require('../models/Product');
 const { fNumberWithSuffix } = require('../../utils/formatNumber');
 
 class OrdersAPI {
-  // [GET] /orders?page&limit&[status][search]
+  // [GET] /orders?newest&limit&[status][search]
   async findByStatus(req, res, next) {
     try {
       let customer_id = req.account._id;
       customer_id = mongoose.Types.ObjectId(customer_id);
-      let { page, limit, status, search } = req.query;
-      page = parseInt(page);
+      let { newest, limit, status, search } = req.query;
+      newest = newest ? parseInt(newest) : 0;
       limit = parseInt(limit);
 
       const filter = {
@@ -30,16 +30,13 @@ class OrdersAPI {
         ];
       const totalProduct = await Order.count(filter);
       const totalPage = Math.ceil(totalProduct / limit);
-      const orders = await Order.find(filter)
-        .sort({ updatedAt: -1 })
-        .skip((page - 1) * limit)
-        .limit(limit);
+      const orders = await Order.find(filter).sort({ updatedAt: -1 }).skip(newest).limit(limit);
 
       res.status(200).json({
         orders,
         pagination: {
           totalPage,
-          currentPage: page,
+          currentPage: totalPage > 0 ? newest / limit + 1 : 0,
         },
       });
     } catch (error) {

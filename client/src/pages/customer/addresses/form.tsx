@@ -256,19 +256,6 @@ const Form: PageWithLayout<FormProps> = (props: FormProps) => {
   );
 };
 
-const Root = styled(Stack)(({ theme }) => ({
-  backgroundColor: theme.palette.background.paper,
-  borderRadius: '8px',
-}));
-
-Form.getLayout = (page) => {
-  return (
-    <MainLayout>
-      <CustomerLayout>{page}</CustomerLayout>
-    </MainLayout>
-  );
-};
-
 export const getStaticProps: GetStaticProps = async () => {
   try {
     const locations = await locationV2Api.find('VN');
@@ -290,6 +277,19 @@ export const getStaticProps: GetStaticProps = async () => {
       notFound: true,
     };
   }
+};
+
+const Root = styled(Stack)(({ theme }) => ({
+  backgroundColor: theme.palette.background.paper,
+  borderRadius: '8px',
+}));
+
+Form.getLayout = (page) => {
+  return (
+    <MainLayout>
+      <CustomerLayout>{page}</CustomerLayout>
+    </MainLayout>
+  );
 };
 
 export default Form;

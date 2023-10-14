@@ -1,27 +1,45 @@
+import { isAxiosError } from 'axios';
 import { useRouter } from 'next/router';
-import { Button, Divider, Stack, Typography, styled } from '@mui/material';
+import { Alert, Button, Divider, Stack, Typography, styled } from '@mui/material';
 import { Link } from '../overrides';
 import { STYLE } from '@/configs/constants';
 import { productAvailable, toVND } from '@/utils';
-import { StatisticsGroup, CartState, getSelectedItems } from '@/redux/slices/cart.slice';
-import { useAppSelector } from '@/redux/hooks';
+import {
+  StatisticsGroup,
+  CartState,
+  getSelectedItems,
+  removeSelected,
+} from '@/redux/slices/cart.slice';
+import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { selectCustomer } from '@/redux/slices/customer.slice';
 import { PATH_CHECKOUT, PATH_MAIN } from '@/configs/routers';
+import { IOrder, ISchema } from '@/models/interfaces';
+import { useConfirm } from 'material-ui-confirm';
+import orderApi from '@/apis/orderApi';
 
 interface PriceStatisticsProps extends Pick<CartState, 'items' | 'statistics' | 'payment'> {}
 
 const PriceStatistics = (props: PriceStatisticsProps) => {
   const { items, statistics, payment } = props;
   const { addresses } = useAppSelector(selectCustomer);
+  const dispatch = useAppDispatch();
   const { pathname, push } = useRouter();
+  const confirm = useConfirm();
   const selectedCount = items.filter((item) => {
     const { selected, product } = item;
     return selected && productAvailable(product.inventory_status, product.quantity);
   }).length;
-  const totalPrice = (Object.keys(statistics) as Array<StatisticsGroup>).reduce(
-    (sum, group) => sum + statistics[group].value * statistics[group].sign,
-    0
-  );
+  const priceSummary: ISchema.PriceSummary[] = [];
+  const totalPrice = (Object.keys(statistics) as Array<StatisticsGroup>).reduce((sum, group) => {
+    const { value, sign } = statistics[group];
+    const price = value * sign;
+    if (value > 0)
+      priceSummary.push({
+        name: group,
+        value: price,
+      });
+    return sum + price;
+  }, 0);
   const defaultAddress = addresses.find((address) => address.is_default);
   const isIntendedCart = pathname.indexOf(PATH_MAIN.cart) !== -1;
   const hrefToShipping = `${PATH_CHECKOUT.shipping}${isIntendedCart ? '?is_intended_cart=1' : ''}`;
@@ -30,27 +48,68 @@ const PriceStatistics = (props: PriceStatisticsProps) => {
     if (defaultAddress) push(PATH_CHECKOUT.payment);
     else push(hrefToShipping);
   };
-  const handleOrder = () => {
-    if (!defaultAddress) return;
-    const { region, district, ward, is_default, ...rest } = defaultAddress;
-    const { method, label } = payment;
-    const orderData = {
-      shipping_address: {
-        region: region.name,
-        district: district.name,
-        ward: ward.name,
-        ...rest,
-      },
-      payment_method: {
-        method_key: method,
-        method_text: label,
-        // message: payment?.message || '',
-        // description: payment?.description || '',
-      },
-      items: getSelectedItems(items),
-      price_summary: statistics,
-    };
-    console.log(orderData);
+  const handleOrder = async () => {
+    if (!defaultAddress) {
+      console.log('===== You have not set address for order yet');
+      return;
+    }
+    if (selectedCount < 1) {
+      console.log('===== You have not selected any products to order yet');
+      return;
+    }
+    if (!payment.method_key) {
+      console.log('===== You have not selected any payment method');
+      return;
+    }
+
+    try {
+      await confirm({
+        title: 'Order',
+        content: <Alert severity="info">Checked the products and confirmed the order</Alert>,
+      });
+
+      const { region, district, ward, is_default, ...rest } = defaultAddress;
+      const orderItems = getSelectedItems(items).map((item) => {
+        const { quantity, product } = item;
+        return {
+          ...product,
+          quantity,
+        };
+      });
+
+      const insertBody: IOrder.InsertBody = {
+        shipping_address: {
+          region: region.name,
+          district: district.name,
+          ward: ward.name,
+          ...rest,
+        },
+        payment_method: payment,
+        items: orderItems,
+        price_summary: priceSummary,
+      };
+
+      const { orderedItems } = await orderApi.insert(insertBody);
+      dispatch(removeSelected(orderedItems));
+
+      switch (payment.method_key) {
+        case 'momo':
+        case 'vnpay':
+        case 'international':
+          break;
+        default:
+          push(`${PATH_CHECKOUT.result}?status=200`);
+          break;
+      }
+    } catch (error) {
+      if (error === undefined) return;
+      if (isAxiosError(error) && error.response) {
+        const { status } = error.response;
+        push(`${PATH_CHECKOUT.result}?status=${status}`);
+      } else {
+        push(`${PATH_CHECKOUT.result}?status=500`);
+      }
+    }
   };
   return (
     <Root>

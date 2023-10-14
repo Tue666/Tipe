@@ -123,7 +123,6 @@ export interface AddressSchema extends TimestampsSchema {
   street: string;
   delivery_address_type: AddressType;
   is_default: boolean;
-  country: Country;
 }
 
 export type OrderStatus =
@@ -134,16 +133,32 @@ export type OrderStatus =
   | 'delivered'
   | 'canceled';
 
+export type PaymentMethod = 'cash' | 'momo' | 'vnpay' | 'international';
+
+export interface Payment {
+  method_key: null | PaymentMethod;
+  method_text: string;
+  message?: string;
+  description?: string;
+}
+
+export interface PriceSummary {
+  name: string;
+  value: number;
+}
+
 export interface OrderSchema extends TimestampsSchema, SoftDeleteSchema {
   _id: string;
   customer_id: CustomerSchema['_id'];
-  shipping_address: Omit<AddressSchema, 'customer_id' | 'is_default' | keyof TimestampsSchema>;
-  payment_method: {
-    method_text: string;
-    method_key: string;
-    message: string;
-    description: string;
+  shipping_address: Omit<
+    AddressSchema,
+    'customer_id' | 'region_id' | 'district_id' | 'ward_id' | 'is_default' | keyof TimestampsSchema
+  > & {
+    region: LocationV2Schema['name'];
+    district: LocationV2Schema['name'];
+    ward: LocationV2Schema['name'];
   };
+  payment_method: Payment;
   items: Pick<
     ProductSchema,
     | '_id'
@@ -156,10 +171,7 @@ export interface OrderSchema extends TimestampsSchema, SoftDeleteSchema {
     | 'inventory_status'
     | 'slug'
   >[];
-  price_summary: {
-    name: string;
-    value: number;
-  }[];
+  price_summary: PriceSummary[];
   tracking_info: {
     status: OrderStatus;
     status_text: string;

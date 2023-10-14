@@ -7,7 +7,6 @@ const Order = new Schema(
     customer_id: { type: mongoose.Types.ObjectId, ref: 'Account', required: true },
     shipping_address: {
       _id: { type: mongoose.Types.ObjectId, required: true },
-      country: { type: String, required: true },
       name: { type: String, required: true },
       phone_number: { type: String, required: true },
       company: { type: String },

@@ -4,9 +4,8 @@ import { Image, Link } from '../overrides';
 import { Hidden, QuantityInput } from '@/components';
 import { STYLE } from '@/configs/constants';
 import { ICart } from '@/models/interfaces';
-import { appConfig } from '@/configs/apis';
 import { PATH_MAIN } from '@/configs/routers';
-import { productAvailable, toVND } from '@/utils';
+import { buildImageLink, productAvailable, toVND } from '@/utils';
 import { useAppDispatch } from '@/redux/hooks';
 import { editQuantity } from '@/redux/slices/cart.slice';
 
@@ -62,7 +61,7 @@ const CartItem = (props: CartItemProps) => {
         <Link href={link}>
           <Image
             alt={name}
-            src={`${appConfig.image_storage_url}/${images[0]}`}
+            src={buildImageLink(images[0])}
             sx={{
               width: STYLE.DESKTOP.CART.ITEM_IMAGE_SIZE,
               height: STYLE.DESKTOP.CART.ITEM_IMAGE_SIZE,

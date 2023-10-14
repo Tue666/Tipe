@@ -3,9 +3,9 @@ import { Image } from '../overrides';
 import Ellipsis from '../Ellipsis.component';
 import { STYLE } from '@/configs/constants';
 import { ICategory } from '@/models/interfaces';
-import { appConfig } from '@/configs/apis';
 import { PATH_MAIN } from '@/configs/routers';
 import Link from 'next/link';
+import { buildImageLink } from '@/utils';
 
 interface CategoriesProps {
   id: string;
@@ -27,8 +27,8 @@ const Categories = (props: CategoriesProps) => {
                 <Link href={PATH_MAIN.category(slug, _id)}>
                   <Category direction="row" alignItems="center" spacing={2}>
                     <Image
-                      src={`${appConfig.image_storage_url}/${image}`}
-                      alt=""
+                      src={buildImageLink(image)}
+                      alt={name}
                       sx={{
                         width: parseInt(STYLE.DESKTOP.CATEGORIES.ICON_SIZE),
                         height: parseInt(STYLE.DESKTOP.CATEGORIES.ICON_SIZE),

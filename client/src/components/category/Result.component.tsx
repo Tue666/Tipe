@@ -3,7 +3,7 @@ import { HelpOutline } from '@mui/icons-material';
 import { ProductCard } from '@/components';
 import { Carousel } from '../_external_/react-slick';
 import { Image } from '../overrides';
-import { appConfig } from '@/configs/apis';
+import { buildImageLink } from '@/utils';
 
 interface ResultProps {
   name: string;
@@ -27,8 +27,8 @@ const Result = (props: ResultProps) => {
               return (
                 <Image
                   key={index}
-                  src={`${appConfig.image_storage_url}/${banner}`}
-                  alt=""
+                  src={buildImageLink(banner)}
+                  alt="banner"
                   sx={{
                     height: '250px',
                   }}

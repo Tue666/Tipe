@@ -27,7 +27,6 @@ class CategoriesAPI {
   async findById(req, res, next) {
     try {
       let { _id } = req.params;
-      console.log(`category ${_id}`);
       _id = parseInt(_id);
 
       const result = await Category.aggregate([

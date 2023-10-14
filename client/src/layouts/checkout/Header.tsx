@@ -20,6 +20,11 @@ const STEPS = [
     value: 2,
     label: 'Order & Payment',
   },
+  {
+    href: PATH_CHECKOUT.result,
+    value: 3,
+    label: 'Result',
+  },
 ];
 
 const Header = () => {

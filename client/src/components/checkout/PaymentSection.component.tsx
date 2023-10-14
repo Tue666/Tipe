@@ -10,59 +10,58 @@ import {
 } from '@mui/material';
 import Ellipsis from '../Ellipsis.component';
 import { STYLE } from '@/configs/constants';
-import { ICart } from '@/models/interfaces';
+import { ICart, ISchema } from '@/models/interfaces';
 import { Image } from '../overrides';
-import { appConfig } from '@/configs/apis';
-import { toVND } from '@/utils';
+import { buildImageLink, toVND } from '@/utils';
 import { PATH_IMAGE } from '@/configs/routers';
-import { Payment, changePayment } from '@/redux/slices/cart.slice';
+import { changePayment } from '@/redux/slices/cart.slice';
 import { useAppDispatch } from '@/redux/hooks';
 
-interface PaymentMethodProps extends Payment {
+interface PaymentMethodProps extends ISchema.Payment {
   icon: string;
-  render: (label: PaymentMethodProps['label']) => JSX.Element;
+  render: (label: PaymentMethodProps['method_text']) => JSX.Element;
 }
 
 const PAYMENTS: PaymentMethodProps[] = [
   {
-    method: 'cash',
-    label: 'Cash payment upon receipt',
-    icon: `${PATH_IMAGE.icons}/credit.png`,
+    method_key: 'cash',
+    method_text: 'Cash payment upon receipt',
+    icon: `${PATH_IMAGE.icons}/payment/cash.png`,
     render: (label: string) => <Typography variant="subtitle2">{label}</Typography>,
   },
   {
-    method: 'momo',
-    label: 'Pay by Momo wallet',
-    icon: `${PATH_IMAGE.icons}/credit.png`,
+    method_key: 'momo',
+    method_text: 'Pay by Momo wallet',
+    icon: `${PATH_IMAGE.icons}/payment/momo.png`,
     render: (label: string) => <Typography variant="subtitle2">{label}</Typography>,
   },
   {
-    method: 'vnpay',
-    label: 'Pay by VNPAY',
-    icon: `${PATH_IMAGE.icons}/credit.png`,
+    method_key: 'vnpay',
+    method_text: 'Pay by VNPAY',
+    icon: `${PATH_IMAGE.icons}/payment/vnpay.png`,
     render: (label: string) => <Typography variant="subtitle2">{label}</Typography>,
   },
   {
-    method: 'international',
-    label: 'Payment by international card Visa, Credit Card, Paypal',
-    icon: `${PATH_IMAGE.icons}/visa.png`,
+    method_key: 'international',
+    method_text: 'Payment by international card Visa, Credit Card, Paypal',
+    icon: `${PATH_IMAGE.icons}/payment/visa.png`,
     render: (label: string) => (
       <div>
         <Typography variant="subtitle2">{label}</Typography>
         <Stack direction="row" alignItems="center" spacing={1}>
           <Image
             alt="visa"
-            src={`${PATH_IMAGE.icons}/visa.png`}
+            src={`${PATH_IMAGE.icons}/payment/visa.png`}
             sx={{ width: '18px', height: '18px' }}
           />
           <Image
             alt="credit"
-            src={`${PATH_IMAGE.icons}/credit.png`}
+            src={`${PATH_IMAGE.icons}/payment/credit.png`}
             sx={{ width: '18px', height: '18px' }}
           />
           <Image
             alt="paypal"
-            src={`${PATH_IMAGE.icons}/paypal.png`}
+            src={`${PATH_IMAGE.icons}/payment/paypal.png`}
             sx={{ width: '18px', height: '18px' }}
           />
         </Stack>
@@ -73,7 +72,7 @@ const PAYMENTS: PaymentMethodProps[] = [
 
 interface PaymentSectionProps {
   paymentItems: ICart.CartItem[];
-  payment: Payment;
+  payment: ISchema.Payment;
 }
 
 const PaymentSection = (props: PaymentSectionProps) => {
@@ -82,7 +81,7 @@ const PaymentSection = (props: PaymentSectionProps) => {
 
   const handleChangePayment = (e: ChangeEvent<HTMLInputElement>) => {
     const method = e.target.value;
-    const payment = PAYMENTS.find((payment) => payment.method === method);
+    const payment = PAYMENTS.find((payment) => payment.method_key === method);
     if (!payment) {
       console.log(`${method} not found`);
       return;
@@ -90,8 +89,8 @@ const PaymentSection = (props: PaymentSectionProps) => {
 
     dispatch(
       changePayment({
-        method: payment.method,
-        label: payment.label,
+        method_key: payment.method_key,
+        method_text: payment.method_text,
       })
     );
   };
@@ -107,7 +106,7 @@ const PaymentSection = (props: PaymentSectionProps) => {
               <DeliveryItem key={_id}>
                 <Image
                   alt={name}
-                  src={`${appConfig.image_storage_url}/${images[0]}`}
+                  src={buildImageLink(images[0])}
                   sx={{
                     width: STYLE.DESKTOP.CART.ITEM_IMAGE_SIZE,
                     height: STYLE.DESKTOP.CART.ITEM_IMAGE_SIZE,
@@ -126,25 +125,25 @@ const PaymentSection = (props: PaymentSectionProps) => {
       <Section>
         <Typography variant="subtitle2">Payment methods</Typography>
         <FormControl>
-          <RadioGroup value={payment.method} onChange={handleChangePayment}>
+          <RadioGroup value={payment.method_key} onChange={handleChangePayment}>
             {PAYMENTS.map((payment) => {
-              const { method, icon, label, render } = payment;
+              const { method_key, icon, method_text, render } = payment;
               return (
                 <FormControlLabel
-                  key={method}
-                  value={method}
+                  key={method_key}
+                  value={method_key}
                   control={<Radio size="small" />}
                   label={
                     <Stack direction="row" alignItems="center" spacing={1}>
                       <Image
-                        alt={method ?? ''}
+                        alt={method_key ?? ''}
                         src={icon}
                         sx={{
                           width: '32px',
                           height: '32px',
                         }}
                       />
-                      {render(label)}
+                      {render(method_text)}
                     </Stack>
                   }
                 />

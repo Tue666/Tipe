@@ -7,8 +7,8 @@ const ordersAPI = require('../app/controllers/OrdersAPI');
 const verifyToken = require('../app/middlewares/verifyToken');
 
 router.patch('/status', verifyToken, ordersAPI.editStatus);
-router.post('/', verifyToken, ordersAPI.create);
-router.get('/:_id', verifyToken, ordersAPI.findById);
+router.post('/', verifyToken, ordersAPI.insert);
+router.get('/:_id', ordersAPI.findById);
 router.get('/', verifyToken, ordersAPI.findByStatus);
 
 module.exports = router;

@@ -1,6 +1,6 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { AppDispatch, RootState } from '../store';
-import { ICart } from '@/models/interfaces';
+import { ICart, ISchema } from '@/models/interfaces';
 import cartApi from '@/apis/cartApi';
 import { productAvailable } from '@/utils';
 import { FreeShippingPoint } from '@/models/interfaces/cart';
@@ -14,18 +14,11 @@ export type Statistics = {
   };
 };
 
-export type PaymentMethod = null | 'cash' | 'momo' | 'vnpay' | 'international';
-
-export interface Payment {
-  method: PaymentMethod;
-  label: string;
-}
-
 export interface CartState {
   items: ICart.CartItem[];
   statistics: Statistics;
   freeShippingPoints: ICart.FreeShippingPoint[];
-  payment: Payment;
+  payment: ISchema.Payment;
 }
 
 export interface CalculateStatisticsProps {
@@ -106,8 +99,8 @@ const initialState: CartState = {
     },
   ],
   payment: {
-    method: null,
-    label: '',
+    method_key: null,
+    method_text: '',
   },
 };
 
@@ -208,6 +201,17 @@ export const slice = createSlice({
         };
       }
     },
+    removeSelected(state: CartState, action: PayloadAction<ICart.CartItem['_id'][]>) {
+      const orderedItems = action.payload;
+      state.items = state.items.filter((item) => orderedItems.indexOf(item.product._id) === -1);
+      state.statistics = {
+        ...state.statistics,
+        ...calculateStatistics({
+          guess: { items: state.items },
+          freeShippingPoints: state.freeShippingPoints,
+        }),
+      };
+    },
     clearCart(state: CartState) {
       state.items = [];
       state.statistics = {} as CartState['statistics'];
@@ -220,7 +224,7 @@ export const slice = createSlice({
 });
 
 const { reducer, actions } = slice;
-export const { clearCart, changePayment } = actions;
+export const { removeSelected, clearCart, changePayment } = actions;
 export const selectCart = (state: RootState) => state.cart;
 export default reducer;
 

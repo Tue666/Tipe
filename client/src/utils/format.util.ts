@@ -1,3 +1,5 @@
+import { appConfig } from '@/configs/apis';
+
 export const toVND = (number: number) => {
   return number.toLocaleString('vi', { style: 'currency', currency: 'VND' });
 };
@@ -12,4 +14,9 @@ export const toAbbreviated = (number: number) => {
   };
 
   return number > 0 ? formatNumber(number) : `-${formatNumber(number * -1)}`;
+};
+
+export const buildImageLink = (image: string, prefixes: string[] = ['https', 'http']) => {
+  const isExternalLink = prefixes.some((prefix) => image.indexOf(prefix) >= 0);
+  return isExternalLink ? image : `${appConfig.image_storage_url}/${image}`;
 };

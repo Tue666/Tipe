@@ -7,12 +7,12 @@ export interface MetaSchema {
 }
 
 export interface TimestampsSchema {
-  created_at: Date;
-  updated_at: Date;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface SoftDeleteSchema {
-  deleted_at: Date;
+  deleted_at: string;
   deleted_by: {
     _id: AccountSchema['_id'];
     name: string;

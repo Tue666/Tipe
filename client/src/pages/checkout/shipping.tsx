@@ -93,7 +93,7 @@ const Shipping: PageWithLayout = () => {
 };
 
 Shipping.getLayout = (page) => {
-  return <CheckoutLayout>{page}</CheckoutLayout>;
+  return <CheckoutLayout hasGuard={true}>{page}</CheckoutLayout>;
 };
 
 export default Shipping;

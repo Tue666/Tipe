@@ -43,7 +43,7 @@ const Banners = (props: BannersProps) => {
               <Image
                 key={index}
                 src="https://cdn.123job.vn/123job//uploads/images/flash%20sale.jpg"
-                alt=""
+                alt="banner"
                 sx={{
                   height: STYLE.DESKTOP.BANNERS.MAIN_HEIGHT,
                   [theme.breakpoints.down('md')]: {
@@ -62,7 +62,7 @@ const Banners = (props: BannersProps) => {
       >
         <Image
           src="https://cdn.123job.vn/123job//uploads/images/flash%20sale.jpg"
-          alt=""
+          alt="banner"
           sx={{
             height: STYLE.DESKTOP.BANNERS.SUB_HEIGHT,
             [theme.breakpoints.down('md')]: {
@@ -73,7 +73,7 @@ const Banners = (props: BannersProps) => {
         />
         <Image
           src="https://cdn.123job.vn/123job//uploads/images/flash%20sale.jpg"
-          alt=""
+          alt="banner"
           sx={{
             height: STYLE.DESKTOP.BANNERS.SUB_HEIGHT,
             [theme.breakpoints.down('md')]: {

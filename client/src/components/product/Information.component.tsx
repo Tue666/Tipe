@@ -6,12 +6,40 @@ import { appConfig } from '@/configs/apis';
 import { STYLE } from '@/configs/constants';
 import { IProduct } from '@/models/interfaces';
 import { toVND } from '@/utils';
-import { Image } from '../overrides';
-import { useAppDispatch } from '@/redux/hooks';
+import { Image, Link } from '../overrides';
+import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { addCart } from '@/redux/slices/cart.slice';
+import { selectCustomer } from '@/redux/slices/customer.slice';
+import { PATH_CUSTOMER, PATH_IMAGE } from '@/configs/routers';
 
 const WRAPPER_PADDING = '10px';
 const MAX_WARRANTY_IN_LINE = 3;
+const DEFENSE_ICONS = [
+  {
+    icon: 'app/defense-check.png',
+    title: (
+      <>
+        Hoàn tiền <br /> <strong>111%</strong> <br /> nếu hàng giả
+      </>
+    ),
+  },
+  {
+    icon: 'app/defense-like.png',
+    title: (
+      <>
+        Mở hộp <br /> kiểm tra <br /> nhận hàng
+      </>
+    ),
+  },
+  {
+    icon: 'app/defense-back.png',
+    title: (
+      <>
+        Đổi trả trong <br /> <strong>7 ngày</strong> <br /> nếu sp lỗi
+      </>
+    ),
+  },
+];
 
 interface PriceWrapperProps {
   tag: 'sale' | 'normal';
@@ -48,7 +76,9 @@ const Information = (props: InformationProps) => {
     inventory_status,
   } = props;
   const [input, setInput] = useState('1');
+  const { addresses } = useAppSelector(selectCustomer);
   const dispatch = useAppDispatch();
+  const defaultAddress = addresses.find((address) => address.is_default);
 
   const handleClickAddToCart = () => {
     dispatch(
@@ -110,15 +140,20 @@ const Information = (props: InformationProps) => {
                 </Typography>
               )}
             </PriceWrapper>
-            <Stack sx={{ cursor: 'pointer' }}>
-              <Typography variant="subtitle2">Delivery</Typography>
-              <Typography variant="subtitle2" sx={{ textDecoration: 'underline' }}>
-                123, Ward 4, District 8, HCM City
-              </Typography>
-              <Typography variant="subtitle2" sx={{ color: 'rgb(26 139 237)' }}>
-                Add new delivery address
-              </Typography>
-            </Stack>
+            <Link href={PATH_CUSTOMER.addresses}>
+              <Stack>
+                <Typography variant="subtitle2">Delivery</Typography>
+                {defaultAddress && (
+                  <Typography variant="subtitle2" sx={{ textDecoration: 'underline' }}>
+                    {defaultAddress.street}, {defaultAddress.ward.name},{' '}
+                    {defaultAddress.district.name}, {defaultAddress.region.name}
+                  </Typography>
+                )}
+                <Typography variant="subtitle2" sx={{ color: 'rgb(26 139 237)' }}>
+                  {defaultAddress ? 'Change' : 'Add new'} delivery address
+                </Typography>
+              </Stack>
+            </Link>
             {inventory_status === 'available' && (
               <Fragment>
                 <Stack spacing={1}>
@@ -141,7 +176,7 @@ const Information = (props: InformationProps) => {
             )}
             {inventory_status === 'out_of_stock' && (
               <Typography variant="subtitle2" color="error" sx={{ fontWeight: 'bold' }}>
-                The product is out of stock or does not exist anymore.
+                The product is out of stock
                 <br />
                 Come back later, thanks for your attention!
               </Typography>
@@ -182,7 +217,8 @@ const Information = (props: InformationProps) => {
                 flexWrap: 'wrap',
               }}
             >
-              {[...Array(6)].map((_, index) => {
+              {DEFENSE_ICONS.map((defense, index) => {
+                const { icon, title } = defense;
                 const INTENDED_WIDTH = parseInt(STYLE.DESKTOP.PRODUCT.INTENDED_WIDTH);
                 const WARRANTY_WIDTH = `${
                   (INTENDED_WIDTH - parseInt(WRAPPER_PADDING) * 2) / MAX_WARRANTY_IN_LINE
@@ -196,16 +232,14 @@ const Information = (props: InformationProps) => {
                     sx={{ width: WARRANTY_WIDTH }}
                   >
                     <Image
-                      src={`${appConfig.image_storage_url}/_external_/icons/defense_check.png`}
+                      src={`${PATH_IMAGE.icons}/${icon}`}
                       alt=""
                       style={{
                         width: STYLE.DESKTOP.PRODUCT.WARRANTY_ICON_SIZE,
                         height: STYLE.DESKTOP.PRODUCT.WARRANTY_ICON_SIZE,
                       }}
                     />
-                    <Typography sx={{ textAlign: 'center', fontSize: '13px' }}>
-                      Hoàn tiền <br /> <strong>111%</strong> <br /> nếu hàng giả
-                    </Typography>
+                    <Typography sx={{ textAlign: 'center', fontSize: '13px' }}>{title}</Typography>
                   </Stack>
                 );
               })}

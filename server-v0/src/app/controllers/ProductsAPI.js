@@ -31,14 +31,13 @@ class ProductsAPI {
   async findById(req, res, next) {
     try {
       let { _id } = req.params;
-      console.log(`product ${_id}`);
       _id = mongoose.Types.ObjectId(_id);
 
       const result = await Product.aggregate([
         {
           $match: {
             _id,
-            inventory_status: 'available',
+            inventory_status: { $nin: ['hidden'] },
           },
         },
         {
@@ -114,9 +113,9 @@ class ProductsAPI {
       newest = newest ? parseInt(newest) : 0;
       limit = parseInt(limit);
 
-      const totalProduct = await Product.count({ inventory_status: 'available' });
+      const totalProduct = await Product.count({ inventory_status: { $nin: ['hidden'] } });
       const totalPage = Math.ceil(totalProduct / limit);
-      const products = await Product.find({ inventory_status: 'available' })
+      const products = await Product.find({ inventory_status: { $nin: ['hidden'] } })
         .select(
           '_id name images discount discount_rate original_price price quantity_sold rating_average slug'
         )
@@ -146,9 +145,9 @@ class ProductsAPI {
       page = parseInt(page);
       number = parseInt(number);
 
-      const totalProduct = await Product.count({ inventory_status: 'available' });
+      const totalProduct = await Product.count({ inventory_status: { $nin: ['hidden'] } });
       const totalPage = Math.ceil(totalProduct / number);
-      const products = await Product.find({ inventory_status: 'available' })
+      const products = await Product.find({ inventory_status: { $nin: ['hidden'] } })
         .skip((page - 1) * number)
         .limit(number);
       res.status(200).json({
@@ -233,7 +232,7 @@ class ProductsAPI {
           $gte: fromStar,
           $lte: toStar,
         },
-        inventory_status: 'available',
+        inventory_status: { $nin: ['hidden'] },
       };
 
       const result = await Product.aggregate([
@@ -459,7 +458,7 @@ class ProductsAPI {
       const GRAVITY = 1.8;
       const products = await Product.aggregate([
         {
-          $match: { inventory_status: 'available' },
+          $match: { inventory_status: { $nin: ['hidden'] } },
         },
         {
           $addFields: {
@@ -534,7 +533,7 @@ class ProductsAPI {
 
       const product = await Product.findOne({
         _id,
-        inventory_status: 'available',
+        inventory_status: { $nin: ['hidden'] },
       }).select('category');
       if (!product) {
         res.status(200).json([]);
@@ -544,7 +543,7 @@ class ProductsAPI {
       const products = await Product.find({
         _id: { $ne: _id },
         category: product.category,
-        inventory_status: 'available',
+        inventory_status: { $nin: ['hidden'] },
       })
         .select(
           'name images discount discount_rate original_price price slug quantity_sold rating_average'
@@ -572,7 +571,7 @@ class ProductsAPI {
       const GRAVITY = 1.8;
       const products = await Product.aggregate([
         {
-          $match: { inventory_status: 'available' },
+          $match: { inventory_status: { $nin: ['hidden'] } },
         },
         {
           $addFields: {

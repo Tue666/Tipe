@@ -19,7 +19,9 @@ export const PATH_CUSTOMER = {
   addresses: RouterUtil.combinePath(ROOT_CUSTOMER, '/addresses'),
   addressForm: RouterUtil.combinePath(ROOT_CUSTOMER, '/addresses/form'),
   orders: RouterUtil.combinePath(ROOT_CUSTOMER, '/orders'),
-  orderDetail: RouterUtil.combinePath(ROOT_CUSTOMER, '/orders/view'),
+  order: (_id: string) => {
+    return RouterUtil.combinePath(ROOT_CUSTOMER, `/orders/${_id}`);
+  },
 };
 
 const ROOT_CHECKOUT = '/checkout';
@@ -33,6 +35,4 @@ const ROOT_IMAGE = '/';
 export const PATH_IMAGE = {
   root: ROOT_IMAGE,
   icons: RouterUtil.combinePath(ROOT_IMAGE, 'icons'),
-  social: RouterUtil.combinePath(ROOT_IMAGE, 'social'),
-  download: RouterUtil.combinePath(ROOT_IMAGE, 'download'),
 };

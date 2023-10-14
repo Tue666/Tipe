@@ -6,6 +6,7 @@ import { LoadingButton } from '@mui/lab';
 import Avatar from '../overrides/Avatar.override';
 import { isAxiosError } from 'axios';
 import { IAccount } from '@/models/interfaces';
+import { buildImageLink } from '@/utils';
 
 interface SignUpFormProps {
   phoneNumber: string;
@@ -50,7 +51,7 @@ const SignUpForm = (props: SignUpFormProps) => {
         <Stack alignItems="center" spacing={1}>
           <Avatar
             name={socialAccount.name}
-            src={socialAccount.avatar_url}
+            src={buildImageLink(socialAccount.avatar_url)}
             sx={{ width: '100px', height: '100px' }}
           />
           <Typography variant="body1" sx={{ fontWeight: 'bold' }}>

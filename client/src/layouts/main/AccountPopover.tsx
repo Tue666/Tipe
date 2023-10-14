@@ -1,15 +1,33 @@
 import { useState, MouseEvent, Fragment } from 'react';
 import { styled, Popover, Stack, Divider, MenuList, MenuItem, ListItemIcon } from '@mui/material';
-import { AssignmentIndOutlined, LogoutOutlined } from '@mui/icons-material';
+import {
+  AssignmentIndOutlined,
+  ImportContacts,
+  LocalMall,
+  LogoutOutlined,
+} from '@mui/icons-material';
 import { Link, Avatar } from '@/components/overrides';
 import { PATH_CUSTOMER } from '@/configs/routers';
 import { STYLE } from '@/configs/constants';
+import { useAppSelector } from '@/redux/hooks';
+import { selectCustomer } from '@/redux/slices/customer.slice';
+import { buildImageLink } from '@/utils';
 
 const MENU_OPTIONS = [
   {
     label: 'My Profile',
     icon: <AssignmentIndOutlined />,
     href: PATH_CUSTOMER.profile,
+  },
+  {
+    label: 'My Orders',
+    icon: <LocalMall />,
+    href: PATH_CUSTOMER.orders,
+  },
+  {
+    label: 'My Addresses',
+    icon: <ImportContacts />,
+    href: PATH_CUSTOMER.addresses,
   },
 ];
 
@@ -20,6 +38,8 @@ interface AccountPopoverProps {
 const AccountPopover = (props: AccountPopoverProps) => {
   const { signOut } = props;
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const { profile } = useAppSelector(selectCustomer);
+  const { name, avatar_url } = profile;
 
   const handleClick = (e: MouseEvent<HTMLElement>) => {
     setAnchorEl(e.currentTarget);
@@ -29,9 +49,11 @@ const AccountPopover = (props: AccountPopoverProps) => {
   };
   return (
     <Fragment>
-      <Label onClick={handleClick}>
-        Tuệ (Customer) <i className="bi bi-caret-down"></i>
-      </Label>
+      {name && (
+        <Label onClick={handleClick}>
+          {name} <i className="bi bi-caret-down"></i>
+        </Label>
+      )}
       <Popover
         open={Boolean(anchorEl)}
         anchorEl={anchorEl}
@@ -46,14 +68,16 @@ const AccountPopover = (props: AccountPopoverProps) => {
         }}
       >
         <Stack alignItems="center" p={1} sx={{ width: STYLE.DESKTOP.ACCOUNT_POPOVER.WIDTH }}>
-          <Avatar
-            name="Tuệ (Customer)"
-            src="/product-card-2.jpg"
-            sx={{
-              width: STYLE.DESKTOP.ACCOUNT_POPOVER.AVATAR_SIZE,
-              height: STYLE.DESKTOP.ACCOUNT_POPOVER.AVATAR_SIZE,
-            }}
-          />
+          {name && avatar_url && (
+            <Avatar
+              name={name}
+              src={buildImageLink(avatar_url)}
+              sx={{
+                width: STYLE.DESKTOP.ACCOUNT_POPOVER.AVATAR_SIZE,
+                height: STYLE.DESKTOP.ACCOUNT_POPOVER.AVATAR_SIZE,
+              }}
+            />
+          )}
           <MenuList dense sx={{ width: '100%' }}>
             {MENU_OPTIONS.map((menu) => {
               return (

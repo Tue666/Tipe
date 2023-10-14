@@ -2,7 +2,7 @@ import { Fragment } from 'react';
 import { Stack, Typography, styled } from '@mui/material';
 import { Image } from '../overrides';
 import { STYLE } from '@/configs/constants';
-import { appConfig } from '@/configs/apis';
+import { buildImageLink } from '@/utils';
 
 const MINI_IMAGE_NUMBER = 5;
 const MINI_IMAGE_SPACING = 1;
@@ -18,7 +18,7 @@ const Images = (props: ImagesProps) => {
     <Fragment>
       <Root>
         <Image
-          src={`${appConfig.image_storage_url}/${images[0]}`}
+          src={buildImageLink(images[0])}
           alt=""
           sx={{
             height: STYLE.DESKTOP.PRODUCT.IMAGE_HEIGHT,
@@ -35,7 +35,7 @@ const Images = (props: ImagesProps) => {
             return (
               <MiniImage key={index} className={index === 0 ? 'active' : ''}>
                 <Image
-                  src={`${appConfig.image_storage_url}/${image}`}
+                  src={buildImageLink(image)}
                   alt=""
                   sx={{
                     width: MINI_IMAGE_SIZE,

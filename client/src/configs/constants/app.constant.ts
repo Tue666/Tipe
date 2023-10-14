@@ -36,6 +36,10 @@ export const STYLE = {
       ADDRESSES: {
         TITLE_SPACE: '300px',
       },
+      ORDERS: {
+        ITEM_IMAGE_SIZE: '80px',
+        EMPTY_ORDER_IMAGE_SIZE: '200px',
+      },
     },
     AUTH_FORM: {
       WIDTH: '800px',
@@ -115,6 +119,9 @@ export const STYLE = {
     },
     CUSTOMER: {
       WIDTH: '100%',
+      ORDERS: {
+        ITEM_IMAGE_SIZE: '70px',
+      },
     },
     BANNERS: {
       MAIN_WIDTH: '100%',
@@ -146,5 +153,5 @@ export const STYLE = {
 
 export const LIMIT_WIDGET_NUMBER = 24;
 export const LIMIT_SUGGESTION_NUMBER = 30;
-export const LIMIT_ORDER_EACH_PAGE_NUMBER = 1;
+export const LIMIT_ORDER_EACH_PAGE_NUMBER = 10;
 export const SHOW_STOCK_QUANTITY_WHEN_REACH_NUMBER = 5;

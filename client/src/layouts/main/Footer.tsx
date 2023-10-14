@@ -27,26 +27,26 @@ const COOPERATION = ['Regulations on operation of E-commerce trading floor', 'Se
 
 const CONNECT = [
   {
-    src: `${PATH_IMAGE.social}/facebook.png`,
+    src: `${PATH_IMAGE.icons}/social/facebook.png`,
     alt: 'facebook',
   },
   {
-    src: `${PATH_IMAGE.social}/youtube.png`,
+    src: `${PATH_IMAGE.icons}/social/youtube.png`,
     alt: 'youtube',
   },
   {
-    src: `${PATH_IMAGE.social}/zalo.png`,
+    src: `${PATH_IMAGE.icons}/social/zalo.png`,
     alt: 'zalo',
   },
 ];
 
 const DOWNLOAD = [
   {
-    src: `${PATH_IMAGE.download}/app-store.png`,
+    src: `${PATH_IMAGE.icons}/download/app-store.png`,
     alt: 'app-store',
   },
   {
-    src: `${PATH_IMAGE.download}/play-store.png`,
+    src: `${PATH_IMAGE.icons}/download/play-store.png`,
     alt: 'play-store',
   },
 ];

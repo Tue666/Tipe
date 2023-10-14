@@ -1,12 +1,11 @@
 import { Alert, AlertTitle, Button, Stack, Typography } from '@mui/material';
 import { Breadcrumbs, Page } from '@/components';
 import { Image, Link } from '@/components/overrides';
-import { appConfig } from '@/configs/apis';
 import { CartList, PriceStatistics } from '@/components/cart';
 import { STYLE } from '@/configs/constants';
 import { useAppSelector } from '@/redux/hooks';
 import { selectCart } from '@/redux/slices/cart.slice';
-import { PATH_MAIN } from '@/configs/routers';
+import { PATH_IMAGE, PATH_MAIN } from '@/configs/routers';
 import { toAbbreviated } from '@/utils';
 
 const Cart = () => {
@@ -43,7 +42,7 @@ const Cart = () => {
           sx={{ p: 5, backgroundColor: (theme) => theme.palette.background.paper }}
         >
           <Image
-            src={`${appConfig.image_storage_url}/_external_/buy_more.png`}
+            src={`${PATH_IMAGE.root}buy_more.png`}
             alt="buy_more"
             sx={{
               width: STYLE.DESKTOP.CART.EMPTY_IMAGE_WIDTH,

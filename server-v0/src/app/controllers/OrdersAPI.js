@@ -48,14 +48,14 @@ class OrdersAPI {
   // [GET] /orders/:_id
   async findById(req, res, next) {
     try {
-      let customer_id = req.account._id;
-      customer_id = mongoose.Types.ObjectId(customer_id);
+      // let customer_id = req.account._id;
+      // customer_id = mongoose.Types.ObjectId(customer_id);
       let { _id } = req.params;
       _id = mongoose.Types.ObjectId(_id);
 
       const order = await Order.findOne({
         _id,
-        customer_id,
+        // customer_id,
       });
 
       res.status(200).json(order);
@@ -107,7 +107,7 @@ class OrdersAPI {
 			status_text: String,
 		}
 	*/
-  async create(req, res, next) {
+  async insert(req, res, next) {
     try {
       let customer_id = req.account._id;
       customer_id = mongoose.Types.ObjectId(customer_id);
@@ -140,6 +140,9 @@ class OrdersAPI {
             product.quantity = newQuantity;
             product.quantity_sold.value = newQuantitySold;
             product.quantity_sold.text = fNumberWithSuffix(newQuantitySold, 1) + ' Sold';
+            if (product.quantity <= 0) {
+              product.inventory_status = 'out_of_stock';
+            }
             await product.save();
             await Cart.deleteOne({
               customer_id,

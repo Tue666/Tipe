@@ -4,8 +4,7 @@ import { Stars, Ellipsis } from '@/components';
 import { STYLE } from '@/configs/constants';
 import { PATH_MAIN } from '@/configs/routers';
 import { IProduct } from '@/models/interfaces';
-import { appConfig } from '@/configs/apis';
-import { toVND } from '@/utils';
+import { buildImageLink, toVND } from '@/utils';
 
 interface PriceProps {
   tag: 'sale' | 'normal';
@@ -34,8 +33,8 @@ const ProductCard = (props: ProductCardProps) => {
     <Root>
       <Link href={PATH_MAIN.product(slug, _id)}>
         <Image
-          src={`${appConfig.image_storage_url}/${images[0]}`}
-          alt=""
+          src={buildImageLink(images[0])}
+          alt={name}
           sx={{
             height: STYLE.DESKTOP.PRODUCT.CARD_HEIGHT,
             overflow: 'hidden',

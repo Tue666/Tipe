@@ -1,6 +1,7 @@
 // routes
 const accountsRouter = require('./accounts');
 const productsRouter = require('./products');
+const productsV2Router = require('./products-v2');
 const cartsRouter = require('./carts');
 const categoriesRouter = require('./categories');
 const propertiesRouter = require('./properties');
@@ -14,6 +15,7 @@ const rolesRouter = require('./roles');
 
 const initialRoutes = (app) => {
   app.use('/api/accounts', accountsRouter);
+  app.use('/api/products-v2', productsV2Router);
   app.use('/api/products', productsRouter);
   app.use('/api/cart', cartsRouter);
   app.use('/api/categories', categoriesRouter);

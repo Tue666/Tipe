@@ -15,6 +15,9 @@ const ProductV2 = new Schema(
     images: { type: [String], required: true },
     quantity: { type: Number, required: true, min: 0, default: 0 },
     category: { type: Number, required: true },
+    shop: { type: ObjectId },
+    ads_id: { type: ObjectId },
+    is_official: { type: Boolean, default: false },
     attributes: { type: Array, default: [] },
     specifications: { type: Array, default: [] },
     warranties: { type: Array, default: [] },
@@ -32,7 +35,12 @@ const ProductV2 = new Schema(
     },
     sold_histories: { type: Array, default: [] },
     ratings: { type: Array, default: [] },
-    review_count: { type: Number, min: 0, default: 0 },
+    reviews: {
+      type: {
+        review_count: { type: Number, min: 0, default: 0 },
+        comments: { type: Array, default: [] },
+      },
+    },
     favorite_count: { type: Number, min: 0, default: 0 },
     view_count: { type: Number, min: 0, default: 0 },
     meta_description: { type: String, default: '' },
@@ -71,4 +79,7 @@ ProductV2.index({
   'attributes.v': 1,
 });
 
-module.exports = model('ProductsV2', ProductV2);
+module.exports = {
+  Product: model('ProductsV2', ProductV2),
+  INVENTORY_STATUS,
+};

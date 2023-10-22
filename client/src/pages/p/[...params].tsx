@@ -12,28 +12,29 @@ import { PATH_MAIN } from '@/configs/routers';
 
 interface ProductProps {
   product: IProduct.NestedProduct;
-  similarWidget: IProduct.FindForWidgetResponse;
+  relatedWidget: IProduct.FindForWidgetResponse;
   suggestion: IProduct.FindForSuggestionResponse;
 }
 
 const Product = (props: ProductProps) => {
   const { ids, titles, actions } = PRODUCT_TELEPORTS;
-  const { product, similarWidget, suggestion } = props;
+  const { product, relatedWidget, suggestion } = props;
   const {
     _id,
     name,
     images,
     quantity,
+    specifications,
     limit,
     discount_rate,
     original_price,
     price,
     description,
     quantity_sold,
-    rating_average,
-    review_count,
+    ratings,
+    reviews,
     inventory_status,
-    breadcrumbs,
+    breadcrumbs = [],
   } = product;
   const informationProps = {
     _id,
@@ -44,8 +45,8 @@ const Product = (props: ProductProps) => {
     original_price,
     price,
     quantity_sold,
-    rating_average,
-    review_count,
+    ratings,
+    reviews,
     inventory_status,
   };
   return (
@@ -72,19 +73,19 @@ const Product = (props: ProductProps) => {
             <Information {...informationProps} />
           </Stack>
         </Wrapper>
-        {similarWidget.products.length && (
+        {relatedWidget.products.length && (
           <Wrapper>
-            <Title>Similar Products</Title>
+            <Title>Related Products</Title>
             <ProductSection
-              id={ids['similar-section']}
-              title={titles['similar-section']}
-              products={similarWidget.products}
+              id={ids['related-section']}
+              title={titles['related-section']}
+              products={relatedWidget.products}
             />
           </Wrapper>
         )}
         <Wrapper id={ids['specifications']}>
           <Title>Specifications</Title>
-          <Specification />
+          <Specification specifications={specifications} />
         </Wrapper>
         {description && (
           <Wrapper id={ids['description']}>
@@ -124,8 +125,9 @@ export const getStaticProps: GetStaticProps = async (context) => {
 
     const _id = params.params[1];
     const product = await productApi.findById(_id);
-    const similarWidget = await productApi.findForWidget('similar', {
+    const relatedWidget = await productApi.findForWidget({
       _id,
+      group: 'related',
       limit: LIMIT_WIDGET_NUMBER,
     });
     const suggestion = await productApi.findForSuggestion({
@@ -141,7 +143,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
     return {
       props: {
         product,
-        similarWidget,
+        relatedWidget,
         suggestion,
       },
     };

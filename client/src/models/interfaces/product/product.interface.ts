@@ -1,4 +1,4 @@
-import { ProductSchema } from '../schema';
+import { Attribute, ProductSchema } from '../schema';
 import { Pagination, PaginationQuery } from '../common';
 
 export interface Product extends ProductSchema {}
@@ -27,13 +27,14 @@ export interface ProductCard
     | 'original_price'
     | 'price'
     | 'quantity_sold'
-    | 'rating_average'
+    | 'ratings'
     | 'slug'
   > {}
 
-export type WidgetGroup = 'top_selling' | 'maybe_you_like' | 'similar';
+export type WidgetGroup = 'top_selling' | 'top_favorite' | 'top_view' | 'related';
 
-export interface FindForWidgetQuery extends PaginationQuery {
+export interface FindForWidgetQuery extends Pick<PaginationQuery, 'limit'> {
+  group: WidgetGroup;
   _id?: Product['_id'];
 }
 
@@ -45,4 +46,19 @@ export interface FindForSuggestionQuery extends PaginationQuery {}
 
 export interface FindForSuggestionResponse extends Pagination {
   products: ProductCard[];
+}
+
+export type RecommendSort = 'popular' | 'top_selling' | 'newest' | 'price';
+
+export interface FindForRecommendQuery extends PaginationQuery {
+  categories?: String; // Id of categories separate by ","
+  sort?: RecommendSort;
+  direction?: -1 | 1;
+}
+
+export interface FindForRecommendResponse extends Pagination {
+  products: ProductCard[];
+  attributes: Attribute[];
+  totalProduct: number;
+  totalAttribute: number;
 }

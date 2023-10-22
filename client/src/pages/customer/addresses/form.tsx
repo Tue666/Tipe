@@ -25,7 +25,7 @@ import { Location } from '@/components/customer';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { editAddress, insertAddress, selectCustomer } from '@/redux/slices/customer.slice';
 import { STYLE } from '@/configs/constants';
-import locationV2Api from '@/apis/locationV2Api';
+import locationApi from '@/apis/locationApi';
 import { ILocation } from '@/models/interfaces';
 import { PATH_CHECKOUT, PATH_CUSTOMER } from '@/configs/routers';
 
@@ -258,7 +258,9 @@ const Form: PageWithLayout<FormProps> = (props: FormProps) => {
 
 export const getStaticProps: GetStaticProps = async () => {
   try {
-    const locations = await locationV2Api.find('VN');
+    const locations = await locationApi.find({
+      country: 'VN',
+    });
     if (_.isNil(locations) || _.isEmpty(locations)) {
       console.log('Location generated with error: resources not found');
       return {

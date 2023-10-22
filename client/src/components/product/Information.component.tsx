@@ -56,8 +56,8 @@ interface InformationProps
     | 'original_price'
     | 'price'
     | 'quantity_sold'
-    | 'rating_average'
-    | 'review_count'
+    | 'ratings'
+    | 'reviews'
     | 'inventory_status'
   > {}
 
@@ -71,14 +71,16 @@ const Information = (props: InformationProps) => {
     original_price,
     price,
     quantity_sold,
-    rating_average,
-    review_count,
+    ratings,
+    reviews,
     inventory_status,
   } = props;
   const [input, setInput] = useState('1');
   const { addresses } = useAppSelector(selectCustomer);
   const dispatch = useAppDispatch();
   const defaultAddress = addresses.find((address) => address.is_default);
+  const { rating_average } = ratings;
+  const { review_count } = reviews;
 
   const handleClickAddToCart = () => {
     dispatch(
@@ -136,7 +138,7 @@ const Information = (props: InformationProps) => {
                   >
                     {toVND(original_price)}
                   </Typography>
-                  -{discount_rate}%
+                  -{Math.round(discount_rate)}%
                 </Typography>
               )}
             </PriceWrapper>

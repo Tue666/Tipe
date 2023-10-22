@@ -17,6 +17,7 @@ interface HomeProps {
 const Home = (props: HomeProps) => {
   const { ids, titles, actions } = HOME_TELEPORTS;
   const { categories, soldWidget, favoriteWidget, suggestion } = props;
+  console.log('Home render');
   return (
     <Page title="Tipe Shop - Buy online, good price, good quality, fast shipping">
       <Teleport actions={actions} />
@@ -49,11 +50,15 @@ const Home = (props: HomeProps) => {
 
 export const getStaticProps: GetStaticProps<HomeProps> = async () => {
   try {
-    const categories = await categoryApi.find();
-    const soldWidget = await productApi.findForWidget('top_selling', {
+    const categories = await categoryApi.find({
+      level: 1,
+    });
+    const soldWidget = await productApi.findForWidget({
+      group: 'top_selling',
       limit: LIMIT_WIDGET_NUMBER,
     });
-    const favoriteWidget = await productApi.findForWidget('maybe_you_like', {
+    const favoriteWidget = await productApi.findForWidget({
+      group: 'top_favorite',
       limit: LIMIT_WIDGET_NUMBER,
     });
     const suggestion = await productApi.findForSuggestion({

@@ -1,14 +1,21 @@
 import { styled } from '@mui/material';
+import { IProduct } from '@/models/interfaces';
 
-const Specification = () => {
+interface SpecificationProps {
+  specifications: IProduct.NestedProduct['specifications'];
+}
+
+const Specification = (props: SpecificationProps) => {
+  const { specifications } = props;
   return (
     <Root>
       <tbody>
-        {[...Array(10)].map((_, index) => {
+        {specifications.map((specification, index) => {
+          const { k, v } = specification;
           return (
             <tr key={index}>
-              <td className="title">CPU speed</td>
-              <td>4 core 2.3 GHz & 4 core 1.8 GHz</td>
+              <td className="title">{k}</td>
+              <td>{v}</td>
             </tr>
           );
         })}

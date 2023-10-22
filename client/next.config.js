@@ -2,13 +2,19 @@
 const nextConfig = {
   reactStrictMode: false,
   images: {
-    domains: [
-      'res.cloudinary.com',
-      'cdn.123job.vn',
-      'doopage.com',
-      'daygiare.com',
-      'shopeeplus.com',
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
     ],
+    // domains: [
+    //   'res.cloudinary.com',
+    //   'cdn.123job.vn',
+    //   'doopage.com',
+    //   'daygiare.com',
+    //   'shopeeplus.com',
+    // ],
   },
 };
 

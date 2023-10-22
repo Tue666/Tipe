@@ -5,11 +5,10 @@ import { RouterUtil } from '@/utils';
 const productApi = {
   // [GET] {{URL}}/api/products/widget?{{query}}
   findForWidget: (
-    group: IProduct.WidgetGroup,
     findForWidgetQuery: IProduct.FindForWidgetQuery
   ): Promise<IProduct.FindForWidgetResponse> => {
-    const buildQuery = RouterUtil.buildUrlQueryParams(findForWidgetQuery, false);
-    const url = `/products/widget/${group}?${buildQuery}`;
+    const buildQuery = RouterUtil.buildUrlQueryParams(findForWidgetQuery);
+    const url = `/products/widget?${buildQuery}`;
     return ApiClient.get(url);
   },
 
@@ -17,8 +16,17 @@ const productApi = {
   findForSuggestion: (
     findForSuggestionQuery: IProduct.FindForSuggestionQuery
   ): Promise<IProduct.FindForSuggestionResponse> => {
-    const buildQuery = RouterUtil.buildUrlQueryParams(findForSuggestionQuery, false);
+    const buildQuery = RouterUtil.buildUrlQueryParams(findForSuggestionQuery);
     const url = `/products/suggestion?${buildQuery}`;
+    return ApiClient.get(url);
+  },
+
+  // [GET] {{URL}}/api/products/recommend?{{query}}
+  findForRecommend: (
+    findForRecommendQuery: IProduct.FindForRecommendQuery
+  ): Promise<IProduct.FindForRecommendResponse> => {
+    const buildQuery = RouterUtil.buildUrlQueryParams(findForRecommendQuery);
+    const url = `/products/recommend?${buildQuery}`;
     return ApiClient.get(url);
   },
 

@@ -25,10 +25,11 @@ const ProductCard = (props: ProductCardProps) => {
     original_price,
     price,
     quantity_sold,
-    rating_average,
+    ratings,
     slug,
   } = product;
   const theme = useTheme();
+  const { rating_average } = ratings;
   return (
     <Root>
       <Link href={PATH_MAIN.product(slug, _id)}>
@@ -79,7 +80,7 @@ const ProductCard = (props: ProductCardProps) => {
             </Price>
             {discount_rate !== 0 && (
               <Tooltip placement="top" title={`-${toVND(discount)}`} arrow>
-                <SaleTag>-{discount_rate}%</SaleTag>
+                <SaleTag>-{Math.round(discount_rate)}%</SaleTag>
               </Tooltip>
             )}
           </Stack>

@@ -1,6 +1,11 @@
-import { LocationV2Schema, Scope } from '../schema';
+import { Country } from '../common';
+import { LocationSchema, Scope } from '../schema';
 
-export interface Location extends LocationV2Schema {}
+export interface Location extends LocationSchema {}
+
+export interface FindQuery {
+  country?: Country;
+}
 
 export interface FindResponse {
   regions: (Omit<Location, 'scope'> & { scope: Extract<Scope, 'REGION'> })[];

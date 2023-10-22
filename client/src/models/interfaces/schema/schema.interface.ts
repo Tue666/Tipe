@@ -1,4 +1,3 @@
-import { Country } from '../common';
 import { MetaSchema, SoftDeleteSchema, TimestampsSchema } from './common.interface';
 
 export type Type = {
@@ -40,8 +39,14 @@ export interface CategorySchema extends MetaSchema, TimestampsSchema, SoftDelete
   image: string;
   banners: string[];
   parent_id: number;
+  level: number;
   slug: string;
   status: CategoryStatus;
+}
+
+export interface Attribute {
+  k: string;
+  v: string;
 }
 
 export interface QuantitySold {
@@ -49,7 +54,18 @@ export interface QuantitySold {
   value: number;
 }
 
-export type InventoryStatus = 'available' | 'out_of_stock';
+export interface Ratings {
+  rating_average: number;
+  rating_count: number;
+  scores: number[];
+}
+
+export interface Reviews {
+  review_count: number;
+  comments: unknown[];
+}
+
+export type InventoryStatus = 'available' | 'out_of_stock' | 'hidden';
 
 export interface ProductSchema extends MetaSchema, TimestampsSchema, SoftDeleteSchema {
   _id: string;
@@ -57,6 +73,9 @@ export interface ProductSchema extends MetaSchema, TimestampsSchema, SoftDeleteS
   images: string[];
   quantity: number;
   category: CategorySchema['_id'];
+  attributes: Attribute[];
+  specifications: Attribute[];
+  warranties: Attribute[];
   limit: number;
   discount: number;
   discount_rate: number;
@@ -64,13 +83,11 @@ export interface ProductSchema extends MetaSchema, TimestampsSchema, SoftDeleteS
   price: number;
   description: string;
   quantity_sold: QuantitySold;
-  rating_average: number;
-  review_count: number;
+  ratings: Ratings;
+  reviews: Reviews;
   favorite_count: number;
   view_count: number;
   slug: string;
-  shippable: boolean;
-  preview: boolean;
   inventory_status: InventoryStatus;
 }
 
@@ -82,30 +99,13 @@ export interface CartSchema {
   selected: boolean;
 }
 
-// export interface RegionSchema {
-//   _id: string;
-//   name: string;
-//   code: string;
-// }
-
-// export interface WardSchema extends RegionSchema {}
-
-// export interface DistrictSchema extends RegionSchema {
-//   wards: WardSchema[];
-// }
-
-// export interface LocationSchema extends RegionSchema {
-//   country: Country;
-//   districts: DistrictSchema[];
-// }
-
 export type Scope = 'REGION' | 'DISTRICT' | 'WARD' | 'UNSCOPED';
 
-export interface LocationV2Schema {
+export interface LocationSchema {
   _id: string;
   name: string;
-  code: string;
   parent_id: string | null;
+  level: number;
   scope: Scope;
 }
 
@@ -117,9 +117,9 @@ export interface AddressSchema extends TimestampsSchema {
   name: string;
   company: string;
   phone_number: AccountSchema['phone_number'];
-  region_id: LocationV2Schema['_id'];
-  district_id: LocationV2Schema['_id'];
-  ward_id: LocationV2Schema['_id'];
+  region_id: LocationSchema['_id'];
+  district_id: LocationSchema['_id'];
+  ward_id: LocationSchema['_id'];
   street: string;
   delivery_address_type: AddressType;
   is_default: boolean;
@@ -154,9 +154,9 @@ export interface OrderSchema extends TimestampsSchema, SoftDeleteSchema {
     AddressSchema,
     'customer_id' | 'region_id' | 'district_id' | 'ward_id' | 'is_default' | keyof TimestampsSchema
   > & {
-    region: LocationV2Schema['name'];
-    district: LocationV2Schema['name'];
-    ward: LocationV2Schema['name'];
+    region: LocationSchema['name'];
+    district: LocationSchema['name'];
+    ward: LocationSchema['name'];
   };
   payment_method: Payment;
   items: Pick<

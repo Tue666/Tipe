@@ -7,7 +7,7 @@ import {
   LogoutOutlined,
 } from '@mui/icons-material';
 import { Link, Avatar } from '@/components/overrides';
-import { PATH_CUSTOMER } from '@/configs/routers';
+import { PATH_CUSTOMER, PATH_IMAGE } from '@/configs/routers';
 import { STYLE } from '@/configs/constants';
 import { useAppSelector } from '@/redux/hooks';
 import { selectCustomer } from '@/redux/slices/customer.slice';
@@ -68,16 +68,14 @@ const AccountPopover = (props: AccountPopoverProps) => {
         }}
       >
         <Stack alignItems="center" p={1} sx={{ width: STYLE.DESKTOP.ACCOUNT_POPOVER.WIDTH }}>
-          {name && avatar_url && (
-            <Avatar
-              name={name}
-              src={buildImageLink(avatar_url)}
-              sx={{
-                width: STYLE.DESKTOP.ACCOUNT_POPOVER.AVATAR_SIZE,
-                height: STYLE.DESKTOP.ACCOUNT_POPOVER.AVATAR_SIZE,
-              }}
-            />
-          )}
+          <Avatar
+            name={name ?? 'avatar'}
+            src={avatar_url ? buildImageLink(avatar_url) : `${PATH_IMAGE.root}avatar.png`}
+            sx={{
+              width: STYLE.DESKTOP.ACCOUNT_POPOVER.AVATAR_SIZE,
+              height: STYLE.DESKTOP.ACCOUNT_POPOVER.AVATAR_SIZE,
+            }}
+          />
           <MenuList dense sx={{ width: '100%' }}>
             {MENU_OPTIONS.map((menu) => {
               return (

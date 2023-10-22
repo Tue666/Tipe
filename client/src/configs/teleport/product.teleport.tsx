@@ -10,7 +10,7 @@ import { TeleportProps, getIds, getTitles, getActions } from './teleport.config'
 
 type Product =
   | 'information'
-  | 'similar-section'
+  | 'related-section'
   | 'specifications'
   | 'description'
   | 'review'
@@ -22,7 +22,7 @@ const productTeleport: TeleportProps<Product>[] = [
     icon: <ImportContacts />,
   },
   {
-    id: 'similar-section',
+    id: 'related-section',
     title: 'Maybe you will be like',
     icon: <FileCopy />,
   },

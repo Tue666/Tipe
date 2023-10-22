@@ -2,21 +2,32 @@ import { Checkbox, Chip, Stack, styled } from '@mui/material';
 import { Link } from '../overrides';
 import ApplyPrice from './ApplyPrice.component';
 import { Stars, Collapse } from '@/components';
-import { ICategory } from '@/models/interfaces';
+import { ICategory, IProduct } from '@/models/interfaces';
 import { PATH_MAIN } from '@/configs/routers';
+import { Attribute } from '@/models/interfaces/schema';
+import { SHOW_COLLAPSED_ATTRIBUTES_WHEN_REACH_NUMBER } from '@/configs/constants';
 
-interface FilterProps {
+interface FilterProps extends Pick<IProduct.FindForRecommendResponse, 'attributes'> {
   _children: ICategory.NestedCategory['children'];
+  handleNavigate: any;
 }
 
 const Filter = (props: FilterProps) => {
-  const { _children } = props;
-  const renderAttribute = (multi_select: boolean) =>
-    [...Array(5)].map((_, index) => {
+  const { _children, attributes, handleNavigate } = props;
+  const attributeMapping = attributes.reduce((mapping, attribute) => {
+    const { k, v } = attribute;
+    if (!mapping[k]) {
+      mapping[k] = [v];
+      return mapping;
+    }
+    return { ...mapping, [k]: [...mapping[k], v] };
+  }, {} as { [k: Attribute['k']]: Attribute['v'][] });
+  const renderAttributes = (attributes: Attribute['v'][], multi_select: boolean) =>
+    attributes.map((attribute, index) => {
       return (
-        <Text key={index}>
+        <Text key={index} onClick={handleNavigate}>
           {multi_select && <Checkbox size="small" sx={{ p: '5px', mr: '5px' }} />}
-          Samsung
+          {attribute}
         </Text>
       );
     });
@@ -38,11 +49,11 @@ const Filter = (props: FilterProps) => {
       <Wrapper>
         <Title>rating</Title>
         <Stack>
-          {[...Array(3)].map((_, index) => {
+          {[5, 4, 3].map((rating) => {
             return (
-              <Text key={index}>
-                <Stars total={5} rating={5} />
-                &nbsp;5 Stars
+              <Text key={rating}>
+                <Stars total={5} rating={rating} />
+                &nbsp;{rating} Stars
               </Text>
             );
           })}
@@ -50,7 +61,7 @@ const Filter = (props: FilterProps) => {
       </Wrapper>
       <Wrapper>
         <Title>price</Title>
-        {[...Array(5)].map((_, index) => {
+        {/* {[...Array(5)].map((_, index) => {
           return (
             <Chip
               key={index}
@@ -61,18 +72,27 @@ const Filter = (props: FilterProps) => {
               size="small"
             />
           );
-        })}
+        })} */}
         <ApplyPrice />
       </Wrapper>
-      {[...Array(5)].map((_, index) => {
+      {Object.keys(attributeMapping).map((attributeKey) => {
+        const attributeValues = attributeMapping[attributeKey];
+        const showingAttributes = attributeValues.splice(
+          0,
+          SHOW_COLLAPSED_ATTRIBUTES_WHEN_REACH_NUMBER
+        );
         return (
-          <Wrapper key={index}>
-            <Title>brand</Title>
-            <Stack>
-              {renderAttribute(true)}
-              <Collapse>{renderAttribute(true)}</Collapse>
-            </Stack>
-          </Wrapper>
+          showingAttributes.length > 0 && (
+            <Wrapper key={attributeKey}>
+              <Title>{attributeKey.replace(/-/g, ' ')}</Title>
+              <Stack>
+                {renderAttributes(showingAttributes, true)}
+                {attributeValues.length > 0 && (
+                  <Collapse>{renderAttributes(attributeValues, true)}</Collapse>
+                )}
+              </Stack>
+            </Wrapper>
+          )
         );
       })}
     </Root>

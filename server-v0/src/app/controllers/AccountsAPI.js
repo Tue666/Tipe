@@ -5,8 +5,7 @@ const jwt = require('jsonwebtoken');
 // models
 const { Types, Account, Customer, Administrator } = require('../models/Account');
 const Address = require('../models/Address');
-const Location = require('../models/Location');
-const { LocationV2, scopes } = require('../models/LocationV2');
+const { Location, scopes } = require('../models/Location');
 // utils
 const cloudinaryUpload = require('../../utils/cloudinaryUpload');
 const { generateToken, verify } = require('../../utils/jwt');
@@ -686,7 +685,7 @@ class AccountsAPI {
       //     },
       //   },
       // ]);
-      const locationV2 = await LocationV2.aggregate([
+      const location = await Location.aggregate([
         {
           $match: { _id: { $in: [region_id, district_id, ward_id] } },
         },
@@ -712,7 +711,7 @@ class AccountsAPI {
           _id: address._id,
           ...other,
           // ...location[0],
-          ...locationV2[0],
+          ...location[0],
           is_default,
         },
       });
@@ -848,7 +847,7 @@ class AccountsAPI {
       //     },
       //   },
       // ]);
-      const locationV2 = await LocationV2.aggregate([
+      const location = await Location.aggregate([
         {
           $match: { _id: { $in: [region_id, district_id, ward_id] } },
         },
@@ -874,7 +873,7 @@ class AccountsAPI {
           _id: address._id,
           ...other,
           // ...location[0],
-          ...locationV2[0],
+          ...location[0],
           is_default,
         },
       });

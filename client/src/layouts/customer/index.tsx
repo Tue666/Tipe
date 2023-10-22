@@ -5,7 +5,7 @@ import { AccountBox, ImportContacts, LocalMall } from '@mui/icons-material';
 import { Avatar, Container } from '@/components/overrides';
 import { Breadcrumbs, Ellipsis, Hidden } from '@/components';
 import Navbars from './Navbars';
-import { PATH_CUSTOMER } from '@/configs/routers';
+import { PATH_CUSTOMER, PATH_IMAGE } from '@/configs/routers';
 import { STYLE } from '@/configs/constants';
 import { AuthGuard } from '@/guards';
 import { useAppSelector } from '@/redux/hooks';
@@ -50,8 +50,8 @@ const CustomerLayout = (props: CustomerLayoutProps) => {
             <Stack sx={{ width: '250px' }}>
               <Stack direction="row" alignItems="center" spacing={1}>
                 <Avatar
-                  name={name}
-                  src={buildImageLink(avatar_url)}
+                  name={name ?? 'avatar'}
+                  src={avatar_url ? buildImageLink(avatar_url) : `${PATH_IMAGE.root}avatar.png`}
                   sx={{
                     width: STYLE.DESKTOP.CUSTOMER.NAVBARS.AVATAR_SIZE,
                     height: STYLE.DESKTOP.CUSTOMER.NAVBARS.AVATAR_SIZE,
@@ -59,7 +59,7 @@ const CustomerLayout = (props: CustomerLayoutProps) => {
                 />
                 <Stack>
                   <Typography variant="caption">Account of</Typography>
-                  <Ellipsis variant="body1" text={name} sx={{ fontWeight: 'bold' }} />
+                  <Ellipsis variant="body1" text={name ?? 'Tiper'} sx={{ fontWeight: 'bold' }} />
                 </Stack>
               </Stack>
               <Navbars menus={MENUS} currentHref={currentMenu.href} />

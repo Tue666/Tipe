@@ -1,123 +1,266 @@
-const mongoose = require('mongoose');
+const _ = require('lodash');
+const { Types } = require('mongoose');
+const { Product, INVENTORY_STATUS } = require('../models/Product');
+const { upload, destroy } = require('../../utils/cloudinaryUpload');
 
-// models
-const Product = require('../models/Product');
-const AttributeValue = require('../models/AttributeValue');
-// utils
-const cloudinaryUpload = require('../../utils/cloudinaryUpload');
+const { ObjectId } = Types;
+
+const GROUP_WIDGETS = {
+  top_view: 'top_view', // Default
+  top_selling: 'top_selling',
+  top_favorite: 'top_favorite',
+  related: 'related',
+};
 
 class ProductsAPI {
-  // [GET] /products
-  async findAll(req, res, next) {
+  // [POST] /products
+  /*
+    = Body =
+		name: String,
+		images: [File],
+    imageUrls: [String],
+		category: Number,
+		quantity: Number,
+		[attributes]: [{
+      title: String,
+      value: String,
+    }],
+		[specifications]: [{
+      title: String,
+      value: String,
+    }],
+    [warranties]: [{
+      title: String,
+      value: String,
+    }],
+		...
+	*/
+  async insert(req, res, next) {
+    const cloudinaryUploaded = [];
     try {
-      const data = await Product.find({})
-        .populate({
-          path: 'category',
-          select: 'name image',
-        })
-        .populate({
-          path: 'attribute_values',
-          select: 'display_value query_value',
-        });
+      const images = req.files;
+      const { attributes, specifications, warranties, imageUrls, ...rest } = req.body;
 
-      res.status(200).json(data);
+      // For generate only
+      let { quantity_sold, ratings, reviews } = rest;
+      rest.quantity_sold = JSON.parse(quantity_sold);
+      rest.ratings = JSON.parse(ratings);
+      rest.reviews = JSON.parse(reviews);
+
+      // Validate a product must has one of image files or image urls
+      if (
+        (_.isNil(images) || images.length === 0) &&
+        (_.isNil(imageUrls) || imageUrls.length === 0)
+      ) {
+        next({ status: 400, msg: 'Images are required!' });
+        return;
+      }
+
+      const transformedData = {
+        images: [],
+        attributes: [],
+        specifications: [],
+        warranties: [],
+      };
+
+      // Transform attributes into array of key value pairs
+      if (!_.isNil(attributes) && attributes.length > 0) {
+        attributes.map((attribute) => {
+          const { title, value } = JSON.parse(attribute);
+          transformedData['attributes'].push({
+            k: title,
+            v: value,
+          });
+        });
+      }
+
+      // Transform specifications into array of key value pairs
+      if (!_.isNil(specifications) && specifications.length > 0) {
+        specifications.map((specification) => {
+          const { title, value } = JSON.parse(specification);
+          transformedData['specifications'].push({
+            k: title,
+            v: value,
+          });
+        });
+      }
+
+      // Transform warranties into array of key value pairs
+      if (!_.isNil(warranties) && warranties.length > 0) {
+        warranties.map((warranty) => {
+          const { title, value } = JSON.parse(warranty);
+          transformedData['warranties'].push({
+            k: title,
+            v: value,
+          });
+        });
+      }
+
+      // Transform images into array string of paths
+      await Promise.all(
+        images.map(async (file) => {
+          const { path } = file;
+          const { public_id } = await upload(path, { folder: 'products' });
+          transformedData['images'].push(public_id);
+          cloudinaryUploaded.push(public_id);
+        })
+      );
+
+      for (let i = 0; i < imageUrls.length; i++) {
+        const imageUrl = imageUrls[i];
+        transformedData['images'].push(imageUrl);
+      }
+
+      const product = new Product({
+        ...rest,
+        ...transformedData,
+      });
+      await product.save();
+
+      res.status(201).json({
+        msg: 'Insert product successfully!',
+        product,
+      });
     } catch (error) {
       console.error(error);
+
+      // Remove images were uploaded to cloudinary when insert failed
+      if (cloudinaryUploaded.length > 0) {
+        await Promise.all(
+          cloudinaryUploaded.map(async (image) => {
+            await destroy(image);
+          })
+        );
+      }
+
       next({ status: 500, msg: error.message });
     }
   }
 
-  // [GET] /products/:_id
-  async findById(req, res, next) {
+  // [GET] /products/widget?{{query}}
+  /*
+    = Query =
+    group: String, // One of GROUP_WIDGETS
+    _id: String as ObjectId, // For group related only
+    limit: Number,
+  */
+  async findForWidget(req, res, next) {
     try {
-      let { _id } = req.params;
-      _id = mongoose.Types.ObjectId(_id);
+      let { group, _id, limit } = req.query;
+      if (_.isNil(group) || group === '') {
+        res.status(200).json([]);
+        return;
+      }
+      if (group === GROUP_WIDGETS.related && !_.isNil(_id)) {
+        _id = ObjectId(_id);
+      } else _id = undefined;
+      limit = limit ? parseInt(limit) : 1;
 
-      const result = await Product.aggregate([
+      const GRAVITY = 1.8;
+      const queries = {
+        inventory_status: { $nin: [INVENTORY_STATUS.hidden] },
+      };
+
+      const widget = await Product.aggregate([
+        ...(_id
+          ? [
+              { $match: { ...queries, _id } },
+              {
+                $lookup: {
+                  from: 'products',
+                  let: { category: '$category' },
+                  pipeline: [
+                    {
+                      $match: {
+                        $expr: {
+                          $and: [{ $ne: ['$_id', _id] }, { $eq: ['$category', '$$category'] }],
+                        },
+                      },
+                    },
+                  ],
+                  as: 'relatedProducts',
+                },
+              },
+              { $unwind: '$relatedProducts' },
+              { $replaceRoot: { newRoot: '$relatedProducts' } },
+            ]
+          : [{ $match: queries }]),
         {
-          $match: {
-            _id,
-            inventory_status: { $nin: ['hidden'] },
-          },
-        },
-        {
-          $graphLookup: {
-            from: 'categories',
-            startWith: '$category',
-            connectFromField: 'parent_id',
-            connectToField: '_id',
-            as: 'breadcrumbs',
-          },
-        },
-        {
-          $lookup: {
-            from: 'attributevalues',
-            localField: 'attribute_values',
-            foreignField: '_id',
-            as: 'attribute_values',
-          },
-        },
-        {
-          $lookup: {
-            from: 'warranties',
-            localField: 'warranty_infor',
-            foreignField: '_id',
-            as: 'warranty_infor',
-          },
-        },
-        {
-          $lookup: {
-            from: 'specifications',
-            localField: 'specifications',
-            foreignField: '_id',
-            as: 'specifications',
+          $addFields: {
+            time_elapsed: {
+              $divide: [{ $subtract: ['$$NOW', '$updated_at'] }, 3600000],
+            },
           },
         },
         {
           $project: {
-            'attribute_values.__v': 0,
-            'warranty_infor._id': 0,
-            'warranty_infor.createdAt': 0,
-            'warranty_infor.updatedAt': 0,
-            'warranty_infor.__v': 0,
-            'specifications._id': 0,
-            'specifications.createdAt': 0,
-            'specifications.updatedAt': 0,
-            'specifications.__v': 0,
-            'breadcrumbs.image': 0,
-            'breadcrumbs.banners': 0,
-            'breadcrumbs.parent_id': 0,
-            'breadcrumbs.status': 0,
-            'breadcrumbs.createdAt': 0,
-            'breadcrumbs.updatedAt': 0,
-            'breadcrumbs.__v': 0,
+            name: 1,
+            images: 1,
+            discount: 1,
+            discount_rate: 1,
+            original_price: 1,
+            price: 1,
+            slug: 1,
+            quantity_sold: 1,
+            ratings: 1,
+            score: {
+              // HackerNews sort algorithm
+              /*
+        				score = voted / (t + 2)^G
+        				- voted: The voted count such as sold, viewed, favorite.
+        				- t: Time between post(update) time and current time (in hours).
+        				- G: Constant 'gravity', default is 1.8.
+        			*/
+              $divide: [
+                group === GROUP_WIDGETS.top_selling
+                  ? '$quantity_sold.value'
+                  : group === GROUP_WIDGETS.top_favorite
+                  ? '$favorite_count'
+                  : '$view_count', // GROUP_WIDGETS.top_view
+                {
+                  $pow: [{ $add: ['$time_elapsed', 2] }, GRAVITY],
+                },
+              ],
+            },
           },
         },
+        {
+          $sort: {
+            score: -1,
+          },
+        },
+        { $limit: limit },
       ]);
-
-      res.status(200).json(result[0]);
+      res.status(200).json({
+        products: widget,
+      });
     } catch (error) {
       console.error(error);
       next({ status: 500, msg: error.message });
     }
   }
 
-  // [GET] /products/suggestion
+  // [GET] /products/suggestion?{{query}}
   /*
-		newest: Number,
-		number: Number
+		= Query =
+    newest: Number, // Default 0
+    limit: Number,
 	*/
   async findForSuggestion(req, res, next) {
     try {
       let { newest, limit } = req.query;
       newest = newest ? parseInt(newest) : 0;
-      limit = parseInt(limit);
+      limit = limit ? parseInt(limit) : 1;
 
-      const totalProduct = await Product.count({ inventory_status: { $nin: ['hidden'] } });
+      const queries = {
+        inventory_status: { $nin: [INVENTORY_STATUS.hidden] },
+      };
+
+      const totalProduct = await Product.count(queries);
       const totalPage = Math.ceil(totalProduct / limit);
-      const products = await Product.find({ inventory_status: { $nin: ['hidden'] } })
+      const products = await Product.find(queries)
         .select(
-          '_id name images discount discount_rate original_price price quantity_sold rating_average slug'
+          '_id name images discount discount_rate original_price price quantity_sold ratings slug'
         )
         .skip(newest)
         .limit(limit);
@@ -134,554 +277,180 @@ class ProductsAPI {
     }
   }
 
-  // [GET] /products/:page/:number
+  // [GET] /products/recommend?{{query}}
   /*
-		page: Number,
-		number: Number
-	*/
-  async findAllWithPagination(req, res, next) {
+    = Query =
+    categories: String, // Id of categories separate by ","
+    shop: String as ObjectId,
+    ...attribute.k: String, // Value of attributes separate by ","
+    sort: String, // One of popular (default) | top_selling | newest | price
+    direction: Number, // One of -1 (default) | 1
+    newest: Number, // Default 0
+    limit: Number,
+  */
+  async findForRecommend(req, res, next) {
     try {
-      let { page, number } = req.params;
-      page = parseInt(page);
-      number = parseInt(number);
-
-      const totalProduct = await Product.count({ inventory_status: { $nin: ['hidden'] } });
-      const totalPage = Math.ceil(totalProduct / number);
-      const products = await Product.find({ inventory_status: { $nin: ['hidden'] } })
-        .skip((page - 1) * number)
-        .limit(number);
-      res.status(200).json({
-        products,
-        pagination: {
-          totalPage,
-          currentPage: page,
-        },
-      });
-    } catch (error) {
-      console.error(error);
-      next({ status: 500, msg: error.message });
-    }
-  }
-
-  // [POST] /products/filtered
-  /*
-		categoryIds: [Number],
-		take: Number,
-		query: {
-			page: Number,
-			sort: String,
-			...
-		}
-	*/
-  async findFilteredProducts(req, res, next) {
-    try {
-      const { categoryIds, take, query } = req.body;
-      let { page, sort, price, rating, ...externalFilter } = query;
-      page = page ? parseInt(page) : 1;
-
-      // sorting
-      let direction = -1; // default is descending
+      let { categories, shop, sort, direction, newest, limit, ...attributes } = req.query;
+      categories = categories
+        ? categories.split(',').map((category) => parseInt(category))
+        : undefined;
+      shop = shop ? ObjectId(shop) : undefined;
       switch (sort) {
-        case 'top_seller':
+        case 'top_selling':
           sort = 'quantity_sold.value';
           break;
         case 'newest':
-          sort = 'updatedAt';
+          sort = 'updated_at';
           break;
-        case 'price-asc':
-        case 'price-desc':
-          const [tag, direc] = sort.split('-');
-          sort = tag;
-          direction = direc === 'asc' ? 1 : -1;
+        case 'price':
+          sort = 'price';
           break;
         default:
-          sort = 'createdAt'; // default sort by new created
+          sort = 'created_at';
       }
+      direction = direction ? parseInt(direction) : -1;
+      newest = newest ? parseInt(newest) : 0;
+      limit = limit ? parseInt(limit) : 1;
 
-      // pricing
-      const [fromPrice, toPrice] = price?.split(',').map((p) => Number(p)) || [0, 10000000000];
-
-      // rating
-      const [fromStar, toStar] = rating ? [rating - 0.9, rating] : [0, 5];
-
-      let chips = [];
-      let filterIds = [];
-      await Promise.all(
-        Object.keys(externalFilter).map(async (key) => {
-          const values = externalFilter[key].split(',').map((value) => value.trim());
-          await Promise.all(
-            values.map(async (value) => {
-              const attributeValue = await AttributeValue.findOne({
-                attribute_query_name: key,
-                query_value: value,
-              });
-              attributeValue && filterIds.push(attributeValue._id);
-              attributeValue && chips.push({ key, value, display: attributeValue.display_value });
-            })
-          );
-        })
-      );
-
-      const commonFilter = {
-        category: { $in: categoryIds },
-        price: {
-          $gte: fromPrice,
-          $lte: toPrice,
-        },
-        rating_average: {
-          $gte: fromStar,
-          $lte: toStar,
-        },
-        inventory_status: { $nin: ['hidden'] },
+      const queries = {
+        inventory_status: { $nin: [INVENTORY_STATUS.hidden] },
       };
 
-      const result = await Product.aggregate([
+      if (!_.isNil(categories) && categories.length > 0) {
+        queries['category'] = { $in: categories };
+      }
+
+      if (!_.isNil(shop)) {
+        queries['shop'] = { shop };
+      }
+
+      if (!_.isNil(attributes) && !_.isEmpty(attributes)) {
+        const keys = Object.keys(attributes);
+        const values = keys.map((key) => attributes[key].split(','));
+        queries['attributes.k'] = { $in: keys };
+        queries['attributes.v'] = { $in: _.flattenDepth(values, 1) };
+      }
+
+      const recommend = await Product.aggregate([
+        { $match: queries },
+        { $unwind: '$attributes' },
         {
-          $match: {
-            ...commonFilter,
-            attribute_values: filterIds.length > 0 ? { $all: filterIds } : { $exists: true },
-          },
-        },
-        {
-          $lookup: {
-            from: 'attributevalues',
-            localField: 'attribute_values',
-            foreignField: '_id',
-            as: 'attribute_values',
+          $group: {
+            _id: null,
+            products: {
+              $addToSet: {
+                _id: '$_id',
+                name: '$name',
+                images: '$images',
+                discount: '$discount',
+                discount_rate: '$discount_rate',
+                original_price: '$original_price',
+                price: '$price',
+                slug: '$slug',
+                quantity_sold: '$quantity_sold',
+                ratings: '$ratings',
+              },
+            },
+            attributes: {
+              $addToSet: '$attributes',
+            },
           },
         },
         {
           $facet: {
             products: [
-              { $sort: { [sort]: direction } },
-              { $skip: (page - 1) * take },
-              { $limit: take },
               {
-                $project: {
-                  name: 1,
-                  images: 1,
-                  discount: 1,
-                  discount_rate: 1,
-                  original_price: 1,
-                  price: 1,
-                  slug: 1,
-                  quantity_sold: 1,
-                  rating_average: 1,
+                $unwind: '$products',
+              },
+              {
+                $replaceRoot: {
+                  newRoot: '$products',
                 },
               },
+              { $sort: { [sort]: direction } },
+              { $skip: newest },
+              { $limit: limit },
             ],
             total: [
               {
-                $group: {
-                  _id: null,
-                  count: {
-                    $sum: 1,
+                $replaceRoot: {
+                  newRoot: {
+                    totalProduct: { $size: '$products' },
+                    totalAttribute: { $size: '$attributes' },
                   },
                 },
               },
             ],
-            filter: [
+            attributes: [
               {
-                $unwind: '$attribute_values',
+                $unwind: '$attributes',
               },
               {
-                $group: {
-                  _id: '$attribute_values',
-                },
-              },
-              {
-                $group: {
-                  _id: null,
-                  values: {
-                    $addToSet: '$_id',
-                  },
-                  attributes: {
-                    $addToSet: '$_id.attribute_query_name',
-                  },
-                },
-              },
-              {
-                $lookup: {
-                  from: 'attributes',
-                  localField: 'attributes',
-                  foreignField: 'query_name',
-                  as: 'attributes',
-                },
-              },
-              {
-                $addFields: {
-                  attributes: {
-                    // map and push value filtered to attribute object
-                    $map: {
-                      input: '$attributes',
-                      as: 'attribute',
-                      in: {
-                        $mergeObjects: [
-                          '$$attribute',
-                          {
-                            values: {
-                              $filter: {
-                                input: '$values',
-                                as: 'value',
-                                cond: {
-                                  $eq: ['$$value.attribute_query_name', '$$attribute.query_name'],
-                                },
-                              },
-                            },
-                          },
-                        ],
-                      },
-                    },
-                  },
-                },
-              },
-              {
-                $project: {
-                  attributes: {
-                    _id: 1,
-                    query_name: 1,
-                    display_name: 1,
-                    collapsed: 1,
-                    multi_select: 1,
-                    values: {
-                      _id: 1,
-                      display_value: 1,
-                      query_value: 1,
-                    },
-                  },
+                $replaceRoot: {
+                  newRoot: '$attributes',
                 },
               },
             ],
-          },
-        },
-        {
-          $project: {
-            products: 1,
-            total: '$total.count',
-            filter: '$filter.attributes',
           },
         },
       ]);
 
-      const { products, total, filter } = result[0];
-      const count = total[0] ? total[0] : 0;
-      const totalPage = Math.ceil(count / take);
-
-      // switch to dynamic by filtered product if have time
-      const staticFilterRating = {
-        _id: '_1',
-        query_name: 'rating',
-        display_name: 'Rating',
-        collapsed: 5,
-        multi_select: false,
-        values: [
-          {
-            _id: '_1.1',
-            display_value: '5 Stars',
-            query_value: '5',
-          },
-          {
-            _id: '_1.2',
-            display_value: '4 Stars',
-            query_value: '4',
-          },
-          {
-            _id: '_1.3',
-            display_value: '3 Stars',
-            query_value: '3',
-          },
-        ],
-      };
-      const staticFilterPrice = {
-        _id: '_2',
-        query_name: 'price',
-        display_name: 'Price',
-        collapsed: 5,
-        multi_select: false,
-        values: [
-          {
-            _id: '_2.1',
-            display_value: 'Less than 400.000',
-            query_value: '0,400000',
-          },
-          {
-            _id: '_2.2',
-            display_value: 'From 400.000 to 13.500.000',
-            query_value: '400000,13500000',
-          },
-          {
-            _id: '_2.3',
-            display_value: 'From 13.500.000 to 32.500.000',
-            query_value: '13500000,32500000',
-          },
-          {
-            _id: '_2.4',
-            display_value: 'More than 32.500.000',
-            query_value: '32500000,10000000000',
-          },
-        ],
-      };
-
+      const { total, ...rest } = recommend?.[0];
+      const totalProduct = total?.[0]?.totalProduct ?? 0;
+      const totalPage = Math.ceil(totalProduct / limit);
       res.json({
-        products,
-        totalProduct: count,
-        filter: {
-          rating: staticFilterRating,
-          price: staticFilterPrice,
-          attributes: filter[0],
-        },
-        chips,
+        ...rest,
+        ...total?.[0],
         pagination: {
           totalPage,
-          page,
+          currentPage: totalPage > 0 ? newest / limit + 1 : 0,
         },
       });
     } catch (error) {
-      console.error(error);
+      console.log(error);
       next({ status: 500, msg: error.message });
     }
   }
 
-  // [GET] /products/widget/:group
-  async findForWidget(req, res, next) {
-    try {
-      let { group } = req.params;
-      let { newest, limit } = req.query;
-      if (!group) {
-        res.status(200).json([]);
-        return;
-      }
-
-      newest = newest ? parseInt(newest) : 0;
-      limit = parseInt(limit);
-
-      const GRAVITY = 1.8;
-      const products = await Product.aggregate([
-        {
-          $match: { inventory_status: { $nin: ['hidden'] } },
-        },
-        {
-          $addFields: {
-            time_elapsed: {
-              $divide: [{ $subtract: ['$$NOW', '$updatedAt'] }, 3600000],
-            },
-          },
-        },
-        {
-          $project: {
-            name: 1,
-            images: 1,
-            discount: 1,
-            discount_rate: 1,
-            original_price: 1,
-            price: 1,
-            slug: 1,
-            quantity_sold: 1,
-            rating_average: 1,
-            score: {
-              // HackerNews sort algorithm
-              /*
-								score = voted / (t + 2)^G
-								- voted: The voted count such as sold, viewed, favorite.
-								- t: Time between post(update) time and current time (in hours).
-								- G: Constant 'gravity', default is 1.8.
-							*/
-              $divide: [
-                group === 'top_selling'
-                  ? '$quantity_sold.value'
-                  : group === 'maybe_you_like'
-                  ? '$favorite_count'
-                  : '$view_count',
-                {
-                  $pow: [{ $add: ['$time_elapsed', 2] }, GRAVITY],
-                },
-              ],
-            },
-          },
-        },
-        {
-          $sort: {
-            score: -1,
-          },
-        },
-        {
-          $skip: newest,
-        },
-        {
-          $limit: limit,
-        },
-      ]);
-      res.status(200).json({
-        products,
-      });
-    } catch (error) {
-      console.error(error);
-      next({ status: 500, msg: error.message });
-    }
-  }
-
-  // [GET] /products/similar/:_id/:number
+  // [GET] /products/:_id
   /*
-		_id: ObjectId as String
-		number: Number,
-	*/
-  async findSimilarProducts(req, res, next) {
+    = Params =
+    _id: String as ObjectId,
+  */
+  async findById(req, res, next) {
     try {
-      let { _id, limit } = req.query;
-      _id = mongoose.Types.ObjectId(_id);
-      limit = parseInt(limit);
+      let { _id } = req.params;
+      _id = ObjectId(_id);
 
-      const product = await Product.findOne({
+      const queries = {
         _id,
-        inventory_status: { $nin: ['hidden'] },
-      }).select('category');
-      if (!product) {
-        res.status(200).json([]);
-        return;
-      }
+        inventory_status: { $nin: [INVENTORY_STATUS.hidden] },
+      };
 
-      const products = await Product.find({
-        _id: { $ne: _id },
-        category: product.category,
-        inventory_status: { $nin: ['hidden'] },
-      })
-        .select(
-          'name images discount discount_rate original_price price slug quantity_sold rating_average'
-        )
-        .limit(limit);
-      res.status(200).json({
-        products,
-      });
-    } catch (error) {
-      console.error(error);
-      next({ status: 500, msg: error.message });
-    }
-  }
-
-  // [GET] /products/ranking/:type/:number
-  /*
-		type: String [sold, view, favorite],
-		number: Number,
-	*/
-  async findRankingProducts(req, res, next) {
-    try {
-      let { type, number } = req.params;
-      number = parseInt(number);
-
-      const GRAVITY = 1.8;
-      const products = await Product.aggregate([
+      const product = await Product.aggregate([
+        { $match: queries },
         {
-          $match: { inventory_status: { $nin: ['hidden'] } },
-        },
-        {
-          $addFields: {
-            time_elapsed: {
-              $divide: [{ $subtract: ['$$NOW', '$updatedAt'] }, 3600000],
-            },
+          $graphLookup: {
+            from: 'categories',
+            startWith: '$category',
+            connectFromField: 'parent_id',
+            connectToField: '_id',
+            as: 'breadcrumbs',
           },
-        },
-        {
-          $project: {
-            name: 1,
-            images: 1,
-            discount: 1,
-            discount_rate: 1,
-            original_price: 1,
-            price: 1,
-            slug: 1,
-            quantity_sold: 1,
-            rating_average: 1,
-            score: {
-              // HackerNews sort algorithm
-              /*
-								score = voted / (t + 2)^G
-								- voted: The voted count such as sold, viewed, favorite.
-								- t: Time between post(update) time and current time (in hours).
-								- G: Constant 'gravity', default is 1.8.
-							*/
-              $divide: [
-                type === 'sold'
-                  ? '$quantity_sold.value'
-                  : type === 'favorite'
-                  ? '$favorite_count'
-                  : '$view_count',
-                {
-                  $pow: [{ $add: ['$time_elapsed', 2] }, GRAVITY],
-                },
-              ],
-            },
-          },
-        },
-        {
-          $sort: {
-            score: -1,
-          },
-        },
-        {
-          $limit: number,
         },
       ]);
-      res.status(200).json(products);
+
+      res.status(200).json(product?.[0]);
     } catch (error) {
       console.error(error);
       next({ status: 500, msg: error.message });
     }
   }
 
-  // [POST] /products
-  /*
-		name: String,
-		images: [String],
-		quantity: Number,
-		category: Number,
-		[attribute_values]: [attribute_value._id],
-		[warranty_infor]: [warranty._id],
-		[specifications]: [specification._id],
-		...
-	*/
-  async create(req, res, next) {
+  // [GET] /products
+  async find(req, res, next) {
     try {
-      const { warranty_infor, specifications, ...body } = req.body;
-      const images = req.files;
-
-      // handle images
-      if (!images) {
-        next({ status: 400, msg: 'Image field is required!' });
-        return;
-      }
-      const imageObjs = [];
-      await Promise.all(
-        images.map(async (file) => {
-          const { public_id } = await cloudinaryUpload(file.path, 'product');
-          imageObjs.push(public_id);
-        })
-      );
-
-      // handle warranty
-      const warrantyObjs = [];
-      warranty_infor &&
-        warranty_infor.map((warranty) => {
-          warrantyObjs.push(mongoose.Types.ObjectId(warranty));
-        });
-
-      // handle specification
-      const specificationObjs = [];
-      specifications &&
-        specifications.map((specification) => {
-          specificationObjs.push(mongoose.Types.ObjectId(specification));
-        });
-
-      const product = new Product({
-        ...body,
-        images: imageObjs,
-        warranty_infor: warrantyObjs,
-        specifications: specificationObjs,
-      });
-      await product.save();
-      res.status(201).json({
-        msg: 'Insert product successfully!',
-        product,
-      });
+      res.status(200).json([]);
     } catch (error) {
       console.error(error);
       next({ status: 500, msg: error.message });

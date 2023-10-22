@@ -5,7 +5,7 @@ import { Fragment } from 'react';
 const ApplyPrice = () => {
   return (
     <Fragment>
-      <Stack direction="row" spacing={2} my={2}>
+      <Stack direction="row" spacing={2} mb={2}>
         <TextField label="From" variant="standard" />
         <TextField label="To" variant="standard" />
       </Stack>

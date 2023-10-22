@@ -1,27 +1,91 @@
-// models
-const Category = require('../models/Category');
-// utils
-const cloudinaryUpload = require('../../utils/cloudinaryUpload');
+const _ = require('lodash');
+const { Category, CATEGORY_STATUS } = require('../models/Category');
+const { upload, destroy } = require('../../utils/cloudinaryUpload');
 
 class CategoriesAPI {
-  // [GET] /categories
-  async findAllRoot(req, res, next) {
+  // [POST] /categories
+  /*
+    = Body =
+		name: String,
+		image: String,
+    imageUrl: String,
+		banners: [String],
+    bannerUrls: [String],
+		parent_id: Number,
+	*/
+  async insert(req, res, next) {
+    const cloudinaryUploaded = [];
     try {
-      const categories = await Category.find({
-        parent_id: null,
-        status: 'active',
-      }).select('_id name image slug');
-      res.status(200).json({
-        categories,
+      const { image, banners } = req.files;
+      const { imageUrl, bannerUrls, ...rest } = req.body;
+
+      // Validate a category must has one of image file or image url
+      if ((_.isNil(image) || image === '') && (_.isNil(imageUrl) || imageUrl === '')) {
+        next({ status: 400, msg: 'Image is required!' });
+        return;
+      }
+
+      const transformedData = {
+        banners: [],
+      };
+
+      // Transform image into path
+      if (!_.isNil(image) && image.length > 0) {
+        const { public_id } = await upload(image[0].path, { folder: 'categories' });
+        transformedData['image'] = public_id;
+        cloudinaryUploaded.push(public_id);
+      } else if (!_.isNil(imageUrl) && imageUrl !== '') {
+        transformedData['image'] = imageUrl;
+      }
+
+      // Transform banners into array string of paths
+      if (!_.isNil(banners) && banners.length > 0) {
+        await Promise.all(
+          banners.map(async (file) => {
+            const { path } = file;
+            const { public_id } = await upload(path, { folder: 'banners/categories' });
+            transformedData['banners'].push(public_id);
+            cloudinaryUploaded.push(public_id);
+          })
+        );
+      }
+
+      if (!_.isNil(bannerUrls) && bannerUrls.length > 0) {
+        for (let i = 0; i < bannerUrls.length; i++) {
+          const bannerUrl = bannerUrls[i];
+          transformedData['banners'].push(bannerUrl);
+        }
+      }
+
+      const category = new Category({
+        ...rest,
+        ...transformedData,
+      });
+      await category.save();
+
+      res.status(201).json({
+        msg: 'Insert category successfully!',
+        category,
       });
     } catch (error) {
       console.error(error);
+
+      // Remove images were uploaded to cloudinary when insert failed
+      if (cloudinaryUploaded.length > 0) {
+        await Promise.all(
+          cloudinaryUploaded.map(async (image) => {
+            await destroy(image);
+          })
+        );
+      }
+
       next({ status: 500, msg: error.message });
     }
   }
 
   // [GET] /categories/:_id
   /*
+    = Params =
 		_id: Number
 	*/
   async findById(req, res, next) {
@@ -29,15 +93,15 @@ class CategoriesAPI {
       let { _id } = req.params;
       _id = parseInt(_id);
 
-      const result = await Category.aggregate([
+      const queries = {
+        _id,
+        status: { $nin: [CATEGORY_STATUS.inactive] },
+      };
+
+      const category = await Category.aggregate([
+        { $match: queries },
         {
-          $match: {
-            _id,
-            status: 'active',
-          },
-        },
-        {
-          // get all parent of category
+          // Get all parents of category
           $graphLookup: {
             from: 'categories',
             startWith: '$parent_id',
@@ -47,7 +111,7 @@ class CategoriesAPI {
           },
         },
         {
-          // get all children of category
+          // Get all children of category
           $lookup: {
             from: 'categories',
             localField: '_id',
@@ -74,53 +138,31 @@ class CategoriesAPI {
           },
         },
       ]);
-      const category = result[0];
-      res.status(200).json(category);
+      res.status(200).json(category?.[0]);
     } catch (error) {
       console.error(error);
       next({ status: 500, msg: error.message });
     }
   }
 
-  // [POST] /categories
+  // [GET] /categories?{{query}}
   /*
-		name: String,
-		image: String,
-		[parent_id]: Number,
-		[banners]: [String],
-		...
-	*/
-  async create(req, res, next) {
+    = Query =
+    level: Number
+  */
+  async find(req, res, next) {
     try {
-      const { attributes, ...body } = req.body;
-      const { image, banners } = req.files;
+      let { level } = req.query;
+      level = level ? parseInt(level) : 1;
 
-      // handle image
-      if (!req.files['image']) {
-        next({ status: 400, msg: 'Image field is required!' });
-        return;
-      }
-      const { public_id } = await cloudinaryUpload(image[0].path, 'category');
+      const queries = {
+        level,
+        status: { $nin: [CATEGORY_STATUS.inactive] },
+      };
 
-      // // handle banners
-      const bannerObjs = [];
-      banners &&
-        (await Promise.all(
-          banners.map(async (file) => {
-            const { public_id } = await cloudinaryUpload(file.path, 'category/banners');
-            bannerObjs.push(public_id);
-          })
-        ));
-
-      const category = new Category({
-        ...body,
-        image: public_id,
-        banners: bannerObjs,
-      });
-      await category.save();
-      res.status(201).json({
-        msg: 'Insert category successfully!',
-        category,
+      const categories = await Category.find(queries).select('_id name image slug');
+      res.status(200).json({
+        categories,
       });
     } catch (error) {
       console.error(error);

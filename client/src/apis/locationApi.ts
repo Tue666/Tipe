@@ -1,12 +1,12 @@
 import ApiClient from './ApiClient';
-import { IAccount } from '@/models/interfaces';
+import { ILocation } from '@/models/interfaces';
+import { RouterUtil } from '@/utils';
 
 const locationApi = {
-  // [GET] {{URL}}/api/locations/regions/:country
-  findRegionsByCountry: (
-    country: IAccount.Address['country']
-  ): Promise<IAccount.Address['region'][]> => {
-    const url = `/locations/regions/${country}`;
+  // [GET] {{URL}}/api/locations?{{query}}
+  find: (findQuery: ILocation.FindQuery): Promise<ILocation.FindResponse> => {
+    const buildQuery = RouterUtil.buildUrlQueryParams(findQuery, false);
+    const url = `/locations?${buildQuery}`;
     return ApiClient.get(url);
   },
 };

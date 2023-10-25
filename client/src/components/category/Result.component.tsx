@@ -1,10 +1,12 @@
+import _ from 'lodash';
+import { ParsedUrlQuery } from 'querystring';
 import { Alert, Chip, Pagination, Stack, Typography, styled } from '@mui/material';
 import { HelpOutline } from '@mui/icons-material';
 import { ProductCard } from '@/components';
 import { Carousel } from '../_external_/react-slick';
 import { Image } from '../overrides';
 import { buildImageLink } from '@/utils';
-import { IProduct } from '@/models/interfaces';
+import { IProduct, ISchema } from '@/models/interfaces';
 import { RecommendSort } from '@/models/interfaces/product';
 
 interface Filter {
@@ -48,10 +50,19 @@ interface ResultProps
   extends Pick<IProduct.FindForRecommendResponse, 'products' | 'totalProduct' | 'pagination'> {
   name: string;
   banners?: string[];
+  queryParams: ParsedUrlQuery;
+  handleSelectFilter: (
+    key: ISchema.Attribute['k'],
+    value: ISchema.Attribute['v'],
+    isMultiple?: boolean
+  ) => void;
 }
 
 const Result = (props: ResultProps) => {
-  const { name, banners, products, totalProduct, pagination } = props;
+  const { name, banners, queryParams, handleSelectFilter, products, totalProduct, pagination } =
+    props;
+  const { ...restQueryParams } = queryParams;
+  console.log(restQueryParams);
   const { currentPage, totalPage } = pagination;
   return (
     <Root>
@@ -90,16 +101,41 @@ const Result = (props: ResultProps) => {
             );
           })}
         </FilterWrapper>
-        {/* <Stack direction="row" alignItems="center" spacing={1} sx={{ m: 2 }}>
-          {[...Array(2)].map((_, index) => {
-            return (
-              <Chip key={index} label="From 400.000 to 13.500.000" color="primary" size="small" />
-            );
-          })}
-          <Typography variant="subtitle2" color="primary" sx={{ cursor: 'pointer' }}>
-            Remove all
-          </Typography>
-        </Stack> */}
+        {!_.isEmpty(restQueryParams) && (
+          <Stack direction="row" alignItems="center" spacing={1} sx={{ m: 2 }}>
+            {Object.keys(restQueryParams).map((queryKey, index) => {
+              const queryValues = restQueryParams[queryKey]!;
+              if (queryValues instanceof Array) {
+                return queryValues.map((value) => (
+                  <Chip
+                    key={index}
+                    label={value}
+                    color="error"
+                    size="small"
+                    onDelete={() => handleSelectFilter(queryKey, value, true)}
+                  />
+                ));
+              }
+              return (
+                <Chip
+                  key={index}
+                  label={queryValues}
+                  color="error"
+                  size="small"
+                  onDelete={() => handleSelectFilter(queryKey, queryValues)}
+                />
+              );
+            })}
+            <Typography
+              variant="subtitle2"
+              color="error"
+              sx={{ cursor: 'pointer' }}
+              onClick={() => {}}
+            >
+              Remove all
+            </Typography>
+          </Stack>
+        )}
         {products?.length > 0 && (
           <ResultWrapper>
             {products.map((product, index) => {

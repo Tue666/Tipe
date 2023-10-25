@@ -327,8 +327,8 @@ class ProductsAPI {
       if (!_.isNil(attributes) && !_.isEmpty(attributes)) {
         const keys = Object.keys(attributes);
         const values = keys.map((key) => attributes[key].split(','));
-        queries['attributes.k'] = { $in: keys };
-        queries['attributes.v'] = { $in: _.flattenDepth(values, 1) };
+        queries['attributes.k'] = { $all: keys };
+        queries['attributes.v'] = { $all: _.flattenDepth(values, 1) };
       }
 
       const recommend = await Product.aggregate([
@@ -390,6 +390,7 @@ class ProductsAPI {
                   newRoot: '$attributes',
                 },
               },
+              { $sort: { k: 1, v: 1 } },
             ],
           },
         },

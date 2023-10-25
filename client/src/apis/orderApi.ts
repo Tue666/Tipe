@@ -1,6 +1,6 @@
+import qs from 'query-string';
 import ApiClient from './ApiClient';
 import { IOrder } from '@/models/interfaces';
-import { RouterUtil } from '@/utils';
 
 const orderApi = {
   // [GET] {{URL}}/api/orders/:_id
@@ -13,8 +13,8 @@ const orderApi = {
   findByStatus: (
     findByStatusQuery: IOrder.FindByStatusQuery
   ): Promise<IOrder.FindByStatusResponse> => {
-    const buildQuery = RouterUtil.buildUrlQueryParams(findByStatusQuery);
-    const url = `/orders?${buildQuery}`;
+    const query = qs.stringify(findByStatusQuery, { arrayFormat: 'comma' });
+    const url = `/orders?${query}`;
     return ApiClient.get(url);
   },
 

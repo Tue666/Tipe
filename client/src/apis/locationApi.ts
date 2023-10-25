@@ -1,12 +1,12 @@
+import qs from 'query-string';
 import ApiClient from './ApiClient';
 import { ILocation } from '@/models/interfaces';
-import { RouterUtil } from '@/utils';
 
 const locationApi = {
   // [GET] {{URL}}/api/locations?{{query}}
   find: (findQuery: ILocation.FindQuery): Promise<ILocation.FindResponse> => {
-    const buildQuery = RouterUtil.buildUrlQueryParams(findQuery, false);
-    const url = `/locations?${buildQuery}`;
+    const query = qs.stringify(findQuery, { arrayFormat: 'comma' });
+    const url = `/locations?${query}`;
     return ApiClient.get(url);
   },
 };

@@ -1,6 +1,6 @@
+import qs from 'query-string';
 import ApiClient from './ApiClient';
 import { ICategory } from '@/models/interfaces';
-import { RouterUtil } from '@/utils';
 
 const categoryApi = {
   // [GET] {{URL}}/api/categories/:_id
@@ -11,8 +11,8 @@ const categoryApi = {
 
   // [GET] {{URL}}/api/categories?{{query}}
   find: (findQuery: ICategory.FindQuery): Promise<ICategory.FindResponse> => {
-    const buildQuery = RouterUtil.buildUrlQueryParams(findQuery, false);
-    const url = `/categories?${buildQuery}`;
+    const query = qs.stringify(findQuery, { arrayFormat: 'comma' });
+    const url = `/categories?${query}`;
     return ApiClient.get(url);
   },
 };

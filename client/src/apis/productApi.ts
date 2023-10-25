@@ -1,14 +1,14 @@
+import qs from 'query-string';
 import ApiClient from './ApiClient';
 import { IProduct } from '@/models/interfaces';
-import { RouterUtil } from '@/utils';
 
 const productApi = {
   // [GET] {{URL}}/api/products/widget?{{query}}
   findForWidget: (
     findForWidgetQuery: IProduct.FindForWidgetQuery
   ): Promise<IProduct.FindForWidgetResponse> => {
-    const buildQuery = RouterUtil.buildUrlQueryParams(findForWidgetQuery);
-    const url = `/products/widget?${buildQuery}`;
+    const query = qs.stringify(findForWidgetQuery, { arrayFormat: 'comma' });
+    const url = `/products/widget?${query}`;
     return ApiClient.get(url);
   },
 
@@ -16,8 +16,8 @@ const productApi = {
   findForSuggestion: (
     findForSuggestionQuery: IProduct.FindForSuggestionQuery
   ): Promise<IProduct.FindForSuggestionResponse> => {
-    const buildQuery = RouterUtil.buildUrlQueryParams(findForSuggestionQuery);
-    const url = `/products/suggestion?${buildQuery}`;
+    const query = qs.stringify(findForSuggestionQuery, { arrayFormat: 'comma' });
+    const url = `/products/suggestion?${query}`;
     return ApiClient.get(url);
   },
 
@@ -25,8 +25,8 @@ const productApi = {
   findForRecommend: (
     findForRecommendQuery: IProduct.FindForRecommendQuery
   ): Promise<IProduct.FindForRecommendResponse> => {
-    const buildQuery = RouterUtil.buildUrlQueryParams(findForRecommendQuery);
-    const url = `/products/recommend?${buildQuery}`;
+    const query = qs.stringify(findForRecommendQuery, { arrayFormat: 'comma' });
+    const url = `/products/recommend?${query}`;
     return ApiClient.get(url);
   },
 

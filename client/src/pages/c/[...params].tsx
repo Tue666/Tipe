@@ -1,14 +1,16 @@
 import _ from 'lodash';
-import { Fragment } from 'react';
+import qs from 'query-string';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
-import { Stack } from '@mui/material';
+import { styled, Skeleton, Stack } from '@mui/material';
 import { Breadcrumbs, Page, Teleport } from '@/components';
 import { Filter, Result } from '@/components/category';
 import { categoryApi, productApi } from '@/apis';
-import { ICategory, IProduct } from '@/models/interfaces';
+import { ICategory, IProduct, ISchema } from '@/models/interfaces';
 import { PATH_MAIN } from '@/configs/routers';
 import { LIMIT_RECOMMEND_NUMBER } from '@/configs/constants';
+import { RouterUtil } from '@/utils';
 
 interface CategoryProps {
   category: ICategory.NestedCategory;
@@ -16,39 +18,111 @@ interface CategoryProps {
 }
 
 const Category = (props: CategoryProps) => {
-  const { category, recommend } = props;
-  const { name, banners, parents, children } = category;
-  const { products, attributes, totalProduct, pagination } = recommend;
   console.log('Category render');
-  const { asPath, query, push } = useRouter();
-  const { params, ...queries } = query;
-  console.log(queries);
+  const { category, recommend } = props;
+  const { _id, name, banners, parents, children } = category;
+  const [recommendCS, setRecommendCS] = useState(recommend);
+  const { products, attributes, totalProduct, pagination } = recommendCS;
+  const { asPath, query, replace } = useRouter();
+  const shouldRenderRef = useRef(false); // Fix useRouter dependencies cause infinite loop
+  const queryParamsRef = useRef({});
+  useEffect(() => {
+    console.log('Effect called');
+    const findForRecommendCS = async () => {
+      console.log('Fetch recommend');
+      const categories = `${_id},${children.map((category) => category._id).join(',')}`;
+      const recommendCS = await productApi.findForRecommend({
+        categories,
+        ...queryParamsRef.current,
+        limit: LIMIT_RECOMMEND_NUMBER,
+      });
+      setRecommendCS(recommendCS);
+    };
+    if (shouldRenderRef.current) {
+      shouldRenderRef.current = false;
+      findForRecommendCS();
+    }
 
-  const handleNavigate = () => {
-    push(`${asPath}?color=Black`);
+    return () => setRecommendCS({} as IProduct.FindForRecommendResponse);
+  }, [query]);
+
+  const handleSelectFilter = (
+    key: ISchema.Attribute['k'],
+    value: ISchema.Attribute['v'],
+    multiple: boolean = false,
+    resetPage: boolean = true
+  ) => {
+    shouldRenderRef.current = true;
+    const queryParams = RouterUtil.buildUrlQueryObject(
+      key,
+      value,
+      multiple,
+      queryParamsRef.current
+    );
+    replace(`${asPath.split('?')[0]}?${qs.stringify(queryParams)}`);
   };
   return (
     <Page title="Buy online at good price | Tipe Shop">
       <Teleport />
-      <Fragment>
-        <Breadcrumbs
-          current={name}
-          links={parents.map((category) => {
-            const { _id, name, slug } = category;
-            return { title: name, path: PATH_MAIN.category(slug, _id) };
-          })}
-        />
-        <Stack direction={{ xs: 'column', sm: 'row', lg: 'row' }} justifyContent="space-between">
-          <Filter _children={children} attributes={attributes} handleNavigate={handleNavigate} />
-          <Result
-            name={name}
-            banners={banners}
-            products={products}
-            totalProduct={totalProduct}
-            pagination={pagination}
+      {!_.isNil(recommendCS) && !_.isEmpty(recommendCS) && (
+        <Fragment>
+          <Breadcrumbs
+            current={name}
+            links={parents.map((category) => {
+              const { _id, name, slug } = category;
+              return { title: name, path: PATH_MAIN.category(slug, _id) };
+            })}
           />
+          <Stack direction={{ xs: 'column', sm: 'row', lg: 'row' }} justifyContent="space-between">
+            <Filter
+              _children={children}
+              queryParams={queryParamsRef.current}
+              handleSelectFilter={handleSelectFilter}
+              attributes={attributes}
+            />
+            <Result
+              name={name}
+              banners={banners}
+              queryParams={queryParamsRef.current}
+              handleSelectFilter={handleSelectFilter}
+              products={products}
+              totalProduct={totalProduct}
+              pagination={pagination}
+            />
+          </Stack>
+        </Fragment>
+      )}
+      {(_.isNil(recommendCS) || _.isEmpty(recommendCS)) && (
+        <Stack direction={{ xs: 'column', sm: 'row', lg: 'row' }} justifyContent="space-between">
+          <FilterSkeleton>
+            {[...Array(3)].map((_, index) => (
+              <Stack key={index} sx={{ mb: 3 }}>
+                <Skeleton variant="text" height={50} />
+                {[...Array(4)].map((_, index) => (
+                  <Fragment key={index}>
+                    <Skeleton variant="text" />
+                    <Skeleton variant="text" width={200} />
+                  </Fragment>
+                ))}
+              </Stack>
+            ))}
+          </FilterSkeleton>
+          <ResultSkeleton>
+            <Skeleton variant="text" width={300} height={50} />
+            <Skeleton variant="text" height={50} />
+            <Wrapper>
+              {[...Array(12)].map((_, index) => (
+                <Stack key={index} sx={{ p: 2 }}>
+                  <Skeleton variant="rectangular" width={180} height={180} />
+                  <Skeleton variant="text" height={45} />
+                  <Skeleton variant="text" width={150} />
+                  <Skeleton variant="text" width={130} />
+                </Stack>
+              ))}
+            </Wrapper>
+          </ResultSkeleton>
         </Stack>
-      </Fragment>
+      )}
     </Page>
   );
 };
@@ -105,5 +179,31 @@ export const getStaticProps: GetStaticProps = async (context) => {
     };
   }
 };
+
+const FilterSkeleton = styled(Stack)(({ theme }) => ({
+  width: '250px',
+  borderRight: `2px solid ${theme.palette.background.default}`,
+  backgroundColor: theme.palette.background.paper,
+  padding: '10px',
+  [theme.breakpoints.down('sm')]: {
+    width: '100%',
+    marginBottom: '10px',
+  },
+}));
+
+const ResultSkeleton = styled(Stack)(({ theme }) => ({
+  padding: '15px',
+  width: 'calc(100% - 250px)',
+  backgroundColor: theme.palette.background.paper,
+  [theme.breakpoints.down('sm')]: {
+    width: '100%',
+  },
+}));
+
+const Wrapper = styled('div')({
+  display: 'flex',
+  flexWrap: 'wrap',
+  justifyContent: 'center',
+});
 
 export default Category;

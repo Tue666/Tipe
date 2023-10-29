@@ -23,8 +23,7 @@ const Category = (props: CategoryProps) => {
   const { _id, name, banners, parents, children } = category;
   const [recommendCS, setRecommendCS] = useState(recommend);
   const { products, attributes, totalProduct, pagination } = recommendCS;
-  const router = useRouter();
-  const { asPath, query, replace } = router;
+  const { asPath, query, replace } = useRouter();
   const { params, ...queriesParams } = query;
   const shouldRenderRef = useRef(false); // Fix useRouter dependencies cause infinite loop
   useEffect(() => {
@@ -47,7 +46,7 @@ const Category = (props: CategoryProps) => {
         setRecommendCS({} as IProduct.FindForRecommendResponse);
       }
     };
-  }, [router]);
+  }, [_id, children, queriesParams]);
 
   const handleChangeQueryParam = (
     key: ISchema.Attribute['k'],

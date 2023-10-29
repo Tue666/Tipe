@@ -23,3 +23,5 @@ export interface InsertResponse {
   _id: Order['_id'];
   orderedItems: Product['_id'][];
 }
+
+export interface TrackingOrderBody {}

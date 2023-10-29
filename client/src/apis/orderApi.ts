@@ -3,6 +3,12 @@ import ApiClient from './ApiClient';
 import { IOrder } from '@/models/interfaces';
 
 const orderApi = {
+  // [GET] {{URL}}/api/orders/tracking-order
+  trackingOrder: (trackingOrderBody: IOrder.TrackingOrderBody): Promise<IOrder.Order> => {
+    const url = `/orders/tracking-order`;
+    return ApiClient.patch(url, trackingOrderBody);
+  },
+
   // [GET] {{URL}}/api/orders/:_id
   findById: (_id: IOrder.Order['_id']): Promise<IOrder.Order> => {
     const url = `/orders/${_id}`;

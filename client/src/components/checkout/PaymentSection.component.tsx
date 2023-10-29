@@ -94,6 +94,21 @@ const PaymentSection = (props: PaymentSectionProps) => {
       return;
     }
 
+    // Remove this when payment by external available
+    if (payment.method_key !== 'cash') {
+      enqueueNotify(
+        `${payment.method_text} is under maintenance, please choose another payment method!`,
+        {
+          anchorOrigin: {
+            vertical: 'bottom',
+            horizontal: 'center',
+          },
+          preventDuplicate: true,
+        }
+      );
+      return;
+    }
+
     dispatch(
       changePayment({
         method_key: payment.method_key,
@@ -139,7 +154,7 @@ const PaymentSection = (props: PaymentSectionProps) => {
                 <FormControlLabel
                   key={method_key}
                   value={method_key}
-                  control={<Radio size="small" />}
+                  control={<Radio disabled={method_key !== 'cash'} size="small" />}
                   label={
                     <Stack direction="row" alignItems="center" spacing={1}>
                       <Image
@@ -150,6 +165,11 @@ const PaymentSection = (props: PaymentSectionProps) => {
                           height: '32px',
                         }}
                       />
+                      {method_key !== 'cash' && (
+                        <Typography variant="subtitle2" color="error.main">
+                          (Maintained)
+                        </Typography>
+                      )}
                       {render(method_text)}
                     </Stack>
                   }

@@ -3,7 +3,7 @@ import { ModalKey } from '@/components/Modal.component';
 import { RootState } from '../store';
 
 export interface ModalParams {
-  beClosed: boolean;
+  beClosed?: boolean;
   props?: {
     [K: string]: any;
   };

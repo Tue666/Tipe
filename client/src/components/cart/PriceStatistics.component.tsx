@@ -14,6 +14,7 @@ import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { selectCustomer } from '@/redux/slices/customer.slice';
 import { PATH_CHECKOUT, PATH_MAIN } from '@/configs/routers';
 import { IOrder, ISchema } from '@/models/interfaces';
+import useModal from '@/hooks/useModal';
 import { useConfirm } from 'material-ui-confirm';
 import orderApi from '@/apis/orderApi';
 import { enqueueNotify } from '@/hooks/useSnackbar';
@@ -25,6 +26,7 @@ const PriceStatistics = (props: PriceStatisticsProps) => {
   const { addresses } = useAppSelector(selectCustomer);
   const dispatch = useAppDispatch();
   const { pathname, push } = useRouter();
+  const { openModal } = useModal();
   const confirm = useConfirm();
   const selectedCount = items.filter((item) => {
     const { selected, product } = item;
@@ -45,7 +47,10 @@ const PriceStatistics = (props: PriceStatisticsProps) => {
   const isIntendedCart = pathname.indexOf(PATH_MAIN.cart) !== -1;
   const hrefToShipping = `${PATH_CHECKOUT.shipping}${isIntendedCart ? '?is_intended_cart=1' : ''}`;
 
-  const validateInformation = (): boolean => {
+  const handleOpenAppPromotion = () => {
+    openModal({ key: 'appPromotion' });
+  };
+  const validateInformation = (isOrder: boolean = false): boolean => {
     // Validate information before order
     const prepareChange = {
       hasError: false,
@@ -59,7 +64,7 @@ const PriceStatistics = (props: PriceStatisticsProps) => {
       prepareChange.hasError = true;
       prepareChange.errorMessage = 'You have not selected any products to order yet';
     }
-    if (!payment.method_key) {
+    if (isOrder && !payment.method_key) {
       prepareChange.hasError = true;
       prepareChange.errorMessage = 'You have not selected any payment method';
     }
@@ -83,7 +88,7 @@ const PriceStatistics = (props: PriceStatisticsProps) => {
     else push(hrefToShipping);
   };
   const handleOrder = async () => {
-    const isOk = validateInformation();
+    const isOk = validateInformation(true);
     if (!isOk) return;
 
     try {
@@ -154,6 +159,7 @@ const PriceStatistics = (props: PriceStatisticsProps) => {
           <Typography variant="subtitle2">Tipe Promotion</Typography>
           <Typography
             variant="subtitle2"
+            onClick={handleOpenAppPromotion}
             sx={{ fontWeight: 'bold', color: 'rgb(26 139 237)', cursor: 'pointer' }}
           >
             <i className="bi bi-ticket-detailed"></i> Select or enter another Promotion

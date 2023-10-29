@@ -147,6 +147,11 @@ export interface PriceSummary {
   value: number;
 }
 
+export interface OrderTracking {
+  description: string;
+  time: string;
+}
+
 export interface OrderSchema extends TimestampsSchema, SoftDeleteSchema {
   _id: string;
   customer_id: CustomerSchema['_id'];
@@ -175,7 +180,7 @@ export interface OrderSchema extends TimestampsSchema, SoftDeleteSchema {
   tracking_info: {
     status: OrderStatus;
     status_text: string;
-    time: string;
+    tracking_list: OrderTracking[];
   };
   note: string;
 }

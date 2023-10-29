@@ -7,6 +7,93 @@ const { fNumberWithSuffix } = require('../../utils/formatNumber');
 const { ObjectId } = Types;
 
 class OrdersAPI {
+  // [PATCH] /orders/tracking-order
+  /*
+		_id: String as ObjectId,
+		new_status: String,
+		[note]: String,
+	*/
+  async trackingOrder(req, res, next) {
+    try {
+      let { _id: customer_id } = req.account;
+      customer_id = ObjectId(customer_id);
+      let { _id, new_status, note } = req.body;
+      _id = ObjectId(_id);
+      new_status = new_status.toLowerCase();
+
+      let status_text = 'Pending processing';
+      switch (new_status) {
+        case 'processing':
+          status_text = 'Pending processing';
+          break;
+        case 'transporting':
+          status_text = 'Being transported';
+          break;
+        case 'delivered':
+          status_text = 'Order delivered';
+          break;
+        case 'canceled':
+          // canceled only when not yet transported
+          const current = await Order.findOne({
+            _id,
+            customer_id,
+          }).select('tracking_infor items');
+          if (current.tracking_infor.status !== 'processing') {
+            next({ status: 400, msg: 'Canceled only when not yet transported!' });
+            return;
+          }
+
+          // return product quantity
+          await Promise.all(
+            current.items.map(async (item) => {
+              const { _id, quantity } = item;
+              const product = await Product.findOne({
+                _id,
+              }).select('quantity quantity_sold');
+              const newQuantity = product.quantity + quantity;
+              const newQuantitySold = product.quantity_sold.value - quantity;
+              product.quantity = newQuantity;
+              product.quantity_sold.value = newQuantitySold;
+              product.quantity_sold.text = fNumberWithSuffix(newQuantitySold, 1) + ' Sold';
+              await product.save();
+            })
+          );
+
+          status_text = 'Order has been canceled';
+          break;
+        default:
+          // refresh status
+          new_status = 'processing';
+          status_text = 'Pending processing';
+          break;
+      }
+
+      const order = await Order.findOneAndUpdate(
+        {
+          _id,
+          customer_id,
+        },
+        {
+          'tracking_infor.status': new_status,
+          'tracking_infor.status_text': status_text,
+          'tracking_infor.time': Date.now(),
+          note,
+        },
+        {
+          new: true,
+        }
+      );
+
+      res.status(200).json({
+        msg: 'Edit status successfully!',
+        order,
+      });
+    } catch (error) {
+      console.error(error);
+      next({ status: 500, msg: error.message });
+    }
+  }
+
   // [POST] /orders
   /*
     = Body =
@@ -46,10 +133,13 @@ class OrdersAPI {
 				value: Number,
 			},
 		],
-		[tracking_info]: {
+		tracking_info?: {
 			status?: String, // One of ORDER_STATUS
 			status_text?: String,
-      time?: Date,
+      tracking_list?: [
+        description: String,
+        time: Date,
+      ]
 		},
     note?: String,
 	*/

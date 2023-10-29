@@ -64,13 +64,16 @@ const Order = new Schema(
         slug: { type: String, required: true },
       },
     ],
-    price_summary: [
-      {
-        _id: false,
-        name: { type: String, required: true },
-        value: { type: Number, required: true },
-      },
-    ],
+    price_summary: {
+      type: [
+        {
+          _id: false,
+          name: { type: String, required: true },
+          value: { type: Number, required: true },
+        },
+      ],
+      default: [],
+    },
     tracking_info: {
       status: {
         type: String,
@@ -78,7 +81,21 @@ const Order = new Schema(
         default: ORDER_STATUS.processing,
       },
       status_text: { type: String, default: 'Pending processing' },
-      time: { type: Date, default: Date.now },
+      tracking_list: {
+        type: [
+          {
+            _id: false,
+            description: { type: String, required: true },
+            time: { type: Date, default: Date.now },
+          },
+        ],
+        default: [
+          {
+            description: 'Order placed',
+            time: Date.now(),
+          },
+        ],
+      },
     },
     note: { type: String, default: '' },
     deleted_at: { type: Date, default: null },

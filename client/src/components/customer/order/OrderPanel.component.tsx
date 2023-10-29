@@ -5,6 +5,7 @@ import { buildImageLink, toVND } from '@/utils';
 import { OrderTabs } from '@/pages/customer/orders';
 import { STYLE } from '@/configs/constants';
 import { useRouter } from 'next/router';
+import useModal from '@/hooks/useModal';
 import { PATH_CUSTOMER, PATH_IMAGE } from '@/configs/routers';
 
 interface OrderPanelProps {
@@ -15,7 +16,11 @@ interface OrderPanelProps {
 const OrderPanel = (props: OrderPanelProps) => {
   const { tabs, orders } = props;
   const { push } = useRouter();
+  const { openModal } = useModal();
 
+  const handleCancelOrder = (_id: IOrder.Order['_id']) => {
+    openModal({ key: 'cancelOrder', params: { props: { _id: _id } } });
+  };
   const handleNavigateOrder = (_id: IOrder.Order['_id']) => {
     push(PATH_CUSTOMER.order(_id));
   };
@@ -24,7 +29,7 @@ const OrderPanel = (props: OrderPanelProps) => {
       {orders?.length > 0 &&
         orders.map((order) => {
           const { _id, items, price_summary, tracking_info } = order;
-          const { status, status_text, time } = tracking_info;
+          const { status, status_text } = tracking_info;
           const { color, icon } = tabs[status];
           const totalPrice = price_summary.reduce((sum, price) => sum + price.value, 0);
           return (
@@ -39,7 +44,7 @@ const OrderPanel = (props: OrderPanelProps) => {
                 variant="subtitle2"
                 sx={{ display: 'flex', alignItems: 'center' }}
               >
-                {icon}&nbsp;{status_text} - #{_id} ({time})
+                {icon}&nbsp;{status_text} - #{_id}
               </Typography>
               <Divider />
               <Stack>
@@ -94,7 +99,12 @@ const OrderPanel = (props: OrderPanelProps) => {
                     </Button>
                   )}
                   {status === 'processing' && (
-                    <Button variant="outlined" color="error" size="small" onClick={() => {}}>
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      size="small"
+                      onClick={() => handleCancelOrder(_id)}
+                    >
                       CANCEL
                     </Button>
                   )}

@@ -26,6 +26,7 @@ import { ORDER_TABS } from '.';
 import { buildImageLink, toVND } from '@/utils';
 import { PATH_CUSTOMER, PATH_MAIN } from '@/configs/routers';
 import { STYLE } from '@/configs/constants';
+import OrderTracking from '@/components/customer/order/OrderTracking.component';
 
 interface OrderProps {
   order: IOrder.Order;
@@ -46,7 +47,7 @@ const Order: PageWithLayout<OrderProps> = (props: OrderProps) => {
   } = order;
   const { name, phone_number, company, region, district, ward, street } = shipping_address;
   const { method_text, message, description } = payment_method;
-  const { status, status_text } = tracking_info;
+  const { status, status_text, tracking_list } = tracking_info;
   const { color } = ORDER_TABS[status];
   const totalPrice = price_summary.reduce((sum, price) => sum + price.value, 0);
 
@@ -65,33 +66,30 @@ const Order: PageWithLayout<OrderProps> = (props: OrderProps) => {
             {status_text}
           </Typography>
         </Stack>
-        {/* {order && order.tracking_infor.status === states.delivered && (
-          <PDFDownloadLink
-            document={<InvoicePDF order={order} />}
-            fileName={`invoice-${order._id}`}
-          >
-            {({ loading }) =>
-              loading ? (
-                <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
-                  Invoice loading...
-                </Typography>
-              ) : (
-                <Typography
-                  variant="subtitle2"
-                  sx={{ fontWeight: 'bold', color: 'rgb(27, 168, 255)' }}
-                >
-                  Invoice
-                </Typography>
-              )
-            }
-          </PDFDownloadLink>
-        )} */}
         <Stack direction="row" justifyContent="space-between" alignItems="center">
           <ArrowBackIosOutlined sx={{ cursor: 'pointer' }} onClick={handleNavigateOrders} />
           <Typography variant="caption" sx={{ fontWeight: 'bold', alignSelf: 'end' }}>
             Created at: {created_at}
           </Typography>
         </Stack>
+        {tracking_list?.length > 0 && (
+          <Stack spacing={1} sx={{ height: '100%' }}>
+            <Typography variant="subtitle2" sx={{ textTransform: 'uppercase' }}>
+              order tracking
+            </Typography>
+            <Wrapper
+              direction={{ xs: 'column', md: 'row' }}
+              justifyContent="space-between"
+              alignItems={{ xs: 'center', md: 'end' }}
+            >
+              <OrderTracking tracking_list={tracking_list} />
+              <Stack spacing={1} p={2}>
+                <Button variant="outlined">GET IN TOUCH WITH SELLER</Button>
+                <Button variant="outlined">REQUEST AN ELECTRONIC INVOICE</Button>
+              </Stack>
+            </Wrapper>
+          </Stack>
+        )}
         <Grid
           container
           spacing={2}
@@ -323,7 +321,9 @@ const Order: PageWithLayout<OrderProps> = (props: OrderProps) => {
                     <TableRow key={index}>
                       <TableCell>
                         <Stack direction="row" justifyContent="space-between">
-                          <Typography variant="subtitle2">{name}</Typography>
+                          <Typography variant="subtitle2" sx={{ textTransform: 'capitalize' }}>
+                            {name}
+                          </Typography>
                           <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
                             {toVND(value)}
                           </Typography>
@@ -335,7 +335,9 @@ const Order: PageWithLayout<OrderProps> = (props: OrderProps) => {
                 <TableRow>
                   <TableCell>
                     <Stack direction="row" justifyContent="space-between">
-                      <Typography variant="subtitle2">Total</Typography>
+                      <Typography variant="subtitle2" sx={{ textTransform: 'capitalize' }}>
+                        Total
+                      </Typography>
                       <Typography
                         variant="subtitle2"
                         color="error.main"

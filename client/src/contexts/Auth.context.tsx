@@ -91,7 +91,7 @@ const AuthProvider = (props: AuthProviderProps) => {
       }
     };
     initialize();
-  }, []);
+  }, [appDispatch]);
 
   const signIn = async (signInBody: SignInBody): Promise<string> => {
     const { name, accessToken } = await accountApi.signIn(signInBody);

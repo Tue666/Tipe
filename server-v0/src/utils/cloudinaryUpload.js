@@ -1,6 +1,4 @@
 const cloudinary = require('cloudinary').v2;
-
-// config
 const { cloudinaryConfig } = require('../config/config');
 
 cloudinary.config({

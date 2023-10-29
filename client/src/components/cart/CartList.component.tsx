@@ -3,11 +3,12 @@ import { Checkbox, IconButton, Stack, Tooltip, Typography, Alert, styled } from 
 import CartItem from './CartItem.component';
 import { Hidden } from '@/components';
 import { STYLE } from '@/configs/constants';
-import { ICart } from '@/models/interfaces';
+import { ICart, IProduct } from '@/models/interfaces';
 import { useAppDispatch } from '@/redux/hooks';
-import { CartState, removeCart, switchSelect } from '@/redux/slices/cart.slice';
+import { CartState, editQuantity, removeCart, switchSelect } from '@/redux/slices/cart.slice';
 import { useConfirm } from 'material-ui-confirm';
 import { toAbbreviated, toVND } from '@/utils';
+import { enqueueNotify } from '@/hooks/useSnackbar';
 
 interface ProgressBarProps {
   achieved: number;
@@ -74,6 +75,19 @@ const CartList = (props: CartListProps) => {
     );
   };
 
+  const handleChangeQuantity = (
+    cartId: ICart.CartItem['_id'],
+    productId: IProduct.Product['_id'],
+    newQuantity: string
+  ) => {
+    dispatch(
+      editQuantity({
+        _id: cartId,
+        product_id: productId,
+        new_quantity: parseInt(newQuantity),
+      })
+    );
+  };
   const handleCheckCartItem = (params: ICart.SwitchSelectBody) => {
     dispatch(switchSelect(params));
   };
@@ -82,7 +96,13 @@ const CartList = (props: CartListProps) => {
     if (!_id) {
       const isSelectedMany = items.filter((item) => item.selected).length > 0;
       if (!isSelectedMany) {
-        console.log('Please select the products to remove');
+        enqueueNotify('Please select the products to remove', {
+          anchorOrigin: {
+            vertical: 'bottom',
+            horizontal: 'center',
+          },
+          preventDuplicate: true,
+        });
         return;
       }
     }
@@ -100,6 +120,7 @@ const CartList = (props: CartListProps) => {
         })
       );
     } catch (error) {
+      if (error === undefined) return;
       console.log('Confirm error:', error);
     }
   };
@@ -140,6 +161,7 @@ const CartList = (props: CartListProps) => {
                 <CartItem
                   key={_id}
                   item={item}
+                  handleChangeQuantity={handleChangeQuantity}
                   handleCheckCartItem={handleCheckCartItem}
                   handleRemoveCartItem={handleRemoveCartItem}
                 />

@@ -17,7 +17,6 @@ interface HomeProps {
 const Home = (props: HomeProps) => {
   const { ids, titles, actions } = HOME_TELEPORTS;
   const { categories, soldWidget, favoriteWidget, suggestion } = props;
-  console.log('Home render');
   return (
     <Page title="Tipe Shop - Buy online, good price, good quality, fast shipping">
       <Teleport actions={actions} />

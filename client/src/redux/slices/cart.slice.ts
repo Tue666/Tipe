@@ -4,6 +4,8 @@ import { ICart, ISchema } from '@/models/interfaces';
 import cartApi from '@/apis/cartApi';
 import { productAvailable } from '@/utils';
 import { FreeShippingPoint } from '@/models/interfaces/cart';
+import { enqueueNotify } from '@/hooks/useSnackbar';
+import { AxiosError } from 'axios';
 
 export type StatisticsGroup = 'guess' | 'free ship';
 
@@ -233,17 +235,38 @@ export const initCart = () => async (dispatch: AppDispatch) => {
     const cartItems = await cartApi.findByCustomerId();
     dispatch(slice.actions.initCartSuccess({ items: cartItems }));
   } catch (error) {
-    console.log(error);
+    enqueueNotify((error as AxiosError)?.response?.statusText ?? 'Something went wrong', {
+      variant: 'error',
+      anchorOrigin: {
+        vertical: 'bottom',
+        horizontal: 'center',
+      },
+      preventDuplicate: true,
+    });
   }
 };
 
 export const addCart = (params: ICart.AddCartBody) => async (dispatch: AppDispatch) => {
   try {
-    const { state, cartItem } = await cartApi.addCart(params);
+    const { msg, state, cartItem } = await cartApi.addCart(params);
     if (state === 'INSERTED') dispatch(slice.actions.addCartSuccess(cartItem));
     if (state === 'UPDATED') dispatch(slice.actions.editQuantitySuccess(cartItem));
+    enqueueNotify(msg, {
+      variant: 'success',
+      anchorOrigin: {
+        vertical: 'top',
+        horizontal: 'right',
+      },
+    });
   } catch (error) {
-    console.log(error);
+    enqueueNotify((error as AxiosError)?.response?.statusText ?? 'Something went wrong', {
+      variant: 'error',
+      anchorOrigin: {
+        vertical: 'bottom',
+        horizontal: 'center',
+      },
+      preventDuplicate: true,
+    });
   }
 };
 
@@ -252,7 +275,14 @@ export const editQuantity = (params: ICart.EditQuantityBody) => async (dispatch:
     const { cartItem } = await cartApi.editQuantity(params);
     dispatch(slice.actions.editQuantitySuccess(cartItem));
   } catch (error) {
-    console.log(error);
+    enqueueNotify((error as AxiosError)?.response?.statusText ?? 'Something went wrong', {
+      variant: 'error',
+      anchorOrigin: {
+        vertical: 'bottom',
+        horizontal: 'center',
+      },
+      preventDuplicate: true,
+    });
   }
 };
 
@@ -261,7 +291,14 @@ export const switchSelect = (params: ICart.SwitchSelectBody) => async (dispatch:
     const { switched } = await cartApi.switchSelect(params);
     dispatch(slice.actions.switchSelectSuccess(switched));
   } catch (error) {
-    console.log(error);
+    enqueueNotify((error as AxiosError)?.response?.statusText ?? 'Something went wrong', {
+      variant: 'error',
+      anchorOrigin: {
+        vertical: 'bottom',
+        horizontal: 'center',
+      },
+      preventDuplicate: true,
+    });
   }
 };
 
@@ -270,6 +307,13 @@ export const removeCart = (params: ICart.RemoveCartBody) => async (dispatch: App
     const { removed } = await cartApi.removeCart(params);
     dispatch(slice.actions.removeCartSuccess(removed));
   } catch (error) {
-    console.log(error);
+    enqueueNotify((error as AxiosError)?.response?.statusText ?? 'Something went wrong', {
+      variant: 'error',
+      anchorOrigin: {
+        vertical: 'bottom',
+        horizontal: 'center',
+      },
+      preventDuplicate: true,
+    });
   }
 };

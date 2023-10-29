@@ -54,7 +54,7 @@ export const STYLE = {
       AUTOPLAY: true,
       AUTOPLAY_SPEED: 5000,
       MAIN_WIDTH: '70%',
-      MAIN_HEIGHT: '370px',
+      MAIN_HEIGHT: '280px',
       SUB_HEIGHT: '50%',
       SPACING: 1,
     },
@@ -83,12 +83,15 @@ export const STYLE = {
       CARD_MARGIN: '1px',
       CARD_PADDING: '10px',
       CONTENT_HEIGHT: '100px',
-      IMAGE_WIDTH: '430px',
-      IMAGE_HEIGHT: '370px',
+      IMAGE_WIDTH: '410px',
+      IMAGE_HEIGHT: '350px',
       INTENDED_WIDTH: '300px',
       WARRANTY_ICON_SIZE: '32px',
       DESCRIPTION_MAX_HEIGHT: '400px',
       RATING_WIDTH: '335px',
+    },
+    CATEGORY: {
+      FILTER_WIDTH: '250px',
     },
     FOOTER: {
       MARGIN_TOP: '50px',
@@ -139,6 +142,9 @@ export const STYLE = {
     PRODUCT: {
       CARD_WIDTH: '175px',
       CARD_HEIGHT: '210px',
+    },
+    CATEGORY: {
+      FILTER_WIDTH: '100%',
     },
     FOOTER: {
       BLOCK_SPACING: 0,

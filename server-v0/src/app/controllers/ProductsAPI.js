@@ -19,17 +19,20 @@ class ProductsAPI {
 		name: String,
 		images: [File],
     imageUrls: [String],
+		quantity?: Number,
 		category: Number,
-		quantity: Number,
-		[attributes]: [{
+    shop?: String as ObjectId,
+    ads_id?: String as ObjectId,
+    is_official?: Boolean, // Default false
+		[attributes]?: [{
       title: String,
       value: String,
     }],
-		[specifications]: [{
+		[specifications]?: [{
       title: String,
       value: String,
     }],
-    [warranties]: [{
+    [warranties]?: [{
       title: String,
       value: String,
     }],
@@ -42,10 +45,10 @@ class ProductsAPI {
       const { attributes, specifications, warranties, imageUrls, ...rest } = req.body;
 
       // For generate only
-      let { quantity_sold, ratings, reviews } = rest;
-      rest.quantity_sold = JSON.parse(quantity_sold);
-      rest.ratings = JSON.parse(ratings);
-      rest.reviews = JSON.parse(reviews);
+      // let { quantity_sold, ratings, reviews } = rest;
+      // rest.quantity_sold = JSON.parse(quantity_sold);
+      // rest.ratings = JSON.parse(ratings);
+      // rest.reviews = JSON.parse(reviews);
 
       // Validate a product must has one of image files or image urls
       if (
@@ -243,7 +246,7 @@ class ProductsAPI {
   // [GET] /products/suggestion?{{query}}
   /*
 		= Query =
-    newest: Number, // Default 0
+    newest?: Number, // Default 0
     limit: Number,
 	*/
   async findForSuggestion(req, res, next) {
@@ -283,18 +286,20 @@ class ProductsAPI {
     categories: String, // Id of categories separate by ","
     shop: String as ObjectId,
     ...attribute.k: String, // Value of attributes separate by ","
-    sort: String, // One of popular (default) | top_selling | newest | price
-    direction: Number, // One of -1 (default) | 1
-    newest: Number, // Default 0
+    sort?: String, // One of popular (default) | top_selling | newest | price-asc | price-desc
+    rating?: String,
+    price?: String, // From and To separate by "-"
+    newest?: Number, // Default 0
     limit: Number,
   */
   async findForRecommend(req, res, next) {
     try {
-      let { categories, shop, sort, direction, newest, limit, ...attributes } = req.query;
+      let { categories, shop, sort, rating, price, newest, limit, ...attributes } = req.query;
       categories = categories
         ? categories.split(',').map((category) => parseInt(category))
         : undefined;
       shop = shop ? ObjectId(shop) : undefined;
+      let direction = -1;
       switch (sort) {
         case 'top_selling':
           sort = 'quantity_sold.value';
@@ -302,13 +307,16 @@ class ProductsAPI {
         case 'newest':
           sort = 'updated_at';
           break;
-        case 'price':
-          sort = 'price';
+        case 'price-asc':
+        case 'price-desc':
+          const [tag, order] = sort.split('-');
+          sort = tag;
+          direction = order === 'asc' ? 1 : -1;
           break;
         default:
           sort = 'created_at';
       }
-      direction = direction ? parseInt(direction) : -1;
+      rating = rating ? parseInt(rating) : undefined;
       newest = newest ? parseInt(newest) : 0;
       limit = limit ? parseInt(limit) : 1;
 
@@ -329,6 +337,22 @@ class ProductsAPI {
         const values = keys.map((key) => attributes[key].split(','));
         queries['attributes.k'] = { $all: keys };
         queries['attributes.v'] = { $all: _.flattenDepth(values, 1) };
+      }
+
+      if (!_.isNil(rating)) {
+        const [from, to] = [rating - 0.9, rating];
+        queries['ratings.rating_average'] = {
+          $gte: from,
+          $lte: to,
+        };
+      }
+
+      if (!_.isNil(price)) {
+        const [from, to] = price.split('-');
+        queries['price'] = {
+          $gte: parseInt(from),
+          $lte: parseInt(to),
+        };
       }
 
       const recommend = await Product.aggregate([
@@ -442,16 +466,6 @@ class ProductsAPI {
       ]);
 
       res.status(200).json(product?.[0]);
-    } catch (error) {
-      console.error(error);
-      next({ status: 500, msg: error.message });
-    }
-  }
-
-  // [GET] /products
-  async find(req, res, next) {
-    try {
-      res.status(200).json([]);
     } catch (error) {
       console.error(error);
       next({ status: 500, msg: error.message });

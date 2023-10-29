@@ -7,6 +7,8 @@ import Avatar from '../overrides/Avatar.override';
 import { isAxiosError } from 'axios';
 import { IAccount } from '@/models/interfaces';
 import { buildImageLink } from '@/utils';
+import { enqueueNotify } from '@/hooks/useSnackbar';
+import { accountValidationSchema } from '@/configs/form-validate';
 
 interface SignUpFormProps {
   phoneNumber: string;
@@ -24,6 +26,7 @@ const SignUpForm = (props: SignUpFormProps) => {
       passwordConfirm: '',
       afterSubmit: null,
     },
+    validationSchema: accountValidationSchema,
     onSubmit: async (values, { setErrors, resetForm }) => {
       try {
         const signUpBody: IAccount.SignUpBody = {
@@ -32,6 +35,13 @@ const SignUpForm = (props: SignUpFormProps) => {
           account_type: 'CUSTOMER',
         };
         await signUp(signUpBody);
+        enqueueNotify('Account has been registered', {
+          variant: 'success',
+          anchorOrigin: {
+            vertical: 'bottom',
+            horizontal: 'center',
+          },
+        });
         handleBackDefaultState();
       } catch (error) {
         resetForm();

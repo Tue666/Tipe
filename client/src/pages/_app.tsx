@@ -7,6 +7,7 @@ import type { AppProps } from 'next/app';
 import Providers from './_providers';
 import ThemeConfig from '@/theme';
 import { Modal } from '@/components';
+import SnackbarUtilsConfiguration from '@/hooks/useSnackbar';
 import MainLayout from '@/layouts/main';
 
 export type PageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
@@ -24,6 +25,7 @@ const App = (props: AppPropsWithLayout) => {
     <Providers>
       <ThemeConfig>
         <Modal />
+        <SnackbarUtilsConfiguration />
         {getLayout(<Component {...pageProps} />)}
       </ThemeConfig>
     </Providers>

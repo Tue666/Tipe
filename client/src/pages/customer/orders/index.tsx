@@ -135,13 +135,13 @@ const Orders: PageWithLayout = () => {
     const canFetching = !visitedTab || visitedTab.page !== page;
     if (canFetching) {
       const getOrders = async () => {
-        const findByStatusQuery: IOrder.FindByStatusQuery = {
+        const findQuery: IOrder.FindQuery = {
           newest: (page - 1) * limit,
           limit,
         };
-        if (tab !== 'all') findByStatusQuery['status'] = tab;
-        if (search) findByStatusQuery['search'] = search;
-        const { orders, pagination } = await orderApi.findByStatus(findByStatusQuery);
+        if (tab !== 'all') findQuery['status'] = tab;
+        if (search) findQuery['search'] = search;
+        const { orders, pagination } = await orderApi.find(findQuery);
         dispatchOrder({
           type: 'FILL_TAB',
           payload: {

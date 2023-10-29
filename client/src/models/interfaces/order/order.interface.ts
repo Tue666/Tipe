@@ -4,12 +4,12 @@ import { OrderSchema, OrderStatus, SoftDeleteSchema, TimestampsSchema } from '..
 
 export interface Order extends OrderSchema {}
 
-export interface FindByStatusQuery extends PaginationQuery {
+export interface FindQuery extends PaginationQuery {
   status?: OrderStatus;
   search?: string;
 }
 
-export interface FindByStatusResponse extends Pagination {
+export interface FindResponse extends Pagination {
   orders: Order[];
 }
 

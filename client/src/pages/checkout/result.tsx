@@ -19,7 +19,7 @@ const Result: PageWithLayout = () => {
         sx={{ bgcolor: (theme) => theme.palette.background.paper }}
       >
         <Image
-          src={`${PATH_IMAGE.root}buy_more.png`}
+          src={`${PATH_IMAGE.root}buy-more.png`}
           alt="buy_more"
           sx={{
             width: STYLE.DESKTOP.CART.EMPTY_IMAGE_WIDTH,

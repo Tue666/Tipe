@@ -43,7 +43,8 @@ const Shipping: PageWithLayout = () => {
       });
       dispatch(removeAddress(_id));
     } catch (error) {
-      console.log(error);
+      if (error === undefined) return;
+      console.log('Confirm error:', error);
     }
   };
   return (

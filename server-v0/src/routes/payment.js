@@ -1,9 +1,6 @@
 const express = require('express');
 const router = express.Router();
-
-// controllers
 const paymentAPI = require('../app/controllers/PaymentAPI');
-// middlewares
 const verifyToken = require('../app/middlewares/verifyToken');
 
 router.post('/momo/ipn', verifyToken, paymentAPI.momoIPNCallback);

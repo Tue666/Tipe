@@ -25,6 +25,7 @@ const Product = (props: ProductProps) => {
     images,
     quantity,
     specifications,
+    warranties,
     limit,
     discount_rate,
     original_price,
@@ -40,6 +41,7 @@ const Product = (props: ProductProps) => {
     _id,
     name,
     quantity,
+    warranties,
     limit,
     discount_rate,
     original_price,
@@ -95,7 +97,7 @@ const Product = (props: ProductProps) => {
         )}
         <Wrapper id={ids['review']}>
           <Title>Ratings - Reviews from customers</Title>
-          <Review />
+          <Review ratings={ratings} />
         </Wrapper>
       </Fragment>
       <Stack>

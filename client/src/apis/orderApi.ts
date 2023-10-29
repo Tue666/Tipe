@@ -10,10 +10,8 @@ const orderApi = {
   },
 
   // [GET] {{URL}}/api/orders?{{query}}
-  findByStatus: (
-    findByStatusQuery: IOrder.FindByStatusQuery
-  ): Promise<IOrder.FindByStatusResponse> => {
-    const query = qs.stringify(findByStatusQuery, { arrayFormat: 'comma' });
+  find: (findQuery: IOrder.FindQuery): Promise<IOrder.FindResponse> => {
+    const query = qs.stringify(findQuery, { arrayFormat: 'comma' });
     const url = `/orders?${query}`;
     return ApiClient.get(url);
   },

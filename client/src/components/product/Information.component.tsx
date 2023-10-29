@@ -1,8 +1,7 @@
 import { Fragment, useState } from 'react';
 import { Link as ScrollLink } from 'react-scroll';
-import { Button, Chip, Stack, Tooltip, Typography, styled } from '@mui/material';
+import { Button, Stack, Tooltip, Typography, styled } from '@mui/material';
 import { Stars, QuantityInput } from '@/components';
-import { appConfig } from '@/configs/apis';
 import { STYLE } from '@/configs/constants';
 import { IProduct } from '@/models/interfaces';
 import { toVND } from '@/utils';
@@ -51,6 +50,7 @@ interface InformationProps
     | '_id'
     | 'name'
     | 'quantity'
+    | 'warranties'
     | 'limit'
     | 'discount_rate'
     | 'original_price'
@@ -66,6 +66,7 @@ const Information = (props: InformationProps) => {
     _id,
     name,
     quantity,
+    warranties,
     limit,
     discount_rate,
     original_price,
@@ -185,33 +186,19 @@ const Information = (props: InformationProps) => {
             )}
           </Stack>
           <IntendWrapper>
-            <Wrapper>
-              <Typography variant="caption">Tags:</Typography>
-              <Stack direction="row" sx={{ flexWrap: 'wrap' }}>
-                {[...Array(5)].map((_, index) => {
+            {warranties?.length > 0 && (
+              <Wrapper>
+                {warranties.map((warranty, index) => {
+                  const { k, v } = warranty;
                   return (
-                    <Chip
-                      key={index}
-                      label="Toys"
-                      variant="filled"
-                      color="primary"
-                      size="small"
-                      sx={{ m: '3px' }}
-                    />
+                    <Stack key={index} direction="row" justifyContent="space-between" mb={1}>
+                      <Typography variant="caption">{k}</Typography>
+                      <Typography variant="subtitle2">{v}</Typography>
+                    </Stack>
                   );
                 })}
-              </Stack>
-            </Wrapper>
-            <Wrapper>
-              {[...Array(3)].map((_, index) => {
-                return (
-                  <Stack direction="row" justifyContent="space-between" mb={1} key={index}>
-                    <Typography variant="caption">Warranty period</Typography>
-                    <Typography variant="subtitle2">12-month</Typography>
-                  </Stack>
-                );
-              })}
-            </Wrapper>
+              </Wrapper>
+            )}
             <Wrapper
               sx={{
                 width: STYLE.DESKTOP.PRODUCT.INTENDED_WIDTH,

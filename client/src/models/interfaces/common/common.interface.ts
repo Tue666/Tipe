@@ -10,6 +10,10 @@ export type NullableBy<T, K extends keyof T> = Omit<T, K> & Record<K, T[K] | nul
 
 export type Country = 'VN';
 
+export interface MessageReponse {
+  msg: string;
+}
+
 export interface PaginationQuery {
   newest?: number;
   limit: number;

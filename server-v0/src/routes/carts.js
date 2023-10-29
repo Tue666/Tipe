@@ -1,9 +1,6 @@
 const express = require('express');
 const router = express.Router();
-
-// controllers
 const cartsAPI = require('../app/controllers/CartsAPI');
-// middlewares
 const verifyToken = require('../app/middlewares/verifyToken');
 
 router.put('/remove-cart', verifyToken, cartsAPI.removeCart);

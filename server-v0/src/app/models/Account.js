@@ -1,9 +1,9 @@
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
-const mongooseDelete = require('mongoose-delete');
+const { Schema, Types, model } = require('mongoose');
 const { generateName } = require('../../utils/generate');
 
-const Types = { customer: 'CUSTOMER', administrator: 'ADMINISTRATOR' };
+const { ObjectId } = Types;
+
+const ACCOUNT_TYPES = { customer: 'CUSTOMER', administrator: 'ADMINISTRATOR' };
 
 const Account = new Schema(
   {
@@ -16,6 +16,14 @@ const Account = new Schema(
     avatar_url: { type: String, default: null },
     refreshToken: { type: String, default: null },
     roles: { type: [String], default: [] },
+    deleted_at: { type: Date, default: null },
+    deleted_by: {
+      type: {
+        _id: { type: ObjectId, required: true },
+        name: { type: String },
+      },
+      default: null,
+    },
   },
   {
     timestamps: {
@@ -25,10 +33,10 @@ const Account = new Schema(
     discriminatorKey: 'account_type',
   }
 );
-const Base = mongoose.model('Account', Account);
+const Base = model('Account', Account);
 
 const Customer = Base.discriminator(
-  Types.customer,
+  ACCOUNT_TYPES.customer,
   new Schema({
     gender: { type: String, default: '' },
     social: [
@@ -41,19 +49,10 @@ const Customer = Base.discriminator(
   })
 );
 
-const Administrator = Base.discriminator(Types.administrator, new Schema({}));
-
-Account.plugin(mongooseDelete, {
-  deletedAt: true,
-  deletedBy: true,
-  deletedByType: {
-    name: { type: String },
-  },
-  overrideMethods: true,
-});
+const Administrator = Base.discriminator(ACCOUNT_TYPES.administrator, new Schema({}));
 
 module.exports = {
-  Types,
+  ACCOUNT_TYPES,
   Account: Base,
   Customer,
   Administrator,

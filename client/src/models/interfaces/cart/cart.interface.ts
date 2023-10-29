@@ -1,5 +1,6 @@
 import { CartSchema } from '../schema';
 import { Product } from '../product';
+import { MessageReponse } from '../common';
 
 export interface FreeShippingPoint {
   value: number;
@@ -15,7 +16,7 @@ export interface AddCartBody {
   quantity: number;
 }
 
-export interface AddCartResponse {
+export interface AddCartResponse extends MessageReponse {
   state: 'INSERTED' | 'UPDATED';
   cartItem: CartItem;
 }

@@ -16,14 +16,14 @@ const initialRoutes = require('./routes');
 const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server, {
-	cors: {
-		origin: corsConfig.whiteList,
-	},
+  cors: {
+    origin: corsConfig.whiteList,
+  },
 });
 const PORT = process.env.PORT || 5000;
 
 const onSocketConnection = (socket) => {
-	liveChatHandler(io, socket);
+  liveChatHandler(io, socket);
 };
 io.on('connection', onSocketConnection);
 
@@ -42,5 +42,5 @@ initialRoutes(app);
 app.use(errorsHandling);
 
 server.listen(PORT, () => {
-	console.log(`Server is running at PORT ${PORT}`);
+  console.log(`Server is running at PORT ${PORT}`);
 });

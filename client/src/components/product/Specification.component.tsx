@@ -1,9 +1,7 @@
 import { styled } from '@mui/material';
 import { IProduct } from '@/models/interfaces';
 
-interface SpecificationProps {
-  specifications: IProduct.NestedProduct['specifications'];
-}
+interface SpecificationProps extends Pick<IProduct.NestedProduct, 'specifications'> {}
 
 const Specification = (props: SpecificationProps) => {
   const { specifications } = props;

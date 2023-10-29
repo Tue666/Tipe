@@ -26,8 +26,23 @@ import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { editAddress, insertAddress, selectCustomer } from '@/redux/slices/customer.slice';
 import { STYLE } from '@/configs/constants';
 import locationApi from '@/apis/locationApi';
-import { ILocation } from '@/models/interfaces';
+import { ILocation, ISchema } from '@/models/interfaces';
 import { PATH_CHECKOUT, PATH_CUSTOMER } from '@/configs/routers';
+import { addressValidationSchema } from '@/configs/form-validate';
+
+export interface FormValues {
+  name: string;
+  company: string;
+  phoneNumber: string;
+  location: {
+    region: string;
+    district: string;
+    ward: string;
+  };
+  street: string;
+  addressType: ISchema.AddressType;
+  isDefault: boolean;
+}
 
 export interface LocationFormProps {
   region: ILocation.FindResponse['regions'][number]['_id'];
@@ -48,7 +63,7 @@ const Form: PageWithLayout<FormProps> = (props: FormProps) => {
   const currentAddress = addresses.find((address) => address._id === searchParams.get('_id'));
   const isIntendedCart = searchParams.get('is_intended_cart');
   const isIntendedShipping = searchParams.get('is_intended_shipping');
-  const formik = useFormik({
+  const formik = useFormik<FormValues>({
     initialValues: {
       name: currentAddress?.name || '',
       company: currentAddress?.company || '',
@@ -68,6 +83,7 @@ const Form: PageWithLayout<FormProps> = (props: FormProps) => {
       addressType: currentAddress?.delivery_address_type || 'home',
       isDefault: currentAddress?.is_default || false,
     },
+    validationSchema: addressValidationSchema,
     onSubmit: (values) => {
       const { phoneNumber, location, addressType, isDefault, ...other } = values;
       const addressBody = {
@@ -79,7 +95,7 @@ const Form: PageWithLayout<FormProps> = (props: FormProps) => {
         is_default: isDefault,
         ...other,
       };
-      if (currentAddress) {
+      if (!_.isNil(currentAddress) && !_.isEmpty(currentAddress)) {
         dispatch(
           editAddress({
             _id: currentAddress._id,
@@ -189,6 +205,8 @@ const Form: PageWithLayout<FormProps> = (props: FormProps) => {
                 currentWard: values.location.ward,
               }}
               handleSelectedLocation={handleSelectedLocation}
+              touched={touched}
+              errors={errors}
             />
             <Stack direction={{ xs: 'column', md: 'row' }} alignItems="center">
               <Typography
@@ -288,7 +306,7 @@ const Root = styled(Stack)(({ theme }) => ({
 
 Form.getLayout = (page) => {
   return (
-    <MainLayout>
+    <MainLayout hasGuard={true}>
       <CustomerLayout>{page}</CustomerLayout>
     </MainLayout>
   );

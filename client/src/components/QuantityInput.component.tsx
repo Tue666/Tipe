@@ -3,6 +3,7 @@ import { FocusEvent, ChangeEvent } from 'react';
 import { styled, Stack, Box, Typography, BoxProps, TextFieldProps, useTheme } from '@mui/material';
 import { IProduct } from '@/models/interfaces';
 import { SHOW_STOCK_QUANTITY_WHEN_REACH_NUMBER } from '@/configs/constants';
+import { enqueueNotify } from '@/hooks/useSnackbar';
 
 interface QuantityInputProps {
   isInCart: boolean;
@@ -30,12 +31,12 @@ const QuantityInput = (props: QuantityInputProps) => {
     }),
   };
 
-  const handlePrepareInput = (newInput: number): number | undefined => {
+  const validateInput = (newInput: number): boolean => {
     // Handle remove item if quantity less than 1
     if (newInput < 1) {
-      if (!isInCart) return;
+      if (!isInCart) return false;
       onSelfRemove && onSelfRemove();
-      return;
+      return false;
     }
 
     // Validate quantity before change
@@ -52,9 +53,21 @@ const QuantityInput = (props: QuantityInputProps) => {
       prepareChange.errorMessage = `Maximum purchase quantity for this product is ${limit}`;
     }
     if (prepareChange.hasError) {
-      console.log(prepareChange.errorMessage);
-      return;
+      enqueueNotify(prepareChange.errorMessage, {
+        anchorOrigin: {
+          vertical: 'bottom',
+          horizontal: 'center',
+        },
+        preventDuplicate: true,
+      });
+      return false;
     }
+    return true;
+  };
+  const handlePrepareInput = (newInput: number): number | undefined => {
+    const isOk = validateInput(newInput);
+    if (!isOk) return;
+
     return newInput;
   };
   const handleBlurInput = (e: FocusEvent<HTMLInputElement>) => {

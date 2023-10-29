@@ -3,20 +3,23 @@ import { DeleteForeverOutlined, Favorite } from '@mui/icons-material';
 import { Image, Link } from '../overrides';
 import { Hidden, QuantityInput } from '@/components';
 import { STYLE } from '@/configs/constants';
-import { ICart } from '@/models/interfaces';
+import { ICart, IProduct } from '@/models/interfaces';
 import { PATH_MAIN } from '@/configs/routers';
 import { buildImageLink, productAvailable, toVND } from '@/utils';
-import { useAppDispatch } from '@/redux/hooks';
-import { editQuantity } from '@/redux/slices/cart.slice';
 
 interface CartItemProps {
   item: ICart.CartItem;
+  handleChangeQuantity: (
+    cartId: ICart.CartItem['_id'],
+    productId: IProduct.Product['_id'],
+    newQuantity: string
+  ) => void;
   handleCheckCartItem: (params: ICart.SwitchSelectBody) => void;
   handleRemoveCartItem: (_id?: ICart.CartItem['_id']) => Promise<void>;
 }
 
 const CartItem = (props: CartItemProps) => {
-  const { item, handleCheckCartItem, handleRemoveCartItem } = props;
+  const { item, handleChangeQuantity, handleCheckCartItem, handleRemoveCartItem } = props;
   const { _id, quantity, selected, product } = item;
   const {
     _id: productId,
@@ -31,17 +34,6 @@ const CartItem = (props: CartItemProps) => {
     inventory_status,
   } = product;
   const link = PATH_MAIN.product(slug, productId);
-  const dispatch = useAppDispatch();
-
-  const handleChangeQuantity = (newQuantity: string) => {
-    dispatch(
-      editQuantity({
-        _id,
-        product_id: productId,
-        new_quantity: parseInt(newQuantity),
-      })
-    );
-  };
   return (
     <Root
       sx={{
@@ -88,7 +80,7 @@ const CartItem = (props: CartItemProps) => {
               input={quantity.toString()}
               quantity={productQuantity}
               limit={limit}
-              setInput={(newInput) => handleChangeQuantity(newInput)}
+              setInput={(newInput) => handleChangeQuantity(_id, productId, newInput)}
               onSelfRemove={() => handleRemoveCartItem(_id)}
             />
           </Hidden>
@@ -110,7 +102,7 @@ const CartItem = (props: CartItemProps) => {
           input={quantity.toString()}
           quantity={productQuantity}
           limit={limit}
-          setInput={(newInput) => handleChangeQuantity(newInput)}
+          setInput={(newInput) => handleChangeQuantity(_id, productId, newInput)}
           onSelfRemove={() => handleRemoveCartItem(_id)}
         />
         <Typography color="primary" variant="subtitle2" sx={{ fontWeight: 'bold' }}>

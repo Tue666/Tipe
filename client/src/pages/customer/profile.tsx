@@ -217,7 +217,7 @@ const Root = styled(Stack)(({ theme }) => ({
 
 Profile.getLayout = (page) => {
   return (
-    <MainLayout>
+    <MainLayout hasGuard={true}>
       <CustomerLayout>{page}</CustomerLayout>
     </MainLayout>
   );

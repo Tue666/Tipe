@@ -10,25 +10,30 @@ export class RouterUtil {
     key: string,
     value: string,
     isMultiple: boolean = false,
+    resetPage: boolean = false,
     queries: ParsedUrlQuery = {}
   ): ParsedUrlQuery {
+    if (resetPage) delete queries['newest'];
+
     if (_.isNil(queries[key])) {
-      queries[key] = isMultiple ? [value] : value;
-    } else {
-      const hasValue = queries[key]!.indexOf(value) !== -1;
-      if (isMultiple) {
-        if (hasValue) {
-          queries[key] = (queries[key] as string[])!.filter((v) => v !== value);
-          if (queries[key]?.length! <= 0) delete queries[key];
-        } else {
-          queries[key] = [...(queries[key] as string[]), value];
-        }
+      queries[key] = value;
+      return queries;
+    }
+
+    const hasValue = queries[key]!.indexOf(value) !== -1;
+    if (isMultiple) {
+      if (!Array.isArray(queries[key])) queries[key] = [queries[key] as string];
+      if (hasValue) {
+        queries[key] = (queries[key] as string[]).filter((v) => v !== value);
+        if ((queries[key] as string[]).length <= 0) delete queries[key];
       } else {
-        if (hasValue) {
-          delete queries[key];
-        } else {
-          queries[key] = value;
-        }
+        queries[key] = [...(queries[key] as string[]), value];
+      }
+    } else {
+      if (hasValue) {
+        delete queries[key];
+      } else {
+        queries[key] = value;
       }
     }
     return queries;

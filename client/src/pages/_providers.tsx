@@ -1,5 +1,6 @@
 import { Provider as ReduxProvider } from 'react-redux';
 import { ConfirmProvider } from 'material-ui-confirm';
+import { SnackbarProvider } from 'notistack';
 import { store } from '@/redux/store';
 import { SettingsProvider } from '@/contexts/Settings.context';
 import { AuthProvider } from '@/contexts/Auth.context';
@@ -14,7 +15,9 @@ const Providers = (props: ProvidersProps) => {
     <ReduxProvider store={store}>
       <SettingsProvider>
         <ConfirmProvider>
-          <AuthProvider>{children}</AuthProvider>
+          <SnackbarProvider maxSnack={4}>
+            <AuthProvider>{children}</AuthProvider>
+          </SnackbarProvider>
         </ConfirmProvider>
       </SettingsProvider>
     </ReduxProvider>

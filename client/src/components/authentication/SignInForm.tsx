@@ -5,6 +5,7 @@ import { LoadingButton } from '@mui/lab';
 import { ArrowBackIosOutlined } from '@mui/icons-material';
 import { isAxiosError } from 'axios';
 import { IAccount } from '@/models/interfaces';
+import { enqueueNotify } from '@/hooks/useSnackbar';
 
 interface SignInState {
   isLoading: boolean;
@@ -71,7 +72,13 @@ const SignInForm = (props: SignInFormProps) => {
         phone_number: phoneNumber,
         password,
       });
-      console.log(`Welcome back, ${name}`);
+      enqueueNotify(`Welcome ${name}, happy shopping with Tipe.`, {
+        variant: 'success',
+        anchorOrigin: {
+          vertical: 'bottom',
+          horizontal: 'center',
+        },
+      });
       closeModal();
     } catch (error) {
       if (isAxiosError(error)) {

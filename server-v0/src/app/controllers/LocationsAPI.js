@@ -1,8 +1,4 @@
 const _ = require('lodash');
-const { Types } = require('mongoose');
-
-const { ObjectId } = Types;
-
 const { Location, LOCATION_SCOPES } = require('../models/Location');
 
 class LocationsAPI {

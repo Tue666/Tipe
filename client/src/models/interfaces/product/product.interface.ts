@@ -48,12 +48,11 @@ export interface FindForSuggestionResponse extends Pagination {
   products: ProductCard[];
 }
 
-export type RecommendSort = 'popular' | 'top_selling' | 'newest' | 'price';
+export type RecommendSort = 'popular' | 'top_selling' | 'newest' | 'price-asc' | 'price-desc';
 
 export interface FindForRecommendQuery extends PaginationQuery {
   categories?: String; // Id of categories separate by ","
   sort?: RecommendSort;
-  direction?: -1 | 1;
 }
 
 export interface FindForRecommendResponse extends Pagination {

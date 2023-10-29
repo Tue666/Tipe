@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import qs from 'query-string';
+import { ParsedUrlQuery } from 'querystring';
 import { Fragment, useEffect, useRef, useState } from 'react';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
@@ -18,22 +19,20 @@ interface CategoryProps {
 }
 
 const Category = (props: CategoryProps) => {
-  console.log('Category render');
   const { category, recommend } = props;
   const { _id, name, banners, parents, children } = category;
   const [recommendCS, setRecommendCS] = useState(recommend);
   const { products, attributes, totalProduct, pagination } = recommendCS;
-  const { asPath, query, replace } = useRouter();
+  const router = useRouter();
+  const { asPath, query, replace } = router;
+  const { params, ...queriesParams } = query;
   const shouldRenderRef = useRef(false); // Fix useRouter dependencies cause infinite loop
-  const queryParamsRef = useRef({});
   useEffect(() => {
-    console.log('Effect called');
     const findForRecommendCS = async () => {
-      console.log('Fetch recommend');
       const categories = `${_id},${children.map((category) => category._id).join(',')}`;
       const recommendCS = await productApi.findForRecommend({
         categories,
-        ...queryParamsRef.current,
+        ...queriesParams,
         limit: LIMIT_RECOMMEND_NUMBER,
       });
       setRecommendCS(recommendCS);
@@ -43,23 +42,37 @@ const Category = (props: CategoryProps) => {
       findForRecommendCS();
     }
 
-    return () => setRecommendCS({} as IProduct.FindForRecommendResponse);
-  }, [query]);
+    return () => {
+      if (shouldRenderRef.current) {
+        setRecommendCS({} as IProduct.FindForRecommendResponse);
+      }
+    };
+  }, [router]);
 
-  const handleSelectFilter = (
+  const handleChangeQueryParam = (
     key: ISchema.Attribute['k'],
     value: ISchema.Attribute['v'],
-    multiple: boolean = false,
-    resetPage: boolean = true
+    isMultiple: boolean = false,
+    resetPage: boolean = false
   ) => {
     shouldRenderRef.current = true;
     const queryParams = RouterUtil.buildUrlQueryObject(
       key,
       value,
-      multiple,
-      queryParamsRef.current
+      isMultiple,
+      resetPage,
+      queriesParams
     );
     replace(`${asPath.split('?')[0]}?${qs.stringify(queryParams)}`);
+  };
+  const handleRemoveQueryParams = (keys: ISchema.Attribute['k'][]) => {
+    shouldRenderRef.current = true;
+    for (const key in queriesParams) {
+      if (keys.indexOf(key) !== -1) {
+        delete queriesParams[key];
+      }
+    }
+    replace(`${asPath.split('?')[0]}?${qs.stringify(queriesParams)}`);
   };
   return (
     <Page title="Buy online at good price | Tipe Shop">
@@ -76,15 +89,16 @@ const Category = (props: CategoryProps) => {
           <Stack direction={{ xs: 'column', sm: 'row', lg: 'row' }} justifyContent="space-between">
             <Filter
               _children={children}
-              queryParams={queryParamsRef.current}
-              handleSelectFilter={handleSelectFilter}
+              queryParams={queriesParams}
+              handleChangeQueryParam={handleChangeQueryParam}
               attributes={attributes}
             />
             <Result
               name={name}
               banners={banners}
-              queryParams={queryParamsRef.current}
-              handleSelectFilter={handleSelectFilter}
+              queryParams={queriesParams}
+              handleChangeQueryParam={handleChangeQueryParam}
+              handleRemoveQueryParams={handleRemoveQueryParams}
               products={products}
               totalProduct={totalProduct}
               pagination={pagination}

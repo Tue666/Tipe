@@ -3,13 +3,12 @@ import { Stack, Typography, styled } from '@mui/material';
 import { Image } from '../overrides';
 import { STYLE } from '@/configs/constants';
 import { buildImageLink } from '@/utils';
+import { IProduct } from '@/models/interfaces';
 
 const MINI_IMAGE_NUMBER = 5;
 const MINI_IMAGE_SPACING = 1;
 
-interface ImagesProps {
-  images: string[];
-}
+interface ImagesProps extends Pick<IProduct.NestedProduct, 'images'> {}
 
 const Images = (props: ImagesProps) => {
   const { images } = props;

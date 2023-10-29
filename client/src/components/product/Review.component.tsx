@@ -4,31 +4,42 @@ import Stars from '../Stars.component';
 import { StarRounded } from '@mui/icons-material';
 import Comment from './Comment.component';
 import { STYLE } from '@/configs/constants';
+import { IProduct } from '@/models/interfaces';
 
-const Review = () => {
+interface ScoreRangeProps {
+  total: number;
+  score: number;
+}
+
+interface ReviewProps extends Pick<IProduct.NestedProduct, 'ratings'> {}
+
+const Review = (props: ReviewProps) => {
+  const { ratings } = props;
+  const { rating_average, rating_count, scores } = ratings;
   return (
     <Fragment>
       <Stack direction={{ xs: 'column', md: 'row', lg: 'row' }}>
         <Stack sx={{ width: STYLE.DESKTOP.PRODUCT.RATING_WIDTH }} mb={2}>
           <Stack direction="row" alignItems="center">
             <Typography variant="h3" sx={{ p: 2, fontWeight: 'bold' }}>
-              4
+              {rating_average}
             </Typography>
             <Stack justifyContent="center">
-              <Stars total={5} rating={4} />
-              <Typography variant="caption">100 ratings</Typography>
+              <Stars total={5} rating={rating_average} />
+              <Typography variant="caption">{rating_count} ratings</Typography>
             </Stack>
           </Stack>
           <Stack>
-            {[5, 4, 3, 2, 1].map((rating, index) => {
-              return (
-                <Stack key={index} direction="row" alignItems="center">
-                  <Stars total={5} rating={rating} />
-                  <Range />
-                  <Typography variant="caption">80</Typography>
-                </Stack>
-              );
-            })}
+            {scores?.length > 0 &&
+              scores.map((score, index) => {
+                return (
+                  <Stack key={index} direction="row" alignItems="center">
+                    <Stars total={5} rating={index + 1} />
+                    <Range total={rating_count} score={score} />
+                    <Typography variant="caption">{score}</Typography>
+                  </Stack>
+                );
+              })}
           </Stack>
         </Stack>
         <Stack>
@@ -63,7 +74,7 @@ const Review = () => {
   );
 };
 
-const Range = styled('div')(() => ({
+const Range = styled('div')<ScoreRangeProps>(({ total, score }) => ({
   width: '150px',
   height: '6px',
   backgroundColor: 'rgb(238, 238, 238)',
@@ -73,7 +84,7 @@ const Range = styled('div')(() => ({
   borderRadius: '99em',
   '&:before': {
     content: '""',
-    width: `calc(100%*80/100)`,
+    width: `calc(100%*${score}/${total})`,
     position: 'absolute',
     left: 0,
     top: 0,

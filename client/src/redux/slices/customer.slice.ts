@@ -2,6 +2,8 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { AppDispatch, RootState } from '../store';
 import { IAccount } from '@/models/interfaces';
 import { accountApi } from '@/apis';
+import { enqueueNotify } from '@/hooks/useSnackbar';
+import { AxiosError } from 'axios';
 
 export interface CustomerState {
   profile: IAccount.InitCustomerResponse['profile'];
@@ -101,43 +103,106 @@ export const initCustomer = () => async (dispatch: AppDispatch) => {
       })
     );
   } catch (error) {
-    console.log(error);
+    enqueueNotify((error as AxiosError)?.response?.statusText ?? 'Something went wrong', {
+      variant: 'error',
+      anchorOrigin: {
+        vertical: 'bottom',
+        horizontal: 'center',
+      },
+      preventDuplicate: true,
+    });
   }
 };
 
 export const insertAddress =
   (params: IAccount.InsertAddressBody) => async (dispatch: AppDispatch) => {
     try {
-      const { address } = await accountApi.insertAddress(params);
+      const { msg, address } = await accountApi.insertAddress(params);
       dispatch(slice.actions.insertAddressSuccess(address));
+      enqueueNotify(msg, {
+        variant: 'success',
+        anchorOrigin: {
+          vertical: 'top',
+          horizontal: 'right',
+        },
+      });
     } catch (error) {
-      console.log(error);
+      enqueueNotify((error as AxiosError)?.response?.statusText ?? 'Something went wrong', {
+        variant: 'error',
+        anchorOrigin: {
+          vertical: 'bottom',
+          horizontal: 'center',
+        },
+        preventDuplicate: true,
+      });
     }
   };
 
 export const editAddress = (params: IAccount.EditAddressBody) => async (dispatch: AppDispatch) => {
   try {
-    const { address } = await accountApi.editAddress(params);
+    const { msg, address } = await accountApi.editAddress(params);
     dispatch(slice.actions.editAddressSuccess(address));
+    enqueueNotify(msg, {
+      variant: 'success',
+      anchorOrigin: {
+        vertical: 'top',
+        horizontal: 'right',
+      },
+    });
   } catch (error) {
-    console.log(error);
+    enqueueNotify((error as AxiosError)?.response?.statusText ?? 'Something went wrong', {
+      variant: 'error',
+      anchorOrigin: {
+        vertical: 'bottom',
+        horizontal: 'center',
+      },
+      preventDuplicate: true,
+    });
   }
 };
 
 export const switchDefault = (_id: IAccount.Address['_id']) => async (dispatch: AppDispatch) => {
   try {
-    const { _id: address } = await accountApi.switchDefault(_id);
+    const { msg, _id: address } = await accountApi.switchDefault(_id);
     dispatch(slice.actions.switchDefaultSuccess(address));
+    enqueueNotify(msg, {
+      variant: 'success',
+      anchorOrigin: {
+        vertical: 'top',
+        horizontal: 'right',
+      },
+    });
   } catch (error) {
-    console.log(error);
+    enqueueNotify((error as AxiosError)?.response?.statusText ?? 'Something went wrong', {
+      variant: 'error',
+      anchorOrigin: {
+        vertical: 'bottom',
+        horizontal: 'center',
+      },
+      preventDuplicate: true,
+    });
   }
 };
 
 export const removeAddress = (_id: IAccount.Address['_id']) => async (dispatch: AppDispatch) => {
   try {
-    const { _id: address } = await accountApi.removeAddress(_id);
+    const { msg, _id: address } = await accountApi.removeAddress(_id);
     dispatch(slice.actions.removeAddressSuccess(address));
+    enqueueNotify(msg, {
+      variant: 'success',
+      anchorOrigin: {
+        vertical: 'top',
+        horizontal: 'right',
+      },
+    });
   } catch (error) {
-    console.log(error);
+    enqueueNotify((error as AxiosError)?.response?.statusText ?? 'Something went wrong', {
+      variant: 'error',
+      anchorOrigin: {
+        vertical: 'bottom',
+        horizontal: 'center',
+      },
+      preventDuplicate: true,
+    });
   }
 };

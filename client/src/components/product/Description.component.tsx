@@ -1,10 +1,9 @@
 import { styled } from '@mui/material';
 import { ContentToggle } from '@/components';
 import { STYLE } from '@/configs/constants';
+import { IProduct } from '@/models/interfaces';
 
-interface DescriptionProps {
-  description: string;
-}
+interface DescriptionProps extends Pick<IProduct.NestedProduct, 'description'> {}
 
 const Description = (props: DescriptionProps) => {
   const { description } = props;

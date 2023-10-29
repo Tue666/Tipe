@@ -1,4 +1,3 @@
-// routes
 const accountsRouter = require('./accounts');
 const productsRouter = require('./products');
 const cartsRouter = require('./carts');

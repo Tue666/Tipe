@@ -1,6 +1,6 @@
 import { MetaSchema, SoftDeleteSchema, TimestampsSchema } from './common.interface';
 
-export type Type = {
+export type AccountType = {
   [T in Lowercase<'customer' | 'administrator'>]: Uppercase<T>;
 };
 
@@ -15,7 +15,7 @@ export interface AccountSchema extends TimestampsSchema, SoftDeleteSchema {
   avatar_url: string;
   refreshToken: string;
   roles: string[];
-  account_type: Type[keyof Type];
+  account_type: AccountType[keyof AccountType];
 }
 
 export interface Social {

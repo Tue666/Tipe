@@ -8,10 +8,10 @@ class CategoriesAPI {
     = Body =
 		name: String,
 		image: String,
-    imageUrl: String,
+    imageUrl?: String,
 		banners: [String],
-    bannerUrls: [String],
-		parent_id: Number,
+    bannerUrls?: [String],
+		parent_id?: Number,
 	*/
   async insert(req, res, next) {
     const cloudinaryUploaded = [];

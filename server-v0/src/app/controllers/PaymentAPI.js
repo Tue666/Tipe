@@ -2,19 +2,15 @@ const crypto = require('crypto');
 const qs = require('qs');
 const dayjs = require('dayjs');
 const axios = require('axios').default;
-
-// models
-const Order = require('../models/Order');
-// config
+const { Order } = require('../models/Order');
 const { paymentConfig } = require('../../config/config');
-// utils
 const { sortObjectByAlphabet } = require('../../utils/formatObject');
 
 class PaymentAPI {
   //#region Momo
   // [POST] /payment/momo/create
   /*
-		_id: ObjectId as String,
+		_id: String as ObjectId,
 		phone_number: String,
 		amount: Number, [1000-20000000]
 		redirectUrl: String,
@@ -123,7 +119,7 @@ class PaymentAPI {
   //#region VNPAY
   // [POST] /payment/vnpay/create
   /*
-		_id: ObjectId as String,
+		_id: String as ObjectId,
 		phone_number: String,
 		amount: Number,
 		redirectUrl: String,

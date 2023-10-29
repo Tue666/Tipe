@@ -5,7 +5,7 @@ import ApplyPrice from './ApplyPrice.component';
 import { Stars, Collapse } from '@/components';
 import { ICategory, IProduct, ISchema } from '@/models/interfaces';
 import { PATH_MAIN } from '@/configs/routers';
-import { SHOW_COLLAPSED_ATTRIBUTES_WHEN_REACH_NUMBER } from '@/configs/constants';
+import { SHOW_COLLAPSED_ATTRIBUTES_WHEN_REACH_NUMBER, STYLE } from '@/configs/constants';
 
 interface AttributeFilter {
   value: ISchema.Attribute['v'];
@@ -19,15 +19,16 @@ interface AttributeFilters {
 interface FilterProps extends Pick<IProduct.FindForRecommendResponse, 'attributes'> {
   _children: ICategory.NestedCategory['children'];
   queryParams: ParsedUrlQuery;
-  handleSelectFilter: (
+  handleChangeQueryParam: (
     key: ISchema.Attribute['k'],
     value: ISchema.Attribute['v'],
-    isMultiple?: boolean
+    isMultiple?: boolean,
+    resetPage?: boolean
   ) => void;
 }
 
 const Filter = (props: FilterProps) => {
-  const { _children, queryParams, handleSelectFilter, attributes } = props;
+  const { _children, queryParams, handleChangeQueryParam, attributes } = props;
   const attributeFilters = attributes.reduce((filters, attribute) => {
     const { k: key, v: value } = attribute;
     const selected = queryParams[key]?.indexOf(value)! > -1 ?? false;
@@ -46,7 +47,7 @@ const Filter = (props: FilterProps) => {
     filters.map((filter, index) => {
       const { value, selected } = filter;
       return (
-        <Text key={index} onClick={() => handleSelectFilter(key, value, true)}>
+        <Text key={index} onClick={() => handleChangeQueryParam(key, value, true, true)}>
           {isMultiple && <Checkbox checked={selected} size="small" sx={{ p: '5px', mr: '5px' }} />}
           {value}
         </Text>
@@ -72,7 +73,10 @@ const Filter = (props: FilterProps) => {
         <Stack>
           {[5, 4, 3].map((rating) => {
             return (
-              <Text key={rating}>
+              <Text
+                key={rating}
+                onClick={() => handleChangeQueryParam('rating', `${rating} Stars`, false, true)}
+              >
                 <Stars total={5} rating={rating} />
                 &nbsp;{rating} Stars
               </Text>
@@ -82,7 +86,7 @@ const Filter = (props: FilterProps) => {
       </Wrapper>
       <Wrapper>
         <Title>price</Title>
-        <ApplyPrice />
+        <ApplyPrice handleChangeQueryParam={handleChangeQueryParam} />
       </Wrapper>
       {Object.keys(attributeFilters).map((filterKey) => {
         const attributeFilter = attributeFilters[filterKey];
@@ -111,10 +115,10 @@ const Filter = (props: FilterProps) => {
 };
 
 const Root = styled(Stack)(({ theme }) => ({
-  width: '250px',
+  width: STYLE.DESKTOP.CATEGORY.FILTER_WIDTH,
   borderRight: `2px solid ${theme.palette.background.default}`,
   [theme.breakpoints.down('sm')]: {
-    width: '100%',
+    width: STYLE.MOBILE.CATEGORY.FILTER_WIDTH,
     marginBottom: '10px',
   },
 }));

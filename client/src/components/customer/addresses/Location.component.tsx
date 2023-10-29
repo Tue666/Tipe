@@ -2,8 +2,9 @@ import { ChangeEvent, Fragment } from 'react';
 import { MenuItem, Stack, TextField, Typography } from '@mui/material';
 import { STYLE } from '@/configs/constants';
 import { ILocation } from '@/models/interfaces';
-import { LocationFormProps } from '@/pages/customer/addresses/form';
+import { FormValues, LocationFormProps } from '@/pages/customer/addresses/form';
 import { Scope } from '@/models/interfaces/schema';
+import { FormikErrors, FormikTouched } from 'formik';
 
 interface LocationProps {
   locations: ILocation.FindResponse;
@@ -13,10 +14,12 @@ interface LocationProps {
     currentWard: ILocation.FindResponse['wards'][number]['_id'];
   };
   handleSelectedLocation: (changed: Partial<LocationFormProps>) => void;
+  touched: FormikTouched<FormValues>;
+  errors: FormikErrors<FormValues>;
 }
 
 const Location = (props: LocationProps) => {
-  const { locations, currentLocation, handleSelectedLocation } = props;
+  const { locations, currentLocation, handleSelectedLocation, touched, errors } = props;
   const { regions, districts, wards } = locations;
   const { currentRegion, currentDistrict, currentWard } = currentLocation;
   const region = regions.find((region) => region._id === currentRegion);
@@ -69,8 +72,8 @@ const Location = (props: LocationProps) => {
           size="small"
           color="secondary"
           onChange={(e: ChangeEvent<HTMLInputElement>) => handleChangeLocation(e, 'REGION')}
-          //   error={Boolean(errors.region)}
-          //   helperText={errors.region}
+          error={Boolean(touched.location?.region && errors.location?.region)}
+          helperText={touched.location?.region && errors.location?.region}
         >
           <MenuItem value="">Select Province / City</MenuItem>
           {regions.length > 0 &&
@@ -99,8 +102,8 @@ const Location = (props: LocationProps) => {
           size="small"
           color="secondary"
           onChange={(e: ChangeEvent<HTMLInputElement>) => handleChangeLocation(e, 'DISTRICT')}
-          //   error={Boolean(errors.district)}
-          //   helperText={errors.district}
+          error={Boolean(touched.location?.district && errors.location?.district)}
+          helperText={touched.location?.district && errors.location?.district}
         >
           <MenuItem value="">Select District</MenuItem>
           {districtOptions.length > 0 &&
@@ -129,8 +132,8 @@ const Location = (props: LocationProps) => {
           size="small"
           color="secondary"
           onChange={(e: ChangeEvent<HTMLInputElement>) => handleChangeLocation(e, 'WARD')}
-          //   error={Boolean(errors.ward)}
-          //   helperText={errors.ward}
+          error={Boolean(touched.location?.ward && errors.location?.ward)}
+          helperText={touched.location?.ward && errors.location?.ward}
         >
           <MenuItem value="">Select Ward</MenuItem>
           {wardOptions.length > 0 &&

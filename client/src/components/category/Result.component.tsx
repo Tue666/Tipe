@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { ChangeEvent } from 'react';
 import { ParsedUrlQuery } from 'querystring';
 import { Alert, Chip, Pagination, Stack, Typography, styled } from '@mui/material';
 import { HelpOutline } from '@mui/icons-material';
@@ -7,42 +8,33 @@ import { Carousel } from '../_external_/react-slick';
 import { Image } from '../overrides';
 import { buildImageLink } from '@/utils';
 import { IProduct, ISchema } from '@/models/interfaces';
-import { RecommendSort } from '@/models/interfaces/product';
+import { LIMIT_RECOMMEND_NUMBER, STYLE } from '@/configs/constants';
 
 interface Filter {
   title: string;
-  value: RecommendSort;
-  key: string;
-  direction?: number;
+  value: IProduct.RecommendSort;
 }
 
-const FILTERS: Filter[] = [
+const SORT: Filter[] = [
   {
     title: 'Popular',
     value: 'popular',
-    key: 'popular',
   },
   {
     title: 'Selling',
     value: 'top_selling',
-    key: 'top_selling',
   },
   {
     title: 'Newest',
     value: 'newest',
-    key: 'newest',
   },
   {
     title: 'Low To High Price',
-    value: 'price',
-    key: 'price-asc',
-    direction: 1,
+    value: 'price-asc',
   },
   {
     title: 'High To Low Price',
-    value: 'price',
-    key: 'price-desc',
-    direction: -1,
+    value: 'price-desc',
   },
 ];
 
@@ -51,19 +43,35 @@ interface ResultProps
   name: string;
   banners?: string[];
   queryParams: ParsedUrlQuery;
-  handleSelectFilter: (
+  handleChangeQueryParam: (
     key: ISchema.Attribute['k'],
     value: ISchema.Attribute['v'],
-    isMultiple?: boolean
+    isMultiple?: boolean,
+    resetPage?: boolean
   ) => void;
+  handleRemoveQueryParams: (keys: ISchema.Attribute['k'][]) => void;
 }
 
 const Result = (props: ResultProps) => {
-  const { name, banners, queryParams, handleSelectFilter, products, totalProduct, pagination } =
-    props;
-  const { ...restQueryParams } = queryParams;
-  console.log(restQueryParams);
+  const {
+    name,
+    banners,
+    queryParams,
+    handleChangeQueryParam,
+    handleRemoveQueryParams,
+    products,
+    totalProduct,
+    pagination,
+  } = props;
+  const { sort, newest, ...restQueryParams } = queryParams;
   const { currentPage, totalPage } = pagination;
+
+  const handleChangeSort = (sortBy: IProduct.RecommendSort) => {
+    handleChangeQueryParam('sort', sortBy, false, true);
+  };
+  const handleChangePage = (e: ChangeEvent<unknown>, newPage: number) => {
+    handleChangeQueryParam('newest', ((newPage - 1) * LIMIT_RECOMMEND_NUMBER).toString());
+  };
   return (
     <Root>
       <Wrapper direction="row" alignItems="center" spacing={1} p={2}>
@@ -91,38 +99,42 @@ const Result = (props: ResultProps) => {
         </Wrapper>
       )}
       <Wrapper sx={{ position: 'relative' }}>
-        <FilterWrapper direction="row" alignItems="center">
-          {FILTERS.map((filter) => {
-            const { title, key } = filter;
+        <SortWrapper direction="row" alignItems="center">
+          {SORT.map((by) => {
+            const { title, value } = by;
             return (
-              <FilterText key={key} className={key === FILTERS[0].key ? 'active' : ''}>
+              <SortText
+                key={value}
+                className={value === (sort || SORT[0].value) ? 'active' : ''}
+                onClick={() => handleChangeSort(value)}
+              >
                 {title}
-              </FilterText>
+              </SortText>
             );
           })}
-        </FilterWrapper>
+        </SortWrapper>
         {!_.isEmpty(restQueryParams) && (
           <Stack direction="row" alignItems="center" spacing={1} sx={{ m: 2 }}>
-            {Object.keys(restQueryParams).map((queryKey, index) => {
+            {Object.keys(restQueryParams).map((queryKey) => {
               const queryValues = restQueryParams[queryKey]!;
               if (queryValues instanceof Array) {
-                return queryValues.map((value) => (
+                return queryValues.map((value, index) => (
                   <Chip
                     key={index}
                     label={value}
                     color="error"
                     size="small"
-                    onDelete={() => handleSelectFilter(queryKey, value, true)}
+                    onDelete={() => handleChangeQueryParam(queryKey, value, true, true)}
                   />
                 ));
               }
               return (
                 <Chip
-                  key={index}
+                  key={queryKey}
                   label={queryValues}
                   color="error"
                   size="small"
-                  onDelete={() => handleSelectFilter(queryKey, queryValues)}
+                  onDelete={() => handleChangeQueryParam(queryKey, queryValues, false, true)}
                 />
               );
             })}
@@ -130,7 +142,7 @@ const Result = (props: ResultProps) => {
               variant="subtitle2"
               color="error"
               sx={{ cursor: 'pointer' }}
-              onClick={() => {}}
+              onClick={() => handleRemoveQueryParams(Object.keys(restQueryParams))}
             >
               Remove all
             </Typography>
@@ -159,6 +171,7 @@ const Result = (props: ResultProps) => {
             count={totalPage}
             hidePrevButton={currentPage <= 1}
             hideNextButton={currentPage >= totalPage}
+            onChange={handleChangePage}
           />
         </PaginationWrapper>
       )}
@@ -167,7 +180,7 @@ const Result = (props: ResultProps) => {
 };
 
 const Root = styled(Stack)(({ theme }) => ({
-  width: `calc(100% - 250px)`,
+  width: `calc(100% - ${STYLE.DESKTOP.CATEGORY.FILTER_WIDTH})`,
   [theme.breakpoints.down('sm')]: {
     width: '100%',
   },
@@ -184,15 +197,15 @@ const ResultWrapper = styled('div')({
   paddingBlock: '10px',
 });
 
-const FilterWrapper = styled(Stack)(({ theme }) => ({
+const SortWrapper = styled(Stack)(({ theme }) => ({
   borderBottom: `2px solid ${theme.palette.background.default} `,
   position: 'sticky',
-  top: '140px',
+  top: STYLE.DESKTOP.HEADER.HEIGHT,
   zIndex: '99',
   backgroundColor: theme.palette.background.paper,
 }));
 
-const FilterText = styled('span')(({ theme }) => ({
+const SortText = styled('span')(({ theme }) => ({
   textTransform: 'capitalize',
   cursor: 'pointer',
   fontSize: '14px',

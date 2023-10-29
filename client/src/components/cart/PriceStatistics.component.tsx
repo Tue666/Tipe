@@ -16,6 +16,7 @@ import { PATH_CHECKOUT, PATH_MAIN } from '@/configs/routers';
 import { IOrder, ISchema } from '@/models/interfaces';
 import { useConfirm } from 'material-ui-confirm';
 import orderApi from '@/apis/orderApi';
+import { enqueueNotify } from '@/hooks/useSnackbar';
 
 interface PriceStatisticsProps extends Pick<CartState, 'items' | 'statistics' | 'payment'> {}
 
@@ -44,23 +45,46 @@ const PriceStatistics = (props: PriceStatisticsProps) => {
   const isIntendedCart = pathname.indexOf(PATH_MAIN.cart) !== -1;
   const hrefToShipping = `${PATH_CHECKOUT.shipping}${isIntendedCart ? '?is_intended_cart=1' : ''}`;
 
+  const validateInformation = (): boolean => {
+    // Validate information before order
+    const prepareChange = {
+      hasError: false,
+      errorMessage: '',
+    };
+    if (!defaultAddress) {
+      prepareChange.hasError = true;
+      prepareChange.errorMessage = 'You have not set address for order yet';
+    }
+    if (selectedCount < 1) {
+      prepareChange.hasError = true;
+      prepareChange.errorMessage = 'You have not selected any products to order yet';
+    }
+    if (!payment.method_key) {
+      prepareChange.hasError = true;
+      prepareChange.errorMessage = 'You have not selected any payment method';
+    }
+    if (prepareChange.hasError) {
+      enqueueNotify(prepareChange.errorMessage, {
+        anchorOrigin: {
+          vertical: 'bottom',
+          horizontal: 'center',
+        },
+        preventDuplicate: true,
+      });
+      return false;
+    }
+    return true;
+  };
   const handleCheckOut = () => {
+    const isOk = validateInformation();
+    if (!isOk) return;
+
     if (defaultAddress) push(PATH_CHECKOUT.payment);
     else push(hrefToShipping);
   };
   const handleOrder = async () => {
-    if (!defaultAddress) {
-      console.log('===== You have not set address for order yet');
-      return;
-    }
-    if (selectedCount < 1) {
-      console.log('===== You have not selected any products to order yet');
-      return;
-    }
-    if (!payment.method_key) {
-      console.log('===== You have not selected any payment method');
-      return;
-    }
+    const isOk = validateInformation();
+    if (!isOk) return;
 
     try {
       await confirm({
@@ -68,7 +92,7 @@ const PriceStatistics = (props: PriceStatisticsProps) => {
         content: <Alert severity="info">Checked the products and confirmed the order</Alert>,
       });
 
-      const { region, district, ward, is_default, ...rest } = defaultAddress;
+      const { region, district, ward, is_default, ...rest } = defaultAddress!;
       const orderItems = getSelectedItems(items).map((item) => {
         const { quantity, product } = item;
         return {

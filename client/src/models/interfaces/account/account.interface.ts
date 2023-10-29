@@ -1,9 +1,10 @@
+import { MessageReponse } from '../common';
 import {
   AccountSchema,
   AdministratorSchema,
   CustomerSchema,
   AddressSchema,
-  LocationV2Schema,
+  LocationSchema,
 } from '../schema';
 import { Tokens } from './auth.interface';
 
@@ -27,9 +28,9 @@ export interface SignUpBody
 
 export interface Address
   extends Omit<AddressSchema, 'customer_id' | 'region_id' | 'district_id' | 'ward_id'> {
-  region: LocationV2Schema;
-  district: LocationV2Schema;
-  ward: LocationV2Schema;
+  region: LocationSchema;
+  district: LocationSchema;
+  ward: LocationSchema;
 }
 
 export interface InitCustomerResponse {
@@ -40,21 +41,21 @@ export interface InitCustomerResponse {
 export interface InsertAddressBody
   extends Omit<AddressSchema, '_id' | 'customer_id' | 'country' | 'created_at' | 'updated_at'> {}
 
-export interface InsertAddressResponse {
+export interface InsertAddressResponse extends MessageReponse {
   address: Address;
 }
 
 export interface EditAddressBody
   extends Omit<AddressSchema, 'customer_id' | 'country' | 'created_at' | 'updated_at'> {}
 
-export interface EditAddressResponse {
+export interface EditAddressResponse extends MessageReponse {
   address: Address;
 }
 
-export interface SwitchDefaultResponse {
+export interface SwitchDefaultResponse extends MessageReponse {
   _id: Address['_id'];
 }
 
-export interface RemoveAddressResponse {
+export interface RemoveAddressResponse extends MessageReponse {
   _id: Address['_id'];
 }

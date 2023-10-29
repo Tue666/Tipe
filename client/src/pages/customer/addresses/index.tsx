@@ -136,7 +136,7 @@ const Address = styled(Stack)(({ theme }) => ({
 
 Addresses.getLayout = (page) => {
   return (
-    <MainLayout>
+    <MainLayout hasGuard={true}>
       <CustomerLayout>{page}</CustomerLayout>
     </MainLayout>
   );

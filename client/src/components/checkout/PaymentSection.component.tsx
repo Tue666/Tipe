@@ -16,6 +16,7 @@ import { buildImageLink, toVND } from '@/utils';
 import { PATH_IMAGE } from '@/configs/routers';
 import { changePayment } from '@/redux/slices/cart.slice';
 import { useAppDispatch } from '@/redux/hooks';
+import { enqueueNotify } from '@/hooks/useSnackbar';
 
 interface PaymentMethodProps extends ISchema.Payment {
   icon: string;
@@ -83,7 +84,13 @@ const PaymentSection = (props: PaymentSectionProps) => {
     const method = e.target.value;
     const payment = PAYMENTS.find((payment) => payment.method_key === method);
     if (!payment) {
-      console.log(`${method} not found`);
+      enqueueNotify(`${method} not found`, {
+        anchorOrigin: {
+          vertical: 'bottom',
+          horizontal: 'center',
+        },
+        preventDuplicate: true,
+      });
       return;
     }
 

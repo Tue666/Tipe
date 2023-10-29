@@ -1,5 +1,14 @@
 import { useState, MouseEvent, Fragment } from 'react';
-import { styled, Popover, Stack, Divider, MenuList, MenuItem, ListItemIcon } from '@mui/material';
+import {
+  styled,
+  Popover,
+  Stack,
+  Divider,
+  MenuList,
+  MenuItem,
+  ListItemIcon,
+  Alert,
+} from '@mui/material';
 import {
   AssignmentIndOutlined,
   ImportContacts,
@@ -12,6 +21,7 @@ import { STYLE } from '@/configs/constants';
 import { useAppSelector } from '@/redux/hooks';
 import { selectCustomer } from '@/redux/slices/customer.slice';
 import { buildImageLink } from '@/utils';
+import { useConfirm } from 'material-ui-confirm';
 
 const MENU_OPTIONS = [
   {
@@ -38,6 +48,7 @@ interface AccountPopoverProps {
 const AccountPopover = (props: AccountPopoverProps) => {
   const { signOut } = props;
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const confirm = useConfirm();
   const { profile } = useAppSelector(selectCustomer);
   const { name, avatar_url } = profile;
 
@@ -46,6 +57,21 @@ const AccountPopover = (props: AccountPopoverProps) => {
   };
   const handleClose = () => {
     setAnchorEl(null);
+  };
+  const handleSignOut = async () => {
+    try {
+      await confirm({
+        title: 'Sign Out',
+        content: <Alert severity="error">You are about to sign out!</Alert>,
+        confirmationButtonProps: {
+          color: 'error',
+        },
+      });
+      signOut();
+    } catch (error) {
+      if (error === undefined) return;
+      console.log('Confirm error:', error);
+    }
   };
   return (
     <Fragment>
@@ -88,7 +114,7 @@ const AccountPopover = (props: AccountPopoverProps) => {
               );
             })}
             <Divider />
-            <MenuItem onClick={signOut}>
+            <MenuItem onClick={handleSignOut}>
               <ListItemIcon>
                 <LogoutOutlined />
               </ListItemIcon>

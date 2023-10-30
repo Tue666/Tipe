@@ -18,6 +18,16 @@ const Product = new Schema(
     shop: { type: ObjectId },
     ads_id: { type: ObjectId },
     is_official: { type: Boolean, default: false },
+    flash_sale: {
+      type: {
+        _id: false,
+        original_price: { type: Number, min: 0, default: 0 },
+        price: { type: Number, min: 0, default: 0 },
+        sold: { type: Number, required: true, default: 0 },
+        end_time: { type: Number, required: true },
+      },
+      default: null,
+    },
     attributes: { type: Array, default: [] },
     specifications: { type: Array, default: [] },
     warranties: { type: Array, default: [] },

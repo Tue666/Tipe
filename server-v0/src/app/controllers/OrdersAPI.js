@@ -1,5 +1,6 @@
+const _ = require('lodash');
 const { Types } = require('mongoose');
-const { Order } = require('../models/Order');
+const { Order, ORDER_STATUS } = require('../models/Order');
 const { Cart } = require('../models/Cart');
 const { Product } = require('../models/Product');
 const { fNumberWithSuffix } = require('../../utils/formatNumber');
@@ -9,43 +10,39 @@ const { ObjectId } = Types;
 class OrdersAPI {
   // [PATCH] /orders/tracking-order
   /*
+    = Body =
 		_id: String as ObjectId,
-		new_status: String,
-		[note]: String,
+		status: String, // One of ORDER_STATUS
+    tracking_description?: String, 
+		note?: String,
 	*/
   async trackingOrder(req, res, next) {
     try {
       let { _id: customer_id } = req.account;
       customer_id = ObjectId(customer_id);
-      let { _id, new_status, note } = req.body;
+      let { _id, status, tracking_description, ...rest } = req.body;
       _id = ObjectId(_id);
-      new_status = new_status.toLowerCase();
+      status = status ? status.toLowerCase() : undefined;
 
-      let status_text = 'Pending processing';
-      switch (new_status) {
-        case 'processing':
-          status_text = 'Pending processing';
+      switch (status) {
+        case ORDER_STATUS.processing.status:
+        case ORDER_STATUS.transporting.status:
+        case ORDER_STATUS.delivered.status:
           break;
-        case 'transporting':
-          status_text = 'Being transported';
-          break;
-        case 'delivered':
-          status_text = 'Order delivered';
-          break;
-        case 'canceled':
-          // canceled only when not yet transported
-          const current = await Order.findOne({
+        case ORDER_STATUS.canceled.status:
+          // Canceled only when not yet transported
+          const cancelOrder = await Order.findOne({
             _id,
             customer_id,
-          }).select('tracking_infor items');
-          if (current.tracking_infor.status !== 'processing') {
+          }).select('tracking_info items');
+          if (cancelOrder.tracking_info.status !== ORDER_STATUS.processing.status) {
             next({ status: 400, msg: 'Canceled only when not yet transported!' });
             return;
           }
 
-          // return product quantity
+          // Return product quantity
           await Promise.all(
-            current.items.map(async (item) => {
+            cancelOrder.items.map(async (item) => {
               const { _id, quantity } = item;
               const product = await Product.findOne({
                 _id,
@@ -58,14 +55,24 @@ class OrdersAPI {
               await product.save();
             })
           );
-
-          status_text = 'Order has been canceled';
           break;
         default:
-          // refresh status
-          new_status = 'processing';
-          status_text = 'Pending processing';
           break;
+      }
+
+      const trackingPayload = {};
+      if (!_.isNil(status) && status !== '') {
+        trackingPayload['tracking_info.status'] = ORDER_STATUS[status].status;
+        trackingPayload['tracking_info.status_text'] = ORDER_STATUS[status].status_text;
+      }
+
+      if (!_.isNil(tracking_description) && tracking_description !== '') {
+        trackingPayload['$push'] = {
+          'tracking_info.tracking_list': {
+            $each: [{ description: tracking_description }],
+            $position: 0,
+          },
+        };
       }
 
       const order = await Order.findOneAndUpdate(
@@ -74,10 +81,8 @@ class OrdersAPI {
           customer_id,
         },
         {
-          'tracking_infor.status': new_status,
-          'tracking_infor.status_text': status_text,
-          'tracking_infor.time': Date.now(),
-          note,
+          ...rest,
+          ...trackingPayload,
         },
         {
           new: true,
@@ -85,7 +90,7 @@ class OrdersAPI {
       );
 
       res.status(200).json({
-        msg: 'Edit status successfully!',
+        msg: 'Update order tracking status successfully!',
         order,
       });
     } catch (error) {

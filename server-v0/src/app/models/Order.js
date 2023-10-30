@@ -12,11 +12,26 @@ const PAYMENT_METHODS = {
 };
 
 const ORDER_STATUS = {
-  awaiting_payment: 'awaiting_payment',
-  processing: 'processing',
-  transporting: 'transporting',
-  delivered: 'delivered',
-  canceled: 'canceled',
+  awaiting_payment: {
+    status: 'awaiting_payment',
+    status_text: 'Waiting for payment',
+  },
+  processing: {
+    status: 'processing',
+    status_text: 'Pending processing',
+  },
+  transporting: {
+    status: 'transporting',
+    status_text: 'Being transported',
+  },
+  delivered: {
+    status: 'delivered',
+    status_text: 'Order delivered',
+  },
+  canceled: {
+    status: 'canceled',
+    status_text: 'Order has been canceled',
+  },
 };
 
 const Order = new Schema(
@@ -78,9 +93,9 @@ const Order = new Schema(
       status: {
         type: String,
         enum: Object.values(ORDER_STATUS),
-        default: ORDER_STATUS.processing,
+        default: ORDER_STATUS.processing.status,
       },
-      status_text: { type: String, default: 'Pending processing' },
+      status_text: { type: String, default: ORDER_STATUS.processing.status_text },
       tracking_list: {
         type: [
           {

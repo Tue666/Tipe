@@ -11,11 +11,12 @@ import {
 import { IOrder } from '@/models/interfaces';
 
 interface OrderTrackingProps {
-  tracking_list: IOrder.Order['tracking_info']['tracking_list'];
+  tracking_info: IOrder.Order['tracking_info'];
 }
 
 const OrderTracking = (props: OrderTrackingProps) => {
-  const { tracking_list } = props;
+  const { tracking_info } = props;
+  const { status_text, tracking_list } = tracking_info;
   const timelineItemStyle = {
     minHeight: '45px',
   };
@@ -34,7 +35,7 @@ const OrderTracking = (props: OrderTrackingProps) => {
           <TimelineConnector />
         </TimelineSeparator>
         <TimelineContent>
-          <Typography variant="subtitle2">Being transported</Typography>
+          <Typography variant="subtitle2">{status_text}</Typography>
         </TimelineContent>
       </TimelineItem>
       {tracking_list.map((tracking, index) => {

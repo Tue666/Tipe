@@ -82,7 +82,7 @@ const Order: PageWithLayout<OrderProps> = (props: OrderProps) => {
               justifyContent="space-between"
               alignItems={{ xs: 'center', md: 'end' }}
             >
-              <OrderTracking tracking_list={tracking_list} />
+              <OrderTracking tracking_info={tracking_info} />
               <Stack spacing={1} p={2}>
                 <Button variant="outlined">GET IN TOUCH WITH SELLER</Button>
                 <Button variant="outlined">REQUEST AN ELECTRONIC INVOICE</Button>

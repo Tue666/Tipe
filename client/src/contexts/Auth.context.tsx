@@ -90,6 +90,7 @@ const AuthProvider = (props: AuthProviderProps) => {
         });
       }
     };
+
     initialize();
   }, [appDispatch]);
 

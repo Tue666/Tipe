@@ -1,5 +1,5 @@
-import { Fragment, MouseEvent } from 'react';
-import { useTheme, Stack, Typography, SxProps } from '@mui/material';
+import { Fragment, MouseEvent, useState } from 'react';
+import { useTheme, Stack, Typography, SxProps, Drawer } from '@mui/material';
 import { Link } from '@/components/overrides';
 import { Hidden } from '@/components';
 import useModal from '@/hooks/useModal';
@@ -40,6 +40,7 @@ const APPS = [
 
 const Navbars = () => {
   const theme = useTheme();
+  const [isOpenDrawer, setIsOpenDrawer] = useState(false);
   const { openModal } = useModal();
   const { isInitialized, isAuthenticated, signOut } = useAuth();
   const navItemStyle: SxProps = {
@@ -111,9 +112,13 @@ const Navbars = () => {
               color: theme.palette.primary.main,
             },
           }}
+          onClick={() => setIsOpenDrawer(true)}
         >
           <i className="bi bi-list"></i>
         </Typography>
+        <Drawer anchor="left" open={isOpenDrawer} onClose={() => setIsOpenDrawer(false)}>
+          hihi
+        </Drawer>
       </Hidden>
     </Fragment>
   );

@@ -216,14 +216,14 @@ class OrdersAPI {
   */
   async findById(req, res, next) {
     try {
-      // let { _id: customer_id } = req.account;
-      // customer_id = ObjectId(customer_id);
+      let { _id: customer_id } = req.account;
+      customer_id = ObjectId(customer_id);
       let { _id } = req.params;
       _id = ObjectId(_id);
 
       const order = await Order.findOne({
         _id,
-        // customer_id,
+        customer_id,
       });
 
       res.status(200).json(order);

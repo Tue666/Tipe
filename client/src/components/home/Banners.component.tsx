@@ -100,8 +100,9 @@ const Banners = (props: BannersProps) => {
       direction={{ xs: 'column', md: 'row' }}
       spacing={STYLE.DESKTOP.BANNERS.SPACING}
       sx={{
-        [theme.breakpoints.up('md')]: {
-          height: STYLE.DESKTOP.BANNERS.MAIN_HEIGHT,
+        height: STYLE.DESKTOP.BANNERS.MAIN_HEIGHT,
+        [theme.breakpoints.down('md')]: {
+          height: STYLE.MOBILE.BANNERS.MAIN_HEIGHT,
         },
       }}
     >

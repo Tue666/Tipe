@@ -1,28 +1,23 @@
 import { Stack, styled, Typography } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { ProductCard } from '@/components';
-import { IProduct } from '@/models/interfaces';
 import useInfiniteProduct from '@/hooks/useInfiniteProduct.hook';
 
 interface ProductListProps {
   id: string;
   title?: string;
-  suggestion: IProduct.FindForSuggestionResponse;
 }
 
 const ProductList = (props: ProductListProps) => {
-  const { id, title, suggestion } = props;
-  const { products } = suggestion;
-  const { handleNextPage, isLoading, hasMore, infiniteProducts } = useInfiniteProduct({
-    initFromScratch: false,
-  });
+  const { id, title } = props;
+  const { handleNextPage, isLoading, hasMore, infiniteProducts } = useInfiniteProduct();
 
   return (
     <Stack id={id} spacing={1}>
       {title && <Typography variant="subtitle2">{title}</Typography>}
       {!title && <div></div>}
       <Wrapper>
-        {[...products, ...infiniteProducts].map((product, index) => {
+        {infiniteProducts.map((product, index) => {
           return <ProductCard key={index} product={product} />;
         })}
       </Wrapper>

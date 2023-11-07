@@ -290,6 +290,7 @@ export const getStaticProps: GetStaticProps = async () => {
       props: {
         locations,
       },
+      revalidate: 86400,
     };
   } catch (error) {
     console.log('Location generated with error:', error);

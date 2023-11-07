@@ -1,8 +1,7 @@
 import _ from 'lodash';
 import qs from 'query-string';
-import { ParsedUrlQuery } from 'querystring';
 import { Fragment, useEffect, useRef, useState } from 'react';
-import { GetStaticPaths, GetStaticProps } from 'next';
+import { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
 import { styled, Skeleton, Stack } from '@mui/material';
 import { Breadcrumbs, Page, Teleport } from '@/components';
@@ -36,6 +35,7 @@ const Category = (props: CategoryProps) => {
       });
       setRecommendCS(recommendCS);
     };
+
     if (shouldRenderRef.current) {
       shouldRenderRef.current = false;
       findForRecommendCS();
@@ -140,14 +140,7 @@ const Category = (props: CategoryProps) => {
   );
 };
 
-export const getStaticPaths: GetStaticPaths = async () => {
-  return {
-    paths: [],
-    fallback: 'blocking',
-  };
-};
-
-export const getStaticProps: GetStaticProps = async (context) => {
+export const getServerSideProps: GetServerSideProps = async (context) => {
   try {
     const { params } = context;
     if (!params?.params?.[1]) {

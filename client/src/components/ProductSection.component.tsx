@@ -1,4 +1,5 @@
-import { Stack, Typography, useMediaQuery, useTheme } from '@mui/material';
+import _ from 'lodash';
+import { Skeleton, Stack, Typography, useMediaQuery, useTheme } from '@mui/material';
 import { Carousel } from './_external_/react-slick';
 import { Link } from './overrides';
 import { STYLE } from '@/configs/constants';
@@ -26,23 +27,31 @@ const ProductSection = (props: ProductSectionProps) => {
           </Typography>
         </Link>
       </Stack>
-      {products && products.length && (
-        <Carousel
-          settings={{
-            className: 'slider variable-width',
-            variableWidth: true,
-            slidesToShow: isMdDown
-              ? STYLE.MOBILE.PRODUCT_SECTION.SLIDE_TO_SHOW
-              : STYLE.DESKTOP.PRODUCT_SECTION.SLIDE_TO_SHOW,
-            dots: false,
-            infinite: products.length > 5 ? true : false,
-          }}
-        >
-          {products.map((product, index) => {
+      <Carousel
+        settings={{
+          className: 'slider variable-width',
+          variableWidth: true,
+          slidesToShow: isMdDown
+            ? STYLE.MOBILE.PRODUCT_SECTION.SLIDE_TO_SHOW
+            : STYLE.DESKTOP.PRODUCT_SECTION.SLIDE_TO_SHOW,
+          dots: false,
+          infinite: products?.length ?? 0 > 5 ? true : false,
+        }}
+      >
+        {!_.isNil(products) &&
+          products.map((product, index) => {
             return <ProductCard key={index} product={product} />;
           })}
-        </Carousel>
-      )}
+        {_.isNil(products) &&
+          [...Array(isMdDown ? 1 : 5)].map((_, index) => (
+            <Stack key={index} sx={{ p: 2 }}>
+              <Skeleton variant="rectangular" width={180} height={180} />
+              <Skeleton variant="text" height={45} />
+              <Skeleton variant="text" width={150} />
+              <Skeleton variant="text" width={130} />
+            </Stack>
+          ))}
+      </Carousel>
     </Stack>
   );
 };

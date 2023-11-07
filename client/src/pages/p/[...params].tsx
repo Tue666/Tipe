@@ -1,11 +1,11 @@
 import _ from 'lodash';
 import { Fragment } from 'react';
-import { GetStaticPaths, GetStaticProps } from 'next';
+import { GetServerSideProps } from 'next';
 import { Stack, styled } from '@mui/material';
 import { Breadcrumbs, Page, ProductList, ProductSection, Teleport } from '@/components';
 import { Images, Information, Specification, Description, Review } from '@/components/product';
 import { PRODUCT_TELEPORTS } from '@/configs/teleport/product.teleport';
-import { LIMIT_SUGGESTION_NUMBER, LIMIT_WIDGET_NUMBER, STYLE } from '@/configs/constants';
+import { LIMIT_WIDGET_NUMBER, STYLE } from '@/configs/constants';
 import { IProduct } from '@/models/interfaces';
 import { productApi } from '@/apis';
 import { PATH_MAIN } from '@/configs/routers';
@@ -13,12 +13,11 @@ import { PATH_MAIN } from '@/configs/routers';
 interface ProductProps {
   product: IProduct.NestedProduct;
   relatedWidget: IProduct.FindForWidgetResponse;
-  suggestion: IProduct.FindForSuggestionResponse;
 }
 
 const Product = (props: ProductProps) => {
   const { ids, titles, actions } = PRODUCT_TELEPORTS;
-  const { product, relatedWidget, suggestion } = props;
+  const { product, relatedWidget } = props;
   const {
     _id,
     name,
@@ -102,20 +101,13 @@ const Product = (props: ProductProps) => {
       </Fragment>
       <Stack>
         <DiscoverMore>Discover more for you</DiscoverMore>
-        <ProductList id={ids['product-list']} suggestion={suggestion} />
+        <ProductList id={ids['product-list']} />
       </Stack>
     </Page>
   );
 };
 
-export const getStaticPaths: GetStaticPaths = async () => {
-  return {
-    paths: [],
-    fallback: 'blocking',
-  };
-};
-
-export const getStaticProps: GetStaticProps = async (context) => {
+export const getServerSideProps: GetServerSideProps = async (context) => {
   try {
     const { params } = context;
     if (!params?.params?.[1]) {
@@ -132,21 +124,11 @@ export const getStaticProps: GetStaticProps = async (context) => {
       group: 'related',
       limit: LIMIT_WIDGET_NUMBER,
     });
-    const suggestion = await productApi.findForSuggestion({
-      limit: LIMIT_SUGGESTION_NUMBER,
-    });
-    if (_.isNil(product) || _.isEmpty(product)) {
-      console.log('Product generated with error: resources not found');
-      return {
-        notFound: true,
-      };
-    }
 
     return {
       props: {
         product,
         relatedWidget,
-        suggestion,
       },
     };
   } catch (error) {

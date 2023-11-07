@@ -128,7 +128,7 @@ export const STYLE = {
     },
     BANNERS: {
       MAIN_WIDTH: '100%',
-      MAIN_HEIGHT: '300px',
+      MAIN_HEIGHT: '200px',
       SUB_WIDTH: '50%',
       SUB_HEIGHT: '100px',
     },

@@ -3,12 +3,7 @@ import { LIMIT_SUGGESTION_NUMBER } from '@/configs/constants';
 import { IProduct } from '@/models/interfaces';
 import { useState, useEffect } from 'react';
 
-interface UseInfiniteProductProps {
-  initFromScratch?: boolean;
-}
-
-const useInfiniteProduct = (props: UseInfiniteProductProps) => {
-  const { initFromScratch = true } = props;
+const useInfiniteProduct = () => {
   const [newest, setNewest] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -34,8 +29,8 @@ const useInfiniteProduct = (props: UseInfiniteProductProps) => {
       }
     };
 
-    if (initFromScratch || (!initFromScratch && newest > 0)) findProducts();
-  }, [newest, initFromScratch]);
+    findProducts();
+  }, [newest]);
 
   const handleNextPage = () => {
     setNewest(newest + LIMIT_SUGGESTION_NUMBER);

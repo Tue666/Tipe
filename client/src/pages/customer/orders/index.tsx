@@ -134,7 +134,7 @@ const Orders: PageWithLayout = () => {
     // Only fetch new data when first time visited or page of tab has been changed
     const canFetching = !visitedTab || visitedTab.page !== page;
     if (canFetching) {
-      const getOrders = async () => {
+      const findOrders = async () => {
         const findQuery: IOrder.FindQuery = {
           newest: (page - 1) * limit,
           limit,
@@ -160,7 +160,8 @@ const Orders: PageWithLayout = () => {
           },
         };
       };
-      getOrders();
+
+      findOrders();
     }
   }, [currentOrder]);
 

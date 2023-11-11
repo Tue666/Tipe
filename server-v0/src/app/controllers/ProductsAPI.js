@@ -145,18 +145,16 @@ class ProductsAPI {
     = Query =
     group: String, // One of GROUP_WIDGETS
     _id: String as ObjectId, // For group related only
+    newest?: Number, // Default 0
     limit: Number,
   */
   async findForWidget(req, res, next) {
     try {
-      let { group, _id, limit } = req.query;
-      if (_.isNil(group) || group === '') {
-        res.status(200).json([]);
-        return;
-      }
+      let { group, _id, newest, limit } = req.query;
       if (group === GROUP_WIDGETS.related && !_.isNil(_id)) {
         _id = ObjectId(_id);
       } else _id = undefined;
+      newest = newest ? parseInt(newest) : 0;
       limit = limit ? parseInt(limit) : 1;
 
       const GRAVITY = 1.8;
@@ -189,53 +187,136 @@ class ProductsAPI {
             ]
           : [{ $match: queries }]),
         {
-          $addFields: {
-            time_elapsed: {
-              $divide: [{ $subtract: ['$$NOW', '$updated_at'] }, 3600000],
-            },
-          },
-        },
-        {
-          $project: {
-            name: 1,
-            images: 1,
-            discount: 1,
-            discount_rate: 1,
-            original_price: 1,
-            price: 1,
-            slug: 1,
-            quantity_sold: 1,
-            ratings: 1,
-            score: {
-              // HackerNews sort algorithm
-              /*
-        				score = voted / (t + 2)^G
-        				- voted: The voted count such as sold, viewed, favorite.
-        				- t: Time between post(update) time and current time (in hours).
-        				- G: Constant 'gravity', default is 1.8.
-        			*/
-              $divide: [
-                group === GROUP_WIDGETS.top_selling
-                  ? '$quantity_sold.value'
-                  : group === GROUP_WIDGETS.top_favorite
-                  ? '$favorite_count'
-                  : '$view_count', // GROUP_WIDGETS.top_view
-                {
-                  $pow: [{ $add: ['$time_elapsed', 2] }, GRAVITY],
+          $facet: {
+            products: [
+              {
+                $addFields: {
+                  time_elapsed: {
+                    $divide: [{ $subtract: ['$$NOW', '$updated_at'] }, 3600000],
+                  },
                 },
-              ],
-            },
+              },
+              {
+                $project: {
+                  name: 1,
+                  images: 1,
+                  discount: 1,
+                  discount_rate: 1,
+                  original_price: 1,
+                  price: 1,
+                  slug: 1,
+                  quantity_sold: 1,
+                  ratings: 1,
+                  score: {
+                    // HackerNews sort algorithm
+                    /*
+                      score = voted / (t + 2)^G
+                      - voted: The voted count such as sold, viewed, favorite.
+                      - t: Time between post(update) time and current time (in hours).
+                      - G: Constant 'gravity', default is 1.8.
+                    */
+                    $divide: [
+                      group === GROUP_WIDGETS.top_selling
+                        ? '$quantity_sold.value'
+                        : group === GROUP_WIDGETS.top_favorite
+                        ? '$favorite_count'
+                        : '$view_count', // GROUP_WIDGETS.top_view
+                      {
+                        $pow: [{ $add: ['$time_elapsed', 2] }, GRAVITY],
+                      },
+                    ],
+                  },
+                },
+              },
+              {
+                $sort: {
+                  score: -1,
+                },
+              },
+              { $skip: newest },
+              { $limit: limit },
+            ],
+            total: [
+              {
+                $group: {
+                  _id: null,
+                  totalProduct: { $sum: 1 },
+                },
+              },
+            ],
           },
         },
-        {
-          $sort: {
-            score: -1,
-          },
-        },
-        { $limit: limit },
       ]);
+
+      const { total, ...rest } = widget?.[0];
+      const totalProduct = total?.[0]?.totalProduct ?? 0;
+      const totalPage = Math.ceil(totalProduct / limit);
       res.status(200).json({
-        products: widget,
+        ...rest,
+        pagination: {
+          totalPage,
+          currentPage: totalPage > 0 ? newest / limit + 1 : 0,
+        },
+      });
+    } catch (error) {
+      console.error(error);
+      next({ status: 500, msg: error.message });
+    }
+  }
+
+  // [GET] /products/flash-sale?{{query}}
+  /*
+    = Query =
+    newest?: Number, // Default 0
+    limit: Number,
+  */
+  async findForFlashSale(req, res, next) {
+    try {
+      let { newest, limit } = req.query;
+      newest = newest ? parseInt(newest) : 0;
+      limit = limit ? parseInt(limit) : 1;
+
+      const queries = {
+        inventory_status: { $nin: [INVENTORY_STATUS.hidden] },
+      };
+
+      const flashSale = await Product.aggregate([
+        { $match: queries },
+        {
+          $facet: {
+            products: [
+              {
+                $project: {
+                  name: 1,
+                  images: 1,
+                  original_price: 1,
+                  slug: 1,
+                },
+              },
+              { $skip: newest },
+              { $limit: limit },
+            ],
+            total: [
+              {
+                $group: {
+                  _id: null,
+                  totalProduct: { $sum: 1 },
+                },
+              },
+            ],
+          },
+        },
+      ]);
+
+      const { total, ...rest } = flashSale?.[0];
+      const totalProduct = total?.[0]?.totalProduct ?? 0;
+      const totalPage = Math.ceil(totalProduct / limit);
+      res.status(200).json({
+        ...rest,
+        pagination: {
+          totalPage,
+          currentPage: totalPage > 0 ? newest / limit + 1 : 0,
+        },
       });
     } catch (error) {
       console.error(error);
@@ -259,16 +340,44 @@ class ProductsAPI {
         inventory_status: { $nin: [INVENTORY_STATUS.hidden] },
       };
 
-      const totalProduct = await Product.count(queries);
+      const suggestion = await Product.aggregate([
+        { $match: queries },
+        {
+          $facet: {
+            products: [
+              {
+                $project: {
+                  name: 1,
+                  images: 1,
+                  discount: 1,
+                  discount_rate: 1,
+                  original_price: 1,
+                  price: 1,
+                  quantity_sold: 1,
+                  ratings: 1,
+                  slug: 1,
+                },
+              },
+              { $skip: newest },
+              { $limit: limit },
+            ],
+            total: [
+              {
+                $group: {
+                  _id: null,
+                  totalProduct: { $sum: 1 },
+                },
+              },
+            ],
+          },
+        },
+      ]);
+
+      const { total, ...rest } = suggestion?.[0];
+      const totalProduct = total?.[0]?.totalProduct ?? 0;
       const totalPage = Math.ceil(totalProduct / limit);
-      const products = await Product.find(queries)
-        .select(
-          '_id name images discount discount_rate original_price price quantity_sold ratings slug'
-        )
-        .skip(newest)
-        .limit(limit);
       res.status(200).json({
-        products,
+        ...rest,
         pagination: {
           totalPage,
           currentPage: totalPage > 0 ? newest / limit + 1 : 0,
@@ -421,6 +530,152 @@ class ProductsAPI {
       ]);
 
       const { total, ...rest } = recommend?.[0];
+      const totalProduct = total?.[0]?.totalProduct ?? 0;
+      const totalPage = Math.ceil(totalProduct / limit);
+      res.json({
+        ...rest,
+        ...total?.[0],
+        pagination: {
+          totalPage,
+          currentPage: totalPage > 0 ? newest / limit + 1 : 0,
+        },
+      });
+    } catch (error) {
+      console.log(error);
+      next({ status: 500, msg: error.message });
+    }
+  }
+
+  // [GET] /products/search?{{query}}
+  /*
+    = Query =
+    keyword: String,
+    ...attribute.k: String, // Value of attributes separate by ","
+    sort?: String, // One of popular (default) | top_selling | newest | price-asc | price-desc
+    rating?: String,
+    price?: String, // From and To separate by "-"
+    newest?: Number, // Default 0
+    limit: Number,
+  */
+  async findForSearchKeyword(req, res, next) {
+    try {
+      let { keyword, sort, rating, price, newest, limit, ...attributes } = req.query;
+      let direction = -1;
+      keyword = keyword ? keyword : 'undefined';
+      switch (sort) {
+        case 'top_selling':
+          sort = 'quantity_sold.value';
+          break;
+        case 'newest':
+          sort = 'updated_at';
+          break;
+        case 'price-asc':
+        case 'price-desc':
+          const [tag, order] = sort.split('-');
+          sort = tag;
+          direction = order === 'asc' ? 1 : -1;
+          break;
+        default:
+          sort = 'created_at';
+      }
+      rating = rating ? parseInt(rating) : undefined;
+      newest = newest ? parseInt(newest) : 0;
+      limit = limit ? parseInt(limit) : 1;
+
+      const queries = {
+        name: { $regex: keyword, $options: 'i' },
+        inventory_status: { $nin: [INVENTORY_STATUS.hidden] },
+      };
+
+      if (!_.isNil(attributes) && !_.isEmpty(attributes)) {
+        const keys = Object.keys(attributes);
+        const values = keys.map((key) => attributes[key].split(','));
+        queries['attributes.k'] = { $all: keys };
+        queries['attributes.v'] = { $all: _.flattenDepth(values, 1) };
+      }
+
+      if (!_.isNil(rating)) {
+        const [from, to] = [rating - 0.9, rating];
+        queries['ratings.rating_average'] = {
+          $gte: from,
+          $lte: to,
+        };
+      }
+
+      if (!_.isNil(price)) {
+        const [from, to] = price.split('-');
+        queries['price'] = {
+          $gte: parseInt(from),
+          $lte: parseInt(to),
+        };
+      }
+
+      const search = await Product.aggregate([
+        { $match: queries },
+        { $unwind: '$attributes' },
+        {
+          $group: {
+            _id: null,
+            products: {
+              $addToSet: {
+                _id: '$_id',
+                name: '$name',
+                images: '$images',
+                discount: '$discount',
+                discount_rate: '$discount_rate',
+                original_price: '$original_price',
+                price: '$price',
+                slug: '$slug',
+                quantity_sold: '$quantity_sold',
+                ratings: '$ratings',
+              },
+            },
+            attributes: {
+              $addToSet: '$attributes',
+            },
+          },
+        },
+        {
+          $facet: {
+            products: [
+              {
+                $unwind: '$products',
+              },
+              {
+                $replaceRoot: {
+                  newRoot: '$products',
+                },
+              },
+              { $sort: { [sort]: direction } },
+              { $skip: newest },
+              { $limit: limit },
+            ],
+            total: [
+              {
+                $replaceRoot: {
+                  newRoot: {
+                    totalProduct: { $size: '$products' },
+                    totalAttribute: { $size: '$attributes' },
+                  },
+                },
+              },
+            ],
+            attributes: [
+              {
+                $unwind: '$attributes',
+              },
+              {
+                $replaceRoot: {
+                  newRoot: '$attributes',
+                },
+              },
+              { $sort: { k: 1, v: 1 } },
+            ],
+          },
+        },
+      ]);
+
+      const { total, ...rest } = search?.[0];
       const totalProduct = total?.[0]?.totalProduct ?? 0;
       const totalPage = Math.ceil(totalProduct / limit);
       res.json({

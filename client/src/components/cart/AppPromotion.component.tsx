@@ -41,7 +41,6 @@ const AppPromotion = () => {
 };
 
 const RootStyle = styled(Stack)(({ theme }) => ({
-  width: '480px',
   position: 'relative',
   backgroundColor: theme.palette.background.paper,
 }));

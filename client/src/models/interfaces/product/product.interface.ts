@@ -33,13 +33,19 @@ export interface ProductCard
 
 export type WidgetGroup = 'top_selling' | 'top_favorite' | 'top_view' | 'related';
 
-export interface FindForWidgetQuery extends Pick<PaginationQuery, 'limit'> {
+export interface FindForWidgetQuery extends PaginationQuery {
   group: WidgetGroup;
   _id?: Product['_id'];
 }
 
-export interface FindForWidgetResponse {
+export interface FindForWidgetResponse extends Pagination {
   products: ProductCard[];
+}
+
+export interface FindForFlashSaleQuery extends PaginationQuery {}
+
+export interface FindForFlashSaleResponse extends Pagination {
+  products: Pick<ProductCard, '_id' | 'name' | 'images' | 'original_price' | 'slug'>[];
 }
 
 export interface FindForSuggestionQuery extends PaginationQuery {}
@@ -56,6 +62,18 @@ export interface FindForRecommendQuery extends PaginationQuery {
 }
 
 export interface FindForRecommendResponse extends Pagination {
+  products: ProductCard[];
+  attributes: Attribute[];
+  totalProduct: number;
+  totalAttribute: number;
+}
+
+export interface FindForSearchKeywordQuery extends PaginationQuery {
+  keyword: string;
+  sort?: RecommendSort;
+}
+
+export interface FindForSearchKeywordResponse extends Pagination {
   products: ProductCard[];
   attributes: Attribute[];
   totalProduct: number;

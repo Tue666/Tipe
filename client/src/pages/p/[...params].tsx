@@ -80,6 +80,7 @@ const Product = (props: ProductProps) => {
             <ProductSection
               id={ids['related-section']}
               title={titles['related-section']}
+              group="related"
               products={relatedWidget.products}
             />
           </Wrapper>

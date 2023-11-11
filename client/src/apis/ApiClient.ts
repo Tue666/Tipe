@@ -24,7 +24,7 @@ const ApiClient = () => {
         const token = getToken();
         // Unauthorized
         if (_.isNil(token)) {
-          alert('Unauthorized...!');
+          console.log('Unauthorized...!');
           return Promise.reject(error);
         }
         // Generate new token if the authentication is successful
@@ -36,7 +36,8 @@ const ApiClient = () => {
 
       // Forbidden
       if (error.response.status === 403) {
-        alert('Forbidden...!');
+        console.log('Forbidden...!');
+        return Promise.reject(error);
       }
       return Promise.reject(error);
     }

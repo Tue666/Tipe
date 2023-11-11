@@ -12,6 +12,15 @@ const productApi = {
     return ApiClient.get(url);
   },
 
+  // [GET] {{URL}}/api/products/flash-sale?{{query}}
+  findForFlashSale: (
+    findForFlashSaleQuery: IProduct.FindForFlashSaleQuery
+  ): Promise<IProduct.FindForFlashSaleResponse> => {
+    const query = qs.stringify(findForFlashSaleQuery, { arrayFormat: 'comma' });
+    const url = `/products/flash-sale?${query}`;
+    return ApiClient.get(url);
+  },
+
   // [GET] {{URL}}/api/products/suggestion?{{query}}
   findForSuggestion: (
     findForSuggestionQuery: IProduct.FindForSuggestionQuery
@@ -27,6 +36,15 @@ const productApi = {
   ): Promise<IProduct.FindForRecommendResponse> => {
     const query = qs.stringify(findForRecommendQuery, { arrayFormat: 'comma' });
     const url = `/products/recommend?${query}`;
+    return ApiClient.get(url);
+  },
+
+  // [GET] {{URL}}/api/products/search?{{query}}
+  findForSearchKeyword: (
+    findForSearchKeywordQuery: IProduct.FindForSearchKeywordQuery
+  ): Promise<IProduct.FindForSearchKeywordResponse> => {
+    const query = qs.stringify(findForSearchKeywordQuery, { arrayFormat: 'comma' });
+    const url = `/products/search?${query}`;
     return ApiClient.get(url);
   },
 

@@ -1,4 +1,5 @@
 import { Button, Divider, Stack, Typography } from '@mui/material';
+import Ellipsis from '@/components/Ellipsis.component';
 import { Image } from '../../overrides';
 import { IOrder } from '@/models/interfaces';
 import { buildImageLink, toVND } from '@/utils';
@@ -73,9 +74,14 @@ const OrderPanel = (props: OrderPanelProps) => {
                           }}
                         />
                         <Stack>
-                          <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
-                            {name}
-                          </Typography>
+                          <Ellipsis
+                            variant="subtitle2"
+                            text={name}
+                            clamp={4}
+                            sx={{
+                              fontWeight: 'bold',
+                            }}
+                          />
                           <Typography variant="caption">Single: {toVND(price)}</Typography>
                           <Typography variant="caption">Quantity: {quantity}</Typography>
                         </Stack>

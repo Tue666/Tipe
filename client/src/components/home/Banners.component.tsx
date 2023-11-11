@@ -102,7 +102,7 @@ const Banners = (props: BannersProps) => {
       sx={{
         height: STYLE.DESKTOP.BANNERS.MAIN_HEIGHT,
         [theme.breakpoints.down('md')]: {
-          height: STYLE.MOBILE.BANNERS.MAIN_HEIGHT,
+          height: `calc(${STYLE.MOBILE.BANNERS.MAIN_HEIGHT} + ${STYLE.MOBILE.BANNERS.SUB_HEIGHT})`,
         },
       }}
     >
@@ -116,10 +116,12 @@ const Banners = (props: BannersProps) => {
       >
         <Carousel
           settings={{
+            infinite: STYLE.DESKTOP.BANNERS.SLIDE_INFINITE,
+            autoplay: STYLE.DESKTOP.BANNERS.SLIDE_AUTOPLAY,
+            dots: STYLE.DESKTOP.BANNERS.SLIDE_DOTS,
             slidesToShow: STYLE.DESKTOP.BANNERS.SLIDE_TO_SHOW,
             slidesToScroll: STYLE.DESKTOP.BANNERS.SLIDE_TO_SCROLL,
-            autoplay: STYLE.DESKTOP.BANNERS.AUTOPLAY,
-            autoplaySpeed: STYLE.DESKTOP.BANNERS.AUTOPLAY_SPEED,
+            autoplaySpeed: STYLE.DESKTOP.BANNERS.SLIDE_AUTOPLAY_SPEED,
           }}
         >
           {BANNERS?.length > 0 &&

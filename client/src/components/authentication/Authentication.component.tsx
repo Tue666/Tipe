@@ -14,6 +14,7 @@ import SignInForm from './SignInForm';
 import SignUpForm from './SignUpForm';
 import { accountApi } from '@/apis';
 import useAuth from '@/hooks/useAuth.hook';
+import Hidden from '../Hidden.component';
 
 const STATE = {
   authentication: 'authentication',
@@ -245,24 +246,25 @@ const Authentication = (params: ModalParams) => {
           />
         )}
       </LeftContent>
-      <RightContent justifyContent="center" alignItems="center">
-        <Image
-          src={`${PATH_IMAGE.root}buy-more.png`}
-          alt="buy_more"
-          sx={{
-            width: STYLE.DESKTOP.AUTH_FORM.IMAGE_WIDTH,
-            height: STYLE.DESKTOP.AUTH_FORM.IMAGE_HEIGHT,
-          }}
-        />
-        <Typography variant="subtitle2">Shopping at Tipe</Typography>
-        <Typography variant="body2">Super deals every day</Typography>
-      </RightContent>
+      <Hidden breakpoint="md" type="Down">
+        <RightContent justifyContent="center" alignItems="center">
+          <Image
+            src={`${PATH_IMAGE.root}buy-more.png`}
+            alt="buy-more"
+            sx={{
+              width: STYLE.DESKTOP.AUTH_FORM.IMAGE_WIDTH,
+              height: STYLE.DESKTOP.AUTH_FORM.IMAGE_HEIGHT,
+            }}
+          />
+          <Typography variant="subtitle2">Shopping at Tipe</Typography>
+          <Typography variant="body2">Super deals every day</Typography>
+        </RightContent>
+      </Hidden>
     </RootStyle>
   );
 };
 
 const RootStyle = styled(Stack)({
-  width: STYLE.DESKTOP.AUTH_FORM.WIDTH,
   position: 'relative',
 });
 
@@ -290,7 +292,7 @@ const LeftContent = styled(Stack)({
 });
 
 const RightContent = styled(Stack)(({ theme }) => ({
-  width: `calc(100% - ${STYLE.DESKTOP.AUTH_FORM.FORM_WIDTH})`,
+  width: `calc(${STYLE.DESKTOP.AUTH_FORM.IMAGE_WIDTH} + ${STYLE.DESKTOP.AUTH_FORM.IMAGE_SHIFT})`,
   background: `linear-gradient(136deg, rgb(255 164 140 / 11%), ${theme.palette.error.light})`,
   color: theme.palette.error.main,
 }));

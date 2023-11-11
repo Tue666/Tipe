@@ -1,6 +1,8 @@
-import { CSSProperties } from 'react';
+import { CSSProperties, ChangeEvent, KeyboardEvent, useState } from 'react';
+import { useRouter } from 'next/router';
 import { styled, Stack } from '@mui/material';
 import { STYLE } from '@/configs/constants';
+import { PATH_MAIN } from '@/configs/routers';
 
 const { SEARCH_HEIGH, SEARCH_PADDING, SEARCH_BUTTON_SIZE } = STYLE.DESKTOP.HEADER.SHORTCUTS;
 
@@ -10,10 +12,30 @@ interface SearchBarProps {
 
 const SearchBar = (props: SearchBarProps) => {
   const { sx } = props;
+  const { push } = useRouter();
+  const [keyword, setKeyword] = useState('');
+
+  const handleChangeKeyword = (e: ChangeEvent<HTMLInputElement>) => {
+    const newKeywordValue = e.target.value;
+    setKeyword(newKeywordValue);
+  };
+  const handleKeyDownKeyword = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key !== 'Enter') return;
+
+    handleClickSearch();
+  };
+  const handleClickSearch = () => {
+    push(PATH_MAIN.search(keyword));
+  };
   return (
     <Stack alignItems="center" justifyContent="center" sx={{ position: 'relative' }}>
-      <SearchField placeholder="Enter what are you looking for here ... <3" style={{ ...sx }} />
-      <SearchButton>
+      <SearchField
+        placeholder="Enter what are you looking for here ... <3"
+        style={{ ...sx }}
+        onChange={handleChangeKeyword}
+        onKeyDown={handleKeyDownKeyword}
+      />
+      <SearchButton onClick={handleClickSearch}>
         <i className="bi bi-search"></i>
       </SearchButton>
     </Stack>

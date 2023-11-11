@@ -4,12 +4,12 @@ import { Fragment, useEffect, useRef, useState } from 'react';
 import { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
 import { styled, Skeleton, Stack } from '@mui/material';
-import { Breadcrumbs, Page, Teleport } from '@/components';
-import { Filter, Result } from '@/components/category';
+import { Breadcrumbs, Hidden, Page, Teleport } from '@/components';
+import { Filter, FilterMobile, Result } from '@/components/category';
 import { categoryApi, productApi } from '@/apis';
 import { ICategory, IProduct, ISchema } from '@/models/interfaces';
 import { PATH_MAIN } from '@/configs/routers';
-import { LIMIT_RECOMMEND_NUMBER } from '@/configs/constants';
+import { LIMIT_RECOMMEND_NUMBER, STYLE } from '@/configs/constants';
 import { RouterUtil } from '@/utils';
 
 interface CategoryProps {
@@ -85,13 +85,18 @@ const Category = (props: CategoryProps) => {
               return { title: name, path: PATH_MAIN.category(slug, _id) };
             })}
           />
-          <Stack direction={{ xs: 'column', sm: 'row', lg: 'row' }} justifyContent="space-between">
-            <Filter
-              _children={children}
-              queryParams={queriesParams}
-              handleChangeQueryParam={handleChangeQueryParam}
-              attributes={attributes}
-            />
+          <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between">
+            <Hidden breakpoint="md" type="Down">
+              <Filter
+                _children={children}
+                queryParams={queriesParams}
+                handleChangeQueryParam={handleChangeQueryParam}
+                attributes={attributes}
+              />
+            </Hidden>
+            <Hidden breakpoint="md" type="Up">
+              <FilterMobile />
+            </Hidden>
             <Result
               name={name}
               banners={banners}
@@ -187,7 +192,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 };
 
 const FilterSkeleton = styled(Stack)(({ theme }) => ({
-  width: '250px',
+  width: STYLE.DESKTOP.CATEGORY.FILTER_WIDTH,
   borderRight: `2px solid ${theme.palette.background.default}`,
   backgroundColor: theme.palette.background.paper,
   padding: '10px',
@@ -199,7 +204,7 @@ const FilterSkeleton = styled(Stack)(({ theme }) => ({
 
 const ResultSkeleton = styled(Stack)(({ theme }) => ({
   padding: '15px',
-  width: 'calc(100% - 250px)',
+  width: `calc(100% - ${STYLE.DESKTOP.CATEGORY.FILTER_WIDTH})`,
   backgroundColor: theme.palette.background.paper,
   [theme.breakpoints.down('sm')]: {
     width: '100%',

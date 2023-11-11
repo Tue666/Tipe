@@ -7,12 +7,12 @@ import { useAppDispatch } from '@/redux/hooks';
 import { clearCustomer, initCustomer } from '@/redux/slices/customer.slice';
 import { clearCart, initCart } from '@/redux/slices/cart.slice';
 
-interface AuthContextState {
+export interface AuthContextState {
   isInitialized: boolean;
   isAuthenticated: boolean;
 }
 
-interface AuthContextStateMethod {
+export interface AuthContextStateMethod {
   signIn: (signInBody: SignInBody) => Promise<string>;
   signUp: (signUpBody: SignUpBody) => Promise<void>;
   signOut: () => void;

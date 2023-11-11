@@ -42,17 +42,19 @@ export const STYLE = {
       },
     },
     AUTH_FORM: {
-      WIDTH: '800px',
       FORM_WIDTH: '500px',
       IMAGE_WIDTH: '190px',
       IMAGE_HEIGHT: '160px',
+      IMAGE_SHIFT: '110px',
       CLOSE_BUTTON_SIZE: '30px',
     },
     BANNERS: {
+      SLIDE_INFINITE: true,
+      SLIDE_AUTOPLAY: true,
+      SLIDE_DOTS: true,
       SLIDE_TO_SHOW: 1,
       SLIDE_TO_SCROLL: 1,
-      AUTOPLAY: true,
-      AUTOPLAY_SPEED: 5000,
+      SLIDE_AUTOPLAY_SPEED: 5000,
       MAIN_WIDTH: '70%',
       MAIN_HEIGHT: '280px',
       SUB_HEIGHT: '50%',
@@ -74,7 +76,11 @@ export const STYLE = {
       EMPTY_IMAGE_HEIGHT: '160px',
     },
     PRODUCT_SECTION: {
+      SLIDE_INFINITE: false,
+      SLIDE_AUTOPLAY: false,
+      SLIDE_DOTS: false,
       SLIDE_TO_SHOW: 5,
+      SLIDE_TO_SCROLL: 5,
     },
     PRODUCT: {
       CARD_WIDTH: '220px',
@@ -110,6 +116,11 @@ export const STYLE = {
       FROM_RIGHT: '20px',
       FROM_BOTTOM: '90px',
     },
+    CAROUSEL: {
+      DEFAULT_ARROW_WIDTH: '50px',
+      DEFAULT_ARROW_HEIGHT: '50%',
+      DEFAULT_DOT_SIZE: '8px',
+    },
   },
   TABLET: {},
   MOBILE: {
@@ -120,11 +131,18 @@ export const STYLE = {
       WIDTH: '50px',
       HEIGHT: '50px',
     },
+    ACCOUNT_POPOVER: {
+      WIDTH: '250px',
+      AVATAR_SIZE: '80px',
+    },
     CUSTOMER: {
       WIDTH: '100%',
       ORDERS: {
         ITEM_IMAGE_SIZE: '70px',
       },
+    },
+    AUTH_FORM: {
+      FORM_WIDTH: '300px',
     },
     BANNERS: {
       MAIN_WIDTH: '100%',
@@ -138,6 +156,7 @@ export const STYLE = {
     },
     PRODUCT_SECTION: {
       SLIDE_TO_SHOW: 2,
+      SLIDE_TO_SCROLL: 2,
     },
     PRODUCT: {
       CARD_WIDTH: '175px',
@@ -157,7 +176,9 @@ export const STYLE = {
   },
 };
 
-export const LIMIT_WIDGET_NUMBER = 24;
+export const LIMIT_WIDGET_NUMBER = STYLE.DESKTOP.PRODUCT_SECTION.SLIDE_TO_SHOW * 4; // 4 is number of page
+export const LIMIT_VIEW_MORE_WIDGET_NUMBER = 40;
+export const LIMIT_FLASH_SALE_NUMBER = LIMIT_WIDGET_NUMBER;
 export const LIMIT_SUGGESTION_NUMBER = 30;
 export const LIMIT_RECOMMEND_NUMBER = 40;
 export const LIMIT_ORDER_EACH_PAGE_NUMBER = 10;

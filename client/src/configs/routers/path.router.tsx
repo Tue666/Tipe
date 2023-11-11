@@ -1,3 +1,4 @@
+import { IProduct } from '@/models/interfaces';
 import { RouterUtil } from '@/utils';
 
 const ROOT_MAIN = '/';
@@ -11,6 +12,15 @@ export const PATH_MAIN = {
   },
   cart: RouterUtil.combinePath(ROOT_MAIN, 'cart'),
   news: RouterUtil.combinePath(ROOT_MAIN, 'news'),
+  search: (keyword: string) => {
+    return RouterUtil.combinePath(ROOT_MAIN, `search?keyword=${keyword}`);
+  },
+  widget: (group: IProduct.WidgetGroup) => {
+    return RouterUtil.combinePath(ROOT_MAIN, `widget?group=${group}`);
+  },
+  flashSale: (_id: string) => {
+    return RouterUtil.combinePath(ROOT_MAIN, `flash-sale?_id=${_id}`);
+  },
 };
 
 const ROOT_CUSTOMER = '/customer';

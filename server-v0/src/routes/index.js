@@ -5,6 +5,7 @@ const categoriesRouter = require('./categories');
 const locationsRouter = require('./locations');
 const ordersRouter = require('./orders');
 const paymentRouter = require('./payment');
+const flashSaleRouter = require('./flash-sale');
 
 const initialRoutes = (app) => {
   app.use('/api/accounts', accountsRouter);
@@ -14,6 +15,7 @@ const initialRoutes = (app) => {
   app.use('/api/locations', locationsRouter);
   app.use('/api/orders', ordersRouter);
   app.use('/api/payment', paymentRouter);
+  app.use('/api/flash-sale', flashSaleRouter);
 };
 
 module.exports = initialRoutes;

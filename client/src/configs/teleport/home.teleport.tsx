@@ -1,12 +1,30 @@
-import { Ballot, Category, LocalFireDepartment, Favorite, ViewCarousel } from '@mui/icons-material';
+import {
+  Ballot,
+  Category,
+  LocalFireDepartment,
+  Favorite,
+  ViewCarousel,
+  FlashOn,
+} from '@mui/icons-material';
 import { TeleportProps, getIds, getTitles, getActions } from './teleport.config';
 
-type Home = 'banners' | 'categories' | 'sold-section' | 'favorite-section' | 'product-list';
+type Home =
+  | 'banners'
+  | 'flash-sale'
+  | 'categories'
+  | 'sold-section'
+  | 'favorite-section'
+  | 'product-list';
 const homeTeleport: TeleportProps<Home>[] = [
   {
     id: 'banners',
     title: 'Banners',
     icon: <ViewCarousel />,
+  },
+  {
+    id: 'flash-sale',
+    title: 'Flash Sale',
+    icon: <FlashOn />,
   },
   {
     id: 'categories',

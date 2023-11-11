@@ -1,55 +1,21 @@
 import { useState, MouseEvent, Fragment } from 'react';
-import {
-  styled,
-  Popover,
-  Stack,
-  Divider,
-  MenuList,
-  MenuItem,
-  ListItemIcon,
-  Alert,
-} from '@mui/material';
-import {
-  AssignmentIndOutlined,
-  ImportContacts,
-  LocalMall,
-  LogoutOutlined,
-} from '@mui/icons-material';
+import { styled, Popover, Stack, Divider, MenuList, MenuItem, ListItemIcon } from '@mui/material';
 import { Link, Avatar } from '@/components/overrides';
-import { PATH_CUSTOMER, PATH_IMAGE } from '@/configs/routers';
+import { PATH_IMAGE } from '@/configs/routers';
 import { STYLE } from '@/configs/constants';
-import { useAppSelector } from '@/redux/hooks';
-import { selectCustomer } from '@/redux/slices/customer.slice';
+import { CustomerState } from '@/redux/slices/customer.slice';
 import { buildImageLink } from '@/utils';
-import { useConfirm } from 'material-ui-confirm';
-
-const MENU_OPTIONS = [
-  {
-    label: 'My Profile',
-    icon: <AssignmentIndOutlined />,
-    href: PATH_CUSTOMER.profile,
-  },
-  {
-    label: 'My Orders',
-    icon: <LocalMall />,
-    href: PATH_CUSTOMER.orders,
-  },
-  {
-    label: 'My Addresses',
-    icon: <ImportContacts />,
-    href: PATH_CUSTOMER.addresses,
-  },
-];
+import { AccountOption } from './Navbars';
 
 interface AccountPopoverProps {
+  profile: CustomerState['profile'];
+  accountOptions: AccountOption[];
   signOut: () => void;
 }
 
 const AccountPopover = (props: AccountPopoverProps) => {
-  const { signOut } = props;
+  const { profile, accountOptions, signOut } = props;
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const confirm = useConfirm();
-  const { profile } = useAppSelector(selectCustomer);
   const { name, avatar_url } = profile;
 
   const handleClick = (e: MouseEvent<HTMLElement>) => {
@@ -58,28 +24,11 @@ const AccountPopover = (props: AccountPopoverProps) => {
   const handleClose = () => {
     setAnchorEl(null);
   };
-  const handleSignOut = async () => {
-    try {
-      await confirm({
-        title: 'Sign Out',
-        content: <Alert severity="error">You are about to sign out!</Alert>,
-        confirmationButtonProps: {
-          color: 'error',
-        },
-      });
-      signOut();
-    } catch (error) {
-      if (error === undefined) return;
-      console.log('Confirm error:', error);
-    }
-  };
   return (
     <Fragment>
-      {name && (
-        <Label onClick={handleClick}>
-          {name} <i className="bi bi-caret-down"></i>
-        </Label>
-      )}
+      <Label onClick={handleClick}>
+        {name ?? 'Tipe User'} <i className="bi bi-caret-down"></i>
+      </Label>
       <Popover
         open={Boolean(anchorEl)}
         anchorEl={anchorEl}
@@ -103,20 +52,21 @@ const AccountPopover = (props: AccountPopoverProps) => {
             }}
           />
           <MenuList dense sx={{ width: '100%' }}>
-            {MENU_OPTIONS.map((menu) => {
+            {accountOptions.map((option) => {
+              const { label, icon, href } = option;
               return (
-                <Link key={menu.label} href={menu.href}>
+                <Link key={label} href={href}>
                   <MenuItem>
-                    <ListItemIcon>{menu.icon}</ListItemIcon>
-                    {menu.label}
+                    <ListItemIcon>{icon}</ListItemIcon>
+                    {label}
                   </MenuItem>
                 </Link>
               );
             })}
             <Divider />
-            <MenuItem onClick={handleSignOut}>
+            <MenuItem onClick={signOut}>
               <ListItemIcon>
-                <LogoutOutlined />
+                <i className="bi bi-box-arrow-right" />
               </ListItemIcon>
               Log out
             </MenuItem>
@@ -136,7 +86,6 @@ const Label = styled('span')(({ theme }) => ({
   cursor: 'pointer',
   '&:hover': {
     color: theme.palette.primary.main,
-    borderBottom: `1px solid ${theme.palette.primary.main}`,
   },
 }));
 

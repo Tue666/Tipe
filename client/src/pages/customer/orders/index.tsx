@@ -7,7 +7,17 @@ import {
   useRef,
   useState,
 } from 'react';
-import { IconButton, InputAdornment, Pagination, Stack, Tab, Tabs, TextField } from '@mui/material';
+import {
+  IconButton,
+  InputAdornment,
+  Pagination,
+  Stack,
+  Tab,
+  Tabs,
+  TextField,
+  useMediaQuery,
+  useTheme,
+} from '@mui/material';
 import {
   CreditCardOffOutlined,
   InventoryOutlined,
@@ -116,6 +126,8 @@ type VisitedTabs = {
 } & { search: string };
 
 const Orders: PageWithLayout = () => {
+  const theme = useTheme();
+  const isMdDown = useMediaQuery(theme.breakpoints.down('md'));
   const [orderState, dispatchOrder] = useReducer(reducer, initialOrderState);
   const [currentOrder, setCurrentOrder] = useState(initialCurrentOrder);
   const visitedTabs = useRef<VisitedTabs>({} as VisitedTabs); // Variable that will store tabs are visited to prevent fetch redundant data
@@ -202,7 +214,7 @@ const Orders: PageWithLayout = () => {
       <Stack spacing={1}>
         <Tabs
           value={currentOrder.tab}
-          variant="fullWidth"
+          variant={isMdDown ? 'scrollable' : 'fullWidth'}
           sx={{ bgcolor: (theme) => theme.palette.background.paper }}
           onChange={handleChangeTab}
         >

@@ -21,10 +21,9 @@ const Product = new Schema(
     flash_sale: {
       type: {
         _id: false,
-        original_price: { type: Number, min: 0, default: 0 },
+        limit: { type: Number, min: 0, default: 0 },
         price: { type: Number, min: 0, default: 0 },
         sold: { type: Number, required: true, default: 0 },
-        end_time: { type: Number, required: true },
       },
       default: null,
     },

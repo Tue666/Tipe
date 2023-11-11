@@ -49,8 +49,7 @@ const SORT: Filter[] = [
 
 interface ResultProps
   extends Pick<IProduct.FindForRecommendResponse, 'products' | 'totalProduct' | 'pagination'> {
-  name: string;
-  banners?: string[];
+  keyword: string;
   queryParams: ParsedUrlQuery;
   handleChangeQueryParam: (
     key: ISchema.Attribute['k'],
@@ -63,8 +62,7 @@ interface ResultProps
 
 const Result = (props: ResultProps) => {
   const {
-    name,
-    banners,
+    keyword,
     queryParams,
     handleChangeQueryParam,
     handleRemoveQueryParams,
@@ -83,39 +81,21 @@ const Result = (props: ResultProps) => {
   };
   return (
     <Root>
-      <Wrapper direction="row" alignItems="center" spacing={1} p={2}>
-        <Typography variant="h6">{name}: </Typography>
-        <Typography variant="subtitle1" fontSize="17px">
-          {totalProduct}
-        </Typography>
-      </Wrapper>
-      {banners && banners.length > 0 && (
-        <Wrapper pb={1}>
-          <Carousel
-            settings={{
-              infinite: STYLE.DESKTOP.BANNERS.SLIDE_INFINITE,
-              autoplay: STYLE.DESKTOP.BANNERS.SLIDE_AUTOPLAY,
-              dots: STYLE.DESKTOP.BANNERS.SLIDE_DOTS,
-              slidesToShow: STYLE.DESKTOP.BANNERS.SLIDE_TO_SHOW,
-              slidesToScroll: STYLE.DESKTOP.BANNERS.SLIDE_TO_SCROLL,
-              autoplaySpeed: STYLE.DESKTOP.BANNERS.SLIDE_AUTOPLAY_SPEED,
-            }}
+      <Typography variant="body1" m={2}>
+        <i className="bi bi-binoculars" /> Found <strong>{totalProduct}</strong> products matching
+        keyword "
+        {
+          <Typography
+            variant="subtitle2"
+            component="span"
+            color="primary.main"
+            sx={{ fontSize: '15px' }}
           >
-            {banners.map((banner, index) => {
-              return (
-                <Image
-                  key={index}
-                  src={buildImageLink(banner)}
-                  alt="banner"
-                  sx={{
-                    height: '250px',
-                  }}
-                />
-              );
-            })}
-          </Carousel>
-        </Wrapper>
-      )}
+            {keyword}
+          </Typography>
+        }
+        "
+      </Typography>
       <Wrapper sx={{ position: 'relative' }}>
         <Hidden breakpoint="md" type="Down">
           <SortWrapper direction="row" alignItems="center">

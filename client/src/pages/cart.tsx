@@ -43,7 +43,7 @@ const Cart = () => {
         >
           <Image
             src={`${PATH_IMAGE.root}buy-more.png`}
-            alt="buy_more"
+            alt="buy-more"
             sx={{
               width: STYLE.DESKTOP.CART.EMPTY_IMAGE_WIDTH,
               height: STYLE.DESKTOP.CART.EMPTY_IMAGE_HEIGHT,

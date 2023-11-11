@@ -1,37 +1,36 @@
+import { ReactNode } from 'react';
+import { Settings } from 'react-slick';
 import { styled } from '@mui/material';
 import { ArrowBackIosOutlined, ArrowForwardIosOutlined } from '@mui/icons-material';
-import { Settings } from 'react-slick';
-import { ReactNode } from 'react';
+import { STYLE } from '@/configs/constants';
 
-export type ArrowSide = 'prev' | 'next';
+type ArrowSide = 'prev' | 'next';
 
-const ARROW = {
-  WIDTH: '50px',
-  HEIGHT: '50%',
+type ArrowButtonProps = {
+  side: ArrowSide;
+  disabled: boolean;
 };
-const DOT_SIZE = '8px';
 
 interface ArrowProps {
   children: ReactNode;
   side: ArrowSide;
   onClick?: any;
+  className?: string;
 }
 
-const Arrow = ({ children, side, onClick }: ArrowProps) => {
+const Arrow = ({ children, side, onClick, className }: ArrowProps) => {
+  const disabled = className?.indexOf('slick-disabled') !== -1;
   return (
-    <Button side={side} onClick={onClick}>
+    <ArrowButton side={side} disabled={disabled} onClick={onClick}>
       {children}
-    </Button>
+    </ArrowButton>
   );
 };
 
 export const defaultSettings: Settings = {
-  infinite: true,
-  dots: true,
-  autoplay: true,
   slidesToShow: 1,
   slidesToScroll: 1,
-  speed: 500,
+  speed: 200,
   autoplaySpeed: 5000,
   prevArrow: (
     <Arrow side="prev">
@@ -47,15 +46,15 @@ export const defaultSettings: Settings = {
   customPaging: () => <Paging />,
 };
 
-const Button = styled('button')(({ side }: { side: ArrowSide }) => ({
-  width: ARROW.WIDTH,
-  height: ARROW.HEIGHT,
+const ArrowButton = styled('button')<ArrowButtonProps>(({ side, disabled }) => ({
+  width: STYLE.DESKTOP.CAROUSEL.DEFAULT_ARROW_WIDTH,
+  height: STYLE.DESKTOP.CAROUSEL.DEFAULT_ARROW_HEIGHT,
   backgroundColor: 'rgba(0,0,0,0.1)',
   color: '#fff',
   position: 'absolute',
-  bottom: `calc(50% - ${parseInt(ARROW.HEIGHT) / 2}%)`,
-  left: side === 'prev' ? 0 : `calc(100% - ${ARROW.WIDTH})`,
-  outline: 'none',
+  bottom: `calc(50% - ${parseInt(STYLE.DESKTOP.CAROUSEL.DEFAULT_ARROW_HEIGHT) / 2}%)`,
+  left: side === 'prev' ? 0 : `calc(100% - ${STYLE.DESKTOP.CAROUSEL.DEFAULT_ARROW_WIDTH})`,
+  display: disabled ? 'none' : 'block',
   border: 'none',
   zIndex: 99,
   opacity: 0,
@@ -67,8 +66,7 @@ const Button = styled('button')(({ side }: { side: ArrowSide }) => ({
       : '30% 0, 100% 0, 100% 100%, 30% 100%, 0 90%, 0 10%'
   })`,
   '&:hover': {
-    backgroundColor: 'rgba(255,255,255,0.3)',
-    color: 'rgba(255,255,255,0.8)',
+    backgroundColor: 'rgba(0,0,0,0.3)',
   },
 }));
 
@@ -82,8 +80,8 @@ const Dots = styled('ul')(({ theme }) => ({
 }));
 
 const Paging = styled('div')({
-  width: DOT_SIZE,
-  height: DOT_SIZE,
+  width: STYLE.DESKTOP.CAROUSEL.DEFAULT_DOT_SIZE,
+  height: STYLE.DESKTOP.CAROUSEL.DEFAULT_DOT_SIZE,
   borderRadius: '50%',
   margin: '0 5px',
   backgroundColor: 'rgba(255,255,255,0.6)',

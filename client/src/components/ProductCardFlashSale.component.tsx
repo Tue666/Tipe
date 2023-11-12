@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router';
 import { Card, Stack, Typography, styled, useTheme } from '@mui/material';
 import { Image, Link } from './overrides';
 import { STYLE } from '@/configs/constants';
@@ -6,7 +7,7 @@ import { buildImageLink, toVND } from '@/utils';
 import { PATH_IMAGE, PATH_MAIN } from '@/configs/routers';
 
 interface SoldRangeProps {
-  total: number;
+  limit: number;
   sold: number;
 }
 
@@ -16,15 +17,16 @@ interface ProductCardFlashSaleProps {
 
 const ProductCardFlashSale = (props: ProductCardFlashSaleProps) => {
   const { product } = props;
-  const { _id, name, images, original_price, slug } = product;
+  const { _id, name, images, flash_sale, slug } = product;
+  const { flash_sale_id, limit, price, sold } = flash_sale;
   const theme = useTheme();
-
-  const total = 200;
-  const sold = 75;
-
+  const { pathname } = useRouter();
+  const isWidgetFlashSale = PATH_MAIN.flashSale(flash_sale_id).indexOf(pathname) !== -1;
   return (
     <Root>
-      <Link href={PATH_MAIN.flashSale('123')}>
+      <Link
+        href={isWidgetFlashSale ? PATH_MAIN.flashSale(flash_sale_id) : PATH_MAIN.product(slug, _id)}
+      >
         <Image
           src={buildImageLink(images[0])}
           alt={name}
@@ -44,10 +46,10 @@ const ProductCardFlashSale = (props: ProductCardFlashSaleProps) => {
         />
         <Stack alignItems="center" spacing={1}>
           <Typography variant="h6" color="primary.main">
-            {toVND(28700000)}
+            {toVND(price)}
           </Typography>
-          <Range total={total} sold={sold}>
-            {sold / total >= 0.5 && (
+          <Range limit={limit} sold={sold}>
+            {sold / limit >= 0.5 && (
               <Image
                 src={`${PATH_IMAGE.icons}/app/hot-flash-sale.png`}
                 alt="hot-flash-sale"
@@ -59,7 +61,7 @@ const ProductCardFlashSale = (props: ProductCardFlashSaleProps) => {
                 }}
               />
             )}
-            <RangeText variant="subtitle2">{sold < total ? `${sold} Sold` : 'Sold Out'}</RangeText>
+            <RangeText variant="subtitle2">{sold < limit ? `${sold} Sold` : 'Sold Out'}</RangeText>
           </Range>
         </Stack>
       </Link>
@@ -90,7 +92,7 @@ const Root = styled(Card)(({ theme }) => ({
   },
 }));
 
-const Range = styled('div')<SoldRangeProps>(({ theme, total, sold }) => ({
+const Range = styled('div')<SoldRangeProps>(({ theme, limit, sold }) => ({
   width: '155px',
   height: '18px',
   backgroundColor: theme.palette.primary.light,
@@ -100,7 +102,7 @@ const Range = styled('div')<SoldRangeProps>(({ theme, total, sold }) => ({
   borderRadius: '99em',
   '&:before': {
     content: '""',
-    width: `calc(100%*${sold}/${total})`,
+    width: `calc(100%*${sold}/${limit})`,
     position: 'absolute',
     left: 0,
     top: 0,

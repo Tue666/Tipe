@@ -1,10 +1,13 @@
 import { Stack, Typography, styled } from '@mui/material';
 import useTimer from '@/hooks/useTimer.hook';
 
-const FlipCountdownTimer = () => {
-  const [days, hours, minutes, seconds] = useTimer(1699722000000);
-  console.log('render');
-  console.log(days, hours, minutes, seconds);
+interface FlipCountdownTimerProps {
+  targetTime?: number;
+}
+
+const FlipCountdownTimer = (props: FlipCountdownTimerProps) => {
+  const { targetTime = 0 } = props;
+  const [days, hours, minutes, seconds] = useTimer(targetTime);
   return (
     <Stack direction="row" spacing={1}>
       <Timer>

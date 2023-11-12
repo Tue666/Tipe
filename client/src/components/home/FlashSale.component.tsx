@@ -1,20 +1,20 @@
 import _ from 'lodash';
-import { Skeleton, Stack, Typography, styled, useMediaQuery, useTheme } from '@mui/material';
+import { Skeleton, Stack, styled, useMediaQuery, useTheme } from '@mui/material';
 import { Carousel } from '../_external_/react-slick';
-import { Image, Link } from '../overrides';
+import { Image } from '../overrides';
 import { STYLE } from '@/configs/constants';
 import ProductCardFlashSale from '../ProductCardFlashSale.component';
 import FlipCountdownTimer from '../FlipCountdownTimer.component';
-import { PATH_IMAGE, PATH_MAIN } from '@/configs/routers';
+import { PATH_IMAGE } from '@/configs/routers';
 import { IProduct } from '@/models/interfaces';
 
-interface FlashSaleProps {
+interface FlashSaleProps
+  extends Pick<IProduct.FindForFlashSaleResponse, 'products' | 'next_flash_sale'> {
   id: string;
-  products?: IProduct.FindForFlashSaleResponse['products'];
 }
 
 const FlashSale = (props: FlashSaleProps) => {
-  const { id, products } = props;
+  const { id, products, next_flash_sale } = props;
   const theme = useTheme();
   const isMdDown = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -32,13 +32,8 @@ const FlashSale = (props: FlashSaleProps) => {
               height: '23px',
             }}
           />
-          <FlipCountdownTimer />
+          <FlipCountdownTimer targetTime={next_flash_sale} />
         </Stack>
-        <Link href={PATH_MAIN.flashSale('123')}>
-          <Typography variant="subtitle2" color={theme.palette.background.paper}>
-            View more <i className="bi bi-chevron-right"></i>
-          </Typography>
-        </Link>
       </Stack>
       <Carousel
         settings={{

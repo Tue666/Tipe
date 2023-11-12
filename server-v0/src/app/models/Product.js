@@ -19,17 +19,45 @@ const Product = new Schema(
     ads_id: { type: ObjectId },
     is_official: { type: Boolean, default: false },
     flash_sale: {
-      type: {
-        _id: false,
-        limit: { type: Number, min: 0, default: 0 },
-        price: { type: Number, min: 0, default: 0 },
-        sold: { type: Number, required: true, default: 0 },
-      },
-      default: null,
+      type: [
+        {
+          _id: false,
+          flash_sale_id: { type: ObjectId, required: true },
+          limit: { type: Number, min: 0, default: 0 },
+          original_price: { type: Number, min: 0, default: 0 },
+          price: { type: Number, min: 0, default: 0 },
+          sold: { type: Number, required: true, default: 0 },
+        },
+      ],
+      default: [],
     },
-    attributes: { type: Array, default: [] },
-    specifications: { type: Array, default: [] },
-    warranties: { type: Array, default: [] },
+    attributes: {
+      type: [
+        {
+          k: { type: String, required: true },
+          v: { type: String, required: true },
+        },
+      ],
+      default: [],
+    },
+    specifications: {
+      type: [
+        {
+          k: { type: String, required: true },
+          v: { type: String, required: true },
+        },
+      ],
+      default: [],
+    },
+    warranties: {
+      type: [
+        {
+          k: { type: String, required: true },
+          v: { type: String, required: true },
+        },
+      ],
+      default: [],
+    },
     limit: { type: Number, min: 1, default: 1 },
     discount: { type: Number, min: 0, default: 0 },
     discount_rate: { type: Number, min: 0, max: 100, default: 0 },

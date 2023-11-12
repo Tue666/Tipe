@@ -1,15 +1,15 @@
 import _ from 'lodash';
 import { Fragment, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { Pagination, Skeleton, Stack, Typography, styled, useTheme } from '@mui/material';
+import { Button, Pagination, Skeleton, Stack, Typography, styled, useTheme } from '@mui/material';
 import { Page } from '@/components';
-import { Image } from '@/components/overrides';
+import { Image, Link } from '@/components/overrides';
 import ProductCardFlashSale from '@/components/ProductCardFlashSale.component';
 import FlipCountdownTimer from '@/components/FlipCountdownTimer.component';
-import { productApi } from '@/apis';
-import { IProduct } from '@/models/interfaces';
+import { flashSaleApi, productApi } from '@/apis';
+import { IFlashSale, IProduct } from '@/models/interfaces';
 import { LIMIT_FLASH_SALE_NUMBER, STYLE } from '@/configs/constants';
-import { PATH_IMAGE } from '@/configs/routers';
+import { PATH_IMAGE, PATH_MAIN } from '@/configs/routers';
 
 interface SessionProps {
   active?: boolean;
@@ -18,60 +18,107 @@ interface SessionProps {
 const HEADER_HEIGHT = '60px';
 
 const FlashSale = () => {
-  const [flashSale, setFlashSale] = useState<IProduct.FindForFlashSaleResponse | null>(null);
+  const [sessions, setSessions] = useState<IFlashSale.FindResponse['sessions']>([]);
+  const [flashSaleProducts, setFlashSaleProducts] =
+    useState<IProduct.FindForFlashSaleResponse | null>(null);
   const theme = useTheme();
   const { query, isReady } = useRouter();
-  const { newest } = query;
+  const { flash_sale_id, newest } = query;
+  console.log('flash-sale render');
+
   useEffect(() => {
     const findForFlashSale = async () => {
-      const flashSale = await productApi.findForFlashSale({
+      const flashSale = await flashSaleApi.find();
+      const { sessions } = flashSale;
+      if (sessions.length <= 0) {
+        setFlashSaleProducts({
+          products: [],
+          pagination: {
+            currentPage: 0,
+            totalPage: 0,
+          },
+        });
+        return;
+      }
+
+      setSessions(sessions);
+      const flashSaleProducts = await productApi.findForFlashSale({
+        flash_sale_id: (flash_sale_id as string | undefined) ?? sessions[0]._id,
         limit: LIMIT_FLASH_SALE_NUMBER,
       });
-      setFlashSale(flashSale);
+      setFlashSaleProducts(flashSaleProducts);
     };
 
     isReady && findForFlashSale();
 
-    return () => setFlashSale(null);
+    return () => setFlashSaleProducts(null);
   }, [newest, isReady]);
   return (
     <Page title="Flash Sale - Good Prices, Great Deals | Tipe Shop">
-      <Header justifyContent="center" alignItems="center">
-        <Stack direction="row" alignItems="center" spacing={1}>
+      {sessions.length > 0 && (
+        <Fragment>
+          <Header justifyContent="center" alignItems="center">
+            <Stack direction="row" alignItems="center" spacing={1}>
+              <Image
+                src={`${PATH_IMAGE.icons}/app/flash-sale.png`}
+                alt="flash-sale"
+                sx={{
+                  width: '130px',
+                  height: '23px',
+                }}
+              />
+              <Typography sx={{ textTransform: 'uppercase' }}>
+                <i className="bi bi-stopwatch" /> End In
+              </Typography>
+              <FlipCountdownTimer />
+            </Stack>
+          </Header>
           <Image
-            src={`${PATH_IMAGE.icons}/app/flash-sale.png`}
-            alt="flash-sale"
+            src="https://down-vn.img.susercontent.com/file/vn-11134004-7r98o-lnwuy1812dmi1c"
+            alt="banner-flash-sale"
             sx={{
-              width: '130px',
-              height: '23px',
+              width: '100%',
+              height: '220px',
+              [theme.breakpoints.down('md')]: {
+                height: '140px',
+              },
             }}
           />
-          <Typography sx={{ textTransform: 'uppercase' }}>
-            <i className="bi bi-stopwatch" /> End In
+          <Sessions direction="row" mb={2}>
+            <Session active={true}>21:00</Session>
+            <Session>21:00</Session>
+            <Session>21:00</Session>
+            <Session>21:00</Session>
+          </Sessions>
+        </Fragment>
+      )}
+      {sessions.length <= 0 && (
+        <Stack
+          alignItems="center"
+          spacing={1}
+          sx={{ p: 5, backgroundColor: (theme) => theme.palette.background.paper }}
+        >
+          <Image
+            src={`${PATH_IMAGE.root}buy-more.png`}
+            alt="buy-more"
+            sx={{
+              width: STYLE.DESKTOP.CART.EMPTY_IMAGE_WIDTH,
+              height: STYLE.DESKTOP.CART.EMPTY_IMAGE_HEIGHT,
+            }}
+          />
+          <Typography variant="subtitle2">
+            There is currently no any Flash Sale, we will notify you as soon as the event starts.
           </Typography>
-          <FlipCountdownTimer />
+          <Link href={PATH_MAIN.home}>
+            <Button color="warning" variant="contained" disableElevation>
+              BUY NOW
+            </Button>
+          </Link>
         </Stack>
-      </Header>
-      <Image
-        src="https://down-vn.img.susercontent.com/file/vn-11134004-7r98o-lnwuy1812dmi1c"
-        alt="banner-flash-sale"
-        sx={{
-          width: '100%',
-          height: '220px',
-          [theme.breakpoints.down('md')]: {
-            height: '140px',
-          },
-        }}
-      />
-      <Sessions direction="row" mb={2}>
-        <Session active={true}>21:00</Session>
-        <Session>21:00</Session>
-        <Session>21:00</Session>
-        <Session>21:00</Session>
-      </Sessions>
-      {!_.isNil(flashSale) &&
+      )}
+      {!_.isNil(flashSaleProducts) &&
         (() => {
-          const { products, pagination } = flashSale;
+          const { products, pagination } = flashSaleProducts;
           const { currentPage, totalPage } = pagination;
           return (
             <Fragment>
@@ -94,7 +141,7 @@ const FlashSale = () => {
             </Fragment>
           );
         })()}
-      {_.isNil(flashSale) && (
+      {_.isNil(flashSaleProducts) && (
         <ProductWrapper>
           {[...Array(15)].map((_, index) => {
             return (

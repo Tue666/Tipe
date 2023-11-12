@@ -44,6 +44,24 @@ export interface CategorySchema extends MetaSchema, TimestampsSchema, SoftDelete
   status: CategoryStatus;
 }
 
+export type FlashSaleStatus = 'active' | 'in_active';
+
+export interface FlashSaleSchema {
+  _id: string;
+  start_time: number;
+  banners: string[];
+  description: string;
+  status: FlashSaleStatus;
+}
+
+export interface FlashSale {
+  flash_sale_id: string;
+  limit: number;
+  original_price: number;
+  price: number;
+  sold: number;
+}
+
 export interface Attribute {
   k: string;
   v: string;
@@ -73,6 +91,10 @@ export interface ProductSchema extends MetaSchema, TimestampsSchema, SoftDeleteS
   images: string[];
   quantity: number;
   category: CategorySchema['_id'];
+  shop: unknown;
+  ads_id: unknown;
+  is_official: boolean;
+  flash_sale: FlashSale[];
   attributes: Attribute[];
   specifications: Attribute[];
   warranties: Attribute[];

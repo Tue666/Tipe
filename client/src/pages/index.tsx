@@ -23,6 +23,7 @@ const Home = (props: HomeProps) => {
   const { ids, titles, actions } = HOME_TELEPORTS;
   const { categories } = props;
   const [widgets, setWidgets] = useState<Widgets | null>(null);
+  console.log('home render');
 
   useEffect(() => {
     const findWidgets = async () => {
@@ -51,27 +52,40 @@ const Home = (props: HomeProps) => {
       <Teleport actions={actions} />
       <Stack spacing={3}>
         <Banners id={ids['banners']} />
-        <FlashSale
-          id={ids['flash-sale']}
-          {...(!_.isNil(widgets) ? { products: widgets.flashSale.products } : {})}
-        />
+        {!_.isNil(widgets?.flashSale) &&
+          (() => {
+            const { pagination, ...rest } = widgets!.flashSale!;
+            return <FlashSale id={ids['flash-sale']} {...rest} />;
+          })()}
         <Categories
           id={ids['categories']}
           title={titles['categories']}
           categories={categories.categories}
         />
-        <ProductSection
-          id={ids['sold-section']}
-          title={titles['sold-section']}
-          group="top_selling"
-          {...(!_.isNil(widgets) ? { products: widgets.soldWidget.products } : {})}
-        />
-        <ProductSection
-          id={ids['favorite-section']}
-          title={titles['favorite-section']}
-          group="top_favorite"
-          {...(!_.isNil(widgets) ? { products: widgets.favoriteWidget.products } : {})}
-        />
+        {!_.isNil(widgets?.soldWidget) &&
+          (() => {
+            const { pagination, ...rest } = widgets!.soldWidget!;
+            return (
+              <ProductSection
+                id={ids['sold-section']}
+                title={titles['sold-section']}
+                group="top_selling"
+                {...rest}
+              />
+            );
+          })()}
+        {!_.isNil(widgets?.favoriteWidget) &&
+          (() => {
+            const { pagination, ...rest } = widgets!.favoriteWidget!;
+            return (
+              <ProductSection
+                id={ids['favorite-section']}
+                title={titles['favorite-section']}
+                group="top_favorite"
+                {...rest}
+              />
+            );
+          })()}
         <ProductList id={ids['product-list']} title={titles['product-list']} />
       </Stack>
     </Page>

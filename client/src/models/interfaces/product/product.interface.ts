@@ -1,4 +1,4 @@
-import { Attribute, ProductSchema } from '../schema';
+import { Attribute, FlashSale, FlashSaleSchema, ProductSchema } from '../schema';
 import { Pagination, PaginationQuery } from '../common';
 
 export interface Product extends ProductSchema {}
@@ -42,10 +42,13 @@ export interface FindForWidgetResponse extends Pagination {
   products: ProductCard[];
 }
 
-export interface FindForFlashSaleQuery extends PaginationQuery {}
+export interface FindForFlashSaleQuery extends PaginationQuery {
+  flash_sale_id?: FlashSale['flash_sale_id'];
+}
 
 export interface FindForFlashSaleResponse extends Pagination {
-  products: Pick<ProductCard, '_id' | 'name' | 'images' | 'original_price' | 'slug'>[];
+  products: (Pick<ProductCard, '_id' | 'name' | 'images' | 'slug'> & { flash_sale: FlashSale })[];
+  next_flash_sale?: FlashSaleSchema['start_time'];
 }
 
 export interface FindForSuggestionQuery extends PaginationQuery {}

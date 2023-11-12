@@ -74,9 +74,11 @@ class FlashSaleAPI {
   // [GET] /flash-sale
   async find(req, res, next) {
     try {
+      const currentTime = new Date().getTime();
       const LIMIT_SESSIONS = 5;
 
       const queries = {
+        start_time: { $gt: currentTime },
         status: { $nin: [FLASH_SALE_STATUS.inactive] },
       };
 

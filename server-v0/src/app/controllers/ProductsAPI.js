@@ -1,7 +1,9 @@
 const _ = require('lodash');
 const { Types } = require('mongoose');
+const { FlashSale, FLASH_SALE_STATUS } = require('../models/FlashSale');
 const { Product, INVENTORY_STATUS } = require('../models/Product');
 const { upload, destroy } = require('../../utils/cloudinaryUpload');
+const { requireFieldSatisfied } = require('../../utils/validate');
 
 const { ObjectId } = Types;
 
@@ -13,6 +15,62 @@ const GROUP_WIDGETS = {
 };
 
 class ProductsAPI {
+  // [PATCH] /products/mark-flash-sale
+  /*
+    = Body =
+    flash_sale_id: String as ObjectId,
+    product_ids: [String as ObjectId],
+
+  */
+  async markFlashSale(req, res, next) {
+    try {
+      let { flash_sale_id, product_ids, ...rest } = req.body;
+      if (!requireFieldSatisfied(flash_sale_id, product_ids)) {
+        next({ status: 400, msg: 'Require fields are missing!' });
+        return;
+      }
+
+      flash_sale_id = ObjectId(flash_sale_id);
+      product_ids = product_ids.map((product_id) => ObjectId(product_id));
+
+      const payload = {};
+      const availableMarkFields = {
+        limit: 'limit',
+        original_price: 'original_price',
+        price: 'price',
+        sold: 'sold',
+      };
+      for (const field in rest) {
+        if (availableMarkFields[field]) {
+          payload[`flash_sale.$[flashSale].${field}`] = rest[field];
+        }
+      }
+
+      await Product.updateMany(
+        {
+          _id: { $in: product_ids },
+          'flash_sale.flash_sale_id': flash_sale_id,
+        },
+        {
+          $set: payload,
+        },
+        {
+          arrayFilters: [{ 'flashSale.flash_sale_id': flash_sale_id }],
+        }
+      );
+
+      res.status(200).json({
+        msg: 'Mark flash sale items successfully!',
+        flash_sale_id,
+        product_ids,
+        payload: rest,
+      });
+    } catch (error) {
+      console.error(error);
+      next({ status: 500, msg: error.message });
+    }
+  }
+
   // [POST] /products
   /*
     = Body =
@@ -267,16 +325,61 @@ class ProductsAPI {
   // [GET] /products/flash-sale?{{query}}
   /*
     = Query =
+    flash_sale_id: String as ObjectId,
     newest?: Number, // Default 0
     limit: Number,
   */
   async findForFlashSale(req, res, next) {
     try {
-      let { newest, limit } = req.query;
+      let { flash_sale_id, newest, limit } = req.query;
+      let next_flash_sale = undefined;
+      if (!requireFieldSatisfied(flash_sale_id)) {
+        const currentTime = new Date().getTime();
+        const onGoingFlashSale = await FlashSale.aggregate([
+          { $match: { status: { $nin: [FLASH_SALE_STATUS.inactive] } } },
+          {
+            $project: {
+              start_time: 1,
+            },
+          },
+          {
+            $facet: {
+              previous: [
+                { $match: { start_time: { $lte: currentTime } } },
+                { $sort: { start_time: -1 } },
+                { $limit: 1 },
+              ],
+              next: [
+                { $match: { start_time: { $gte: currentTime } } },
+                { $sort: { start_time: 1 } },
+                { $limit: 1 },
+              ],
+            },
+          },
+        ]);
+
+        const { previous, next } = onGoingFlashSale[0];
+        if (previous.length <= 0 || next.length <= 0) {
+          res.status(200).json({
+            products: [],
+            pagination: {
+              totalPage: 0,
+              currentPage: 0,
+            },
+          });
+          return;
+        }
+
+        flash_sale_id = previous[0]._id;
+        next_flash_sale = next[0].start_time;
+      }
+
+      flash_sale_id = ObjectId(flash_sale_id);
       newest = newest ? parseInt(newest) : 0;
       limit = limit ? parseInt(limit) : 1;
 
       const queries = {
+        'flash_sale.flash_sale_id': flash_sale_id,
         inventory_status: { $nin: [INVENTORY_STATUS.hidden] },
       };
 
@@ -289,7 +392,20 @@ class ProductsAPI {
                 $project: {
                   name: 1,
                   images: 1,
-                  original_price: 1,
+                  flash_sale: {
+                    $arrayElemAt: [
+                      {
+                        $filter: {
+                          input: '$flash_sale',
+                          as: 'sale',
+                          cond: {
+                            $eq: ['$$sale.flash_sale_id', flash_sale_id],
+                          },
+                        },
+                      },
+                      0,
+                    ],
+                  },
                   slug: 1,
                 },
               },
@@ -313,6 +429,7 @@ class ProductsAPI {
       const totalPage = Math.ceil(totalProduct / limit);
       res.status(200).json({
         ...rest,
+        next_flash_sale,
         pagination: {
           totalPage,
           currentPage: totalPage > 0 ? newest / limit + 1 : 0,

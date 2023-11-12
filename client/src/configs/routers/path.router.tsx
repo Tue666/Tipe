@@ -19,7 +19,7 @@ export const PATH_MAIN = {
     return RouterUtil.combinePath(ROOT_MAIN, `widget?group=${group}`);
   },
   flashSale: (_id: string) => {
-    return RouterUtil.combinePath(ROOT_MAIN, `flash-sale?_id=${_id}`);
+    return RouterUtil.combinePath(ROOT_MAIN, `flash-sale?flash_sale_id=${_id}`);
   },
 };
 

@@ -25,6 +25,7 @@ const Category = (props: CategoryProps) => {
   const { asPath, query, replace } = useRouter();
   const { params, ...queriesParams } = query;
   const shouldRenderRef = useRef(false); // Fix useRouter dependencies cause infinite loop
+
   useEffect(() => {
     const findForRecommendCS = async () => {
       const categories = `${_id},${children.map((category) => category._id).join(',')}`;

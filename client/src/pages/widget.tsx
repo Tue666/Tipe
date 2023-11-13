@@ -16,6 +16,7 @@ const Widget = () => {
   const [widget, setWidget] = useState<IProduct.FindForWidgetResponse | null>(null);
   const { query, isReady, push } = useRouter();
   const { group, newest } = query;
+
   useEffect(() => {
     const findForWidget = async () => {
       const widget = await productApi.findForWidget({

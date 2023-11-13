@@ -2,6 +2,38 @@ const _ = require('lodash');
 const { FlashSale, FLASH_SALE_STATUS } = require('../models/FlashSale');
 const { upload } = require('../../utils/cloudinaryUpload');
 
+const LIMIT_TOTAL_SESSIONS = 5;
+
+const findOnGoingFlashSale = async () => {
+  const currentTime = new Date().getTime();
+  const onGoingFlashSale = await FlashSale.aggregate([
+    { $match: { status: { $nin: [FLASH_SALE_STATUS.inactive] } } },
+    {
+      $project: {
+        start_time: 1,
+        banners: 1,
+      },
+    },
+    {
+      $facet: {
+        previous: [
+          { $match: { start_time: { $lte: currentTime } } },
+          { $sort: { start_time: -1 } },
+          { $addFields: { on_going: true } },
+          { $limit: 1 },
+        ],
+        next: [
+          { $match: { start_time: { $gte: currentTime } } },
+          { $sort: { start_time: 1 } },
+          { $addFields: { on_going: false } },
+          { $limit: LIMIT_TOTAL_SESSIONS - 1 },
+        ],
+      },
+    },
+  ]);
+  return onGoingFlashSale[0];
+};
+
 class FlashSaleAPI {
   // [POST] /flash-sale
   /*
@@ -71,23 +103,19 @@ class FlashSaleAPI {
     }
   }
 
-  // [GET] /flash-sale
-  async find(req, res, next) {
+  // [GET] /flash-sale/sessions
+  async findForSessions(req, res, next) {
     try {
-      const currentTime = new Date().getTime();
-      const LIMIT_SESSIONS = 5;
+      const { previous, next } = await findOnGoingFlashSale();
+      if (next.length <= 0) {
+        res.status(200).json({
+          sessions: [],
+        });
+        return;
+      }
 
-      const queries = {
-        start_time: { $gt: currentTime },
-        status: { $nin: [FLASH_SALE_STATUS.inactive] },
-      };
-
-      const sessions = await FlashSale.find(queries)
-        .select('_id start_time banners')
-        .sort({ start_time: 1 })
-        .limit(LIMIT_SESSIONS);
       res.status(200).json({
-        sessions,
+        sessions: [...previous, ...next],
       });
     } catch (error) {
       console.error(error);
@@ -96,4 +124,7 @@ class FlashSaleAPI {
   }
 }
 
-module.exports = new FlashSaleAPI();
+module.exports = {
+  flashSaleAPI: new FlashSaleAPI(),
+  findOnGoingFlashSale,
+};

@@ -23,7 +23,6 @@ const Home = (props: HomeProps) => {
   const { ids, titles, actions } = HOME_TELEPORTS;
   const { categories } = props;
   const [widgets, setWidgets] = useState<Widgets | null>(null);
-  console.log('home render');
 
   useEffect(() => {
     const findWidgets = async () => {

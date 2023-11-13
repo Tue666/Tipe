@@ -1,9 +1,9 @@
 const _ = require('lodash');
 const { Types } = require('mongoose');
-const { FlashSale, FLASH_SALE_STATUS } = require('../models/FlashSale');
 const { Product, INVENTORY_STATUS } = require('../models/Product');
 const { upload, destroy } = require('../../utils/cloudinaryUpload');
 const { requireFieldSatisfied } = require('../../utils/validate');
+const { findOnGoingFlashSale } = require('./FlashSaleAPI');
 
 const { ObjectId } = Types;
 
@@ -334,31 +334,7 @@ class ProductsAPI {
       let { flash_sale_id, newest, limit } = req.query;
       let next_flash_sale = undefined;
       if (!requireFieldSatisfied(flash_sale_id)) {
-        const currentTime = new Date().getTime();
-        const onGoingFlashSale = await FlashSale.aggregate([
-          { $match: { status: { $nin: [FLASH_SALE_STATUS.inactive] } } },
-          {
-            $project: {
-              start_time: 1,
-            },
-          },
-          {
-            $facet: {
-              previous: [
-                { $match: { start_time: { $lte: currentTime } } },
-                { $sort: { start_time: -1 } },
-                { $limit: 1 },
-              ],
-              next: [
-                { $match: { start_time: { $gte: currentTime } } },
-                { $sort: { start_time: 1 } },
-                { $limit: 1 },
-              ],
-            },
-          },
-        ]);
-
-        const { previous, next } = onGoingFlashSale[0];
+        const { previous, next } = await findOnGoingFlashSale();
         if (previous.length <= 0 || next.length <= 0) {
           res.status(200).json({
             products: [],

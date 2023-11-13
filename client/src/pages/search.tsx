@@ -16,6 +16,7 @@ const Search = () => {
   const { asPath, query, isReady, replace } = useRouter();
   const { params, keyword, ...queriesParams } = query;
   const shouldRenderRef = useRef(true); // Fix useRouter dependencies cause infinite loop
+
   useEffect(() => {
     const findForSearchKeywordCS = async () => {
       const searchKeywordCS = await productApi.findForSearchKeyword({

@@ -1,8 +1,9 @@
 import _ from 'lodash';
-import { Fragment, useEffect, useState } from 'react';
+import { ChangeEvent, Fragment, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Button, Pagination, Skeleton, Stack, Typography, styled, useTheme } from '@mui/material';
 import { Page } from '@/components';
+import { Carousel } from '@/components/_external_/react-slick';
 import { Image, Link } from '@/components/overrides';
 import ProductCardFlashSale from '@/components/ProductCardFlashSale.component';
 import FlipCountdownTimer from '@/components/FlipCountdownTimer.component';
@@ -10,38 +11,57 @@ import { flashSaleApi, productApi } from '@/apis';
 import { IFlashSale, IProduct } from '@/models/interfaces';
 import { LIMIT_FLASH_SALE_NUMBER, STYLE } from '@/configs/constants';
 import { PATH_IMAGE, PATH_MAIN } from '@/configs/routers';
+import { buildImageLink } from '@/utils';
 
 interface SessionProps {
-  active?: boolean;
+  on_going?: boolean;
+  selected?: boolean;
 }
 
 const HEADER_HEIGHT = '60px';
 
+interface Time extends Pick<IFlashSale.FlashSaleSession, '_id' | 'start_time' | 'on_going'> {}
+
+type SessionMapping = {
+  [K: IFlashSale.FlashSaleSession['_id']]: Omit<IFlashSale.FlashSaleSession, '_id'>;
+};
+
+interface Sessions {
+  currentSelected: IFlashSale.FlashSaleSession['_id'];
+  times: Time[];
+  sessionMapping: SessionMapping;
+}
+
 const FlashSale = () => {
-  const [sessions, setSessions] = useState<IFlashSale.FindResponse['sessions']>([]);
+  const [sessions, setSessions] = useState<Sessions>({} as Sessions);
   const [flashSaleProducts, setFlashSaleProducts] =
     useState<IProduct.FindForFlashSaleResponse | null>(null);
   const theme = useTheme();
-  const { query, isReady } = useRouter();
+  const { query, isReady, push } = useRouter();
   const { flash_sale_id, newest } = query;
-  console.log('flash-sale render');
 
   useEffect(() => {
     const findForFlashSale = async () => {
-      const flashSale = await flashSaleApi.find();
+      const flashSale = await flashSaleApi.findForSessions();
       const { sessions } = flashSale;
       if (sessions.length <= 0) {
-        setFlashSaleProducts({
-          products: [],
-          pagination: {
-            currentPage: 0,
-            totalPage: 0,
-          },
-        });
         return;
       }
 
-      setSessions(sessions);
+      const currentSelected = (flash_sale_id as string | undefined) ?? sessions[0]._id;
+      const times: Time[] = [];
+      const sessionMapping = {};
+      sessions.forEach((session) => {
+        const { _id, ...rest } = session;
+        const { start_time, on_going } = rest;
+        times.push({ _id, start_time, on_going });
+        (sessionMapping as SessionMapping)[_id] = rest;
+      });
+      setSessions({
+        currentSelected,
+        times,
+        sessionMapping,
+      });
       const flashSaleProducts = await productApi.findForFlashSale({
         flash_sale_id: (flash_sale_id as string | undefined) ?? sessions[0]._id,
         limit: LIMIT_FLASH_SALE_NUMBER,
@@ -52,47 +72,136 @@ const FlashSale = () => {
     isReady && findForFlashSale();
 
     return () => setFlashSaleProducts(null);
-  }, [newest, isReady]);
+  }, [flash_sale_id, newest, isReady]);
+
+  const handleChangeSession = (flash_sale_id: IFlashSale.FlashSaleSession['_id']) => {
+    push(`${PATH_MAIN.flashSale(flash_sale_id)}`);
+  };
+  const handleChangePage = (e: ChangeEvent<unknown>, newPage: number) => {
+    const newest = (newPage - 1) * LIMIT_FLASH_SALE_NUMBER;
+    push(
+      `${PATH_MAIN.flashSale(flash_sale_id as IFlashSale.FlashSaleSession['_id'])}&newest=${newest}`
+    );
+  };
   return (
     <Page title="Flash Sale - Good Prices, Great Deals | Tipe Shop">
-      {sessions.length > 0 && (
-        <Fragment>
-          <Header justifyContent="center" alignItems="center">
-            <Stack direction="row" alignItems="center" spacing={1}>
-              <Image
-                src={`${PATH_IMAGE.icons}/app/flash-sale.png`}
-                alt="flash-sale"
-                sx={{
-                  width: '130px',
-                  height: '23px',
-                }}
-              />
-              <Typography sx={{ textTransform: 'uppercase' }}>
-                <i className="bi bi-stopwatch" /> End In
-              </Typography>
-              <FlipCountdownTimer />
-            </Stack>
-          </Header>
-          <Image
-            src="https://down-vn.img.susercontent.com/file/vn-11134004-7r98o-lnwuy1812dmi1c"
-            alt="banner-flash-sale"
-            sx={{
-              width: '100%',
-              height: '220px',
-              [theme.breakpoints.down('md')]: {
-                height: '140px',
-              },
-            }}
-          />
-          <Sessions direction="row" mb={2}>
-            <Session active={true}>21:00</Session>
-            <Session>21:00</Session>
-            <Session>21:00</Session>
-            <Session>21:00</Session>
-          </Sessions>
-        </Fragment>
-      )}
-      {sessions.length <= 0 && (
+      {(sessions?.times ?? []).length > 0 &&
+        (() => {
+          const { currentSelected, times, sessionMapping } = sessions;
+          const session = sessionMapping[currentSelected];
+          const { banners } = session;
+          const nextFlashSale = times.filter((time) => !time.on_going)[0];
+          const { start_time } = nextFlashSale;
+          return (
+            <Fragment>
+              <Header justifyContent="center" alignItems="center">
+                <Stack direction="row" alignItems="center" spacing={1}>
+                  <Image
+                    src={`${PATH_IMAGE.icons}/app/flash-sale.png`}
+                    alt="flash-sale"
+                    sx={{
+                      width: '130px',
+                      height: '23px',
+                    }}
+                  />
+                  <Typography sx={{ textTransform: 'uppercase' }}>
+                    <i className="bi bi-stopwatch" /> End In
+                  </Typography>
+                  <FlipCountdownTimer targetTime={start_time} />
+                </Stack>
+              </Header>
+              {banners && banners.length > 0 && (
+                <Carousel
+                  settings={{
+                    infinite: STYLE.DESKTOP.BANNERS.SLIDE_INFINITE,
+                    autoplay: STYLE.DESKTOP.BANNERS.SLIDE_AUTOPLAY,
+                    dots: STYLE.DESKTOP.BANNERS.SLIDE_DOTS,
+                    slidesToShow: STYLE.DESKTOP.BANNERS.SLIDE_TO_SHOW,
+                    slidesToScroll: STYLE.DESKTOP.BANNERS.SLIDE_TO_SCROLL,
+                    autoplaySpeed: STYLE.DESKTOP.BANNERS.SLIDE_AUTOPLAY_SPEED,
+                  }}
+                >
+                  {banners.map((banner, index) => {
+                    return (
+                      <Image
+                        key={index}
+                        src={buildImageLink(banner)}
+                        alt="banner-flash-sale"
+                        sx={{
+                          width: '100%',
+                          height: '220px',
+                          [theme.breakpoints.down('md')]: {
+                            height: '140px',
+                          },
+                        }}
+                      />
+                    );
+                  })}
+                </Carousel>
+              )}
+              <Sessions direction="row" mb={2}>
+                {times.map((time) => {
+                  const { _id, start_time, on_going } = time;
+                  const selected = currentSelected === _id;
+                  return (
+                    <Session
+                      key={_id}
+                      on_going={on_going}
+                      selected={selected}
+                      onClick={() => handleChangeSession(_id)}
+                    >
+                      {new Date(start_time).toLocaleTimeString()}
+                      <Typography variant="subtitle2">
+                        {on_going ? 'On Going' : 'Upcoming'}
+                      </Typography>
+                    </Session>
+                  );
+                })}
+              </Sessions>
+              {!_.isNil(flashSaleProducts) &&
+                (() => {
+                  const { products, pagination } = flashSaleProducts;
+                  const { currentPage, totalPage } = pagination;
+                  return (
+                    <Fragment>
+                      <ProductWrapper>
+                        {products.map((product, index) => {
+                          return <ProductCardFlashSale key={index} product={product} />;
+                        })}
+                      </ProductWrapper>
+                      {products?.length > 0 && (
+                        <Stack alignItems="end" mt={2}>
+                          <Pagination
+                            color="primary"
+                            page={currentPage}
+                            count={totalPage}
+                            hidePrevButton={currentPage <= 1}
+                            hideNextButton={currentPage >= totalPage}
+                            onChange={handleChangePage}
+                          />
+                        </Stack>
+                      )}
+                    </Fragment>
+                  );
+                })()}
+              {_.isNil(flashSaleProducts) && (
+                <ProductWrapper>
+                  {[...Array(15)].map((_, index) => {
+                    return (
+                      <Stack key={index} sx={{ p: 2 }}>
+                        <Skeleton variant="rectangular" width={180} height={180} />
+                        <Skeleton variant="text" height={45} />
+                        <Skeleton variant="text" width={150} />
+                        <Skeleton variant="text" width={130} />
+                      </Stack>
+                    );
+                  })}
+                </ProductWrapper>
+              )}
+            </Fragment>
+          );
+        })()}
+      {(sessions?.times ?? []).length <= 0 && (
         <Stack
           alignItems="center"
           spacing={1}
@@ -116,45 +225,6 @@ const FlashSale = () => {
           </Link>
         </Stack>
       )}
-      {!_.isNil(flashSaleProducts) &&
-        (() => {
-          const { products, pagination } = flashSaleProducts;
-          const { currentPage, totalPage } = pagination;
-          return (
-            <Fragment>
-              <ProductWrapper>
-                {products.map((product, index) => {
-                  return <ProductCardFlashSale key={index} product={product} />;
-                })}
-              </ProductWrapper>
-              {products?.length > 0 && (
-                <Stack alignItems="end" mt={2}>
-                  <Pagination
-                    color="primary"
-                    page={currentPage}
-                    count={totalPage}
-                    hidePrevButton={currentPage <= 1}
-                    hideNextButton={currentPage >= totalPage}
-                  />
-                </Stack>
-              )}
-            </Fragment>
-          );
-        })()}
-      {_.isNil(flashSaleProducts) && (
-        <ProductWrapper>
-          {[...Array(15)].map((_, index) => {
-            return (
-              <Stack key={index} sx={{ p: 2 }}>
-                <Skeleton variant="rectangular" width={180} height={180} />
-                <Skeleton variant="text" height={45} />
-                <Skeleton variant="text" width={150} />
-                <Skeleton variant="text" width={130} />
-              </Stack>
-            );
-          })}
-        </ProductWrapper>
-      )}
     </Page>
   );
 };
@@ -174,12 +244,12 @@ const Sessions = styled(Stack)({
   top: `calc(${STYLE.DESKTOP.HEADER.HEIGHT} + ${HEADER_HEIGHT})`,
 });
 
-const Session = styled('div')<SessionProps>(({ theme, active = false }) => ({
+const Session = styled('div')<SessionProps>(({ theme, on_going = false, selected = false }) => ({
   flex: 1,
   padding: '10px',
   textAlign: 'center',
-  backgroundColor: active ? theme.palette.primary.main : '#414142',
-  color: active ? theme.palette.background.paper : '#c3c3c3',
+  backgroundColor: on_going ? theme.palette.primary.main : selected ? '#2d2b2b' : '#414142',
+  color: on_going ? theme.palette.background.paper : '#c3c3c3',
   fontSize: '22px',
   fontWeight: 'bold',
   cursor: 'pointer',

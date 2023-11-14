@@ -38,7 +38,7 @@ class FlashSaleAPI {
   // [POST] /flash-sale
   /*
     = Body =
-    start_time: Number,
+    end_time: Number,
     banners?: [String],
     bannerUrls?: [String],
     description?: String,
@@ -47,10 +47,29 @@ class FlashSaleAPI {
     const cloudinaryUploaded = [];
     try {
       const { banners } = req.files ?? { banners: [] };
-      const { start_time, bannerUrls, ...rest } = req.body;
-      if (_.isNil(start_time)) {
-        next({ status: 400, msg: 'Start time can not be empty!' });
+      const { end_time, bannerUrls, ...rest } = req.body;
+      if (_.isNil(end_time)) {
+        next({ status: 400, msg: 'End time can not be empty!' });
         return;
+      }
+      let start_time = end_time;
+
+      const lastFlashSale = await FlashSale.findOne(
+        {},
+        { end_time: 1 },
+        { sort: { end_time: -1 } }
+      );
+      if (!_.isNil(lastFlashSale)) {
+        const { end_time: last_end_time } = lastFlashSale;
+        if (last_end_time >= end_time) {
+          next({
+            status: 400,
+            msg: `The last end time is ${new Date(last_end_time).toLocaleString()}`,
+          });
+          return;
+        }
+
+        start_time = last_end_time;
       }
 
       const transformedData = {
@@ -80,6 +99,7 @@ class FlashSaleAPI {
         ...rest,
         ...transformedData,
         start_time,
+        end_time,
       });
       await flashSale.save();
 

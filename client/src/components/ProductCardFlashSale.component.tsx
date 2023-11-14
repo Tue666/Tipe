@@ -21,11 +21,12 @@ const ProductCardFlashSale = (props: ProductCardFlashSaleProps) => {
   const { flash_sale_id, limit, price, sold } = flash_sale;
   const theme = useTheme();
   const { pathname } = useRouter();
-  const isWidgetFlashSale = PATH_MAIN.flashSale(flash_sale_id).indexOf(pathname) !== -1;
+  const isInFlashSalePage =
+    pathname.indexOf(PATH_MAIN.flashSale(flash_sale_id).split('?')[0]) !== -1;
   return (
     <Root>
       <Link
-        href={isWidgetFlashSale ? PATH_MAIN.flashSale(flash_sale_id) : PATH_MAIN.product(slug, _id)}
+        href={isInFlashSalePage ? PATH_MAIN.product(slug, _id) : PATH_MAIN.flashSale(flash_sale_id)}
       >
         <Image
           src={buildImageLink(images[0])}

@@ -7,7 +7,8 @@ const FLASH_SALE_STATUS = {
 
 const FlashSale = new Schema(
   {
-    start_time: { type: Number, required: true, unique: true },
+    start_time: { type: Number, required: true },
+    end_time: { type: Number, required: true },
     banners: { type: [String], default: [] },
     description: { type: String, default: '' },
     status: {

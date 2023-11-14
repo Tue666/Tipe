@@ -129,7 +129,7 @@ const FlashSale = () => {
                         alt="banner-flash-sale"
                         sx={{
                           width: '100%',
-                          height: '220px',
+                          height: '185px',
                           [theme.breakpoints.down('md')]: {
                             height: '140px',
                           },

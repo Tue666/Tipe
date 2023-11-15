@@ -2,7 +2,7 @@ const _ = require('lodash');
 const { FlashSale, FLASH_SALE_STATUS } = require('../models/FlashSale');
 const { upload } = require('../../utils/cloudinaryUpload');
 
-const LIMIT_TOTAL_SESSIONS = 5;
+const LIMIT_TOTAL_UP_COMING_SESSIONS = 4;
 
 const findOnGoingFlashSale = async () => {
   const currentTime = new Date().getTime();
@@ -126,16 +126,43 @@ class FlashSaleAPI {
   // [GET] /flash-sale/sessions
   async findForSessions(req, res, next) {
     try {
-      const { previous, next } = await findOnGoingFlashSale();
-      if (next.length <= 0) {
-        res.status(200).json({
-          sessions: [],
-        });
-        return;
-      }
+      const currentTime = new Date().getTime();
+      const sessions = await FlashSale.aggregate([
+        { $match: { status: { $nin: [FLASH_SALE_STATUS.inactive] } } },
+        {
+          $project: {
+            start_time: 1,
+            end_time: 1,
+            banners: 1,
+            description: 1,
+          },
+        },
+        {
+          $facet: {
+            onGoing: [
+              {
+                $match: {
+                  $and: [
+                    { start_time: { $lte: currentTime } },
+                    { end_time: { $gte: currentTime } },
+                  ],
+                },
+              },
+              { $addFields: { on_going: true } },
+            ],
+            upComing: [
+              { $match: { start_time: { $gte: currentTime } } },
+              { $sort: { start_time: 1 } },
+              { $addFields: { on_going: false } },
+              { $limit: LIMIT_TOTAL_UP_COMING_SESSIONS - 1 },
+            ],
+          },
+        },
+      ]);
 
+      const { onGoing, upComing } = sessions?.[0];
       res.status(200).json({
-        sessions: [...previous, ...next],
+        sessions: [...onGoing, ...upComing],
       });
     } catch (error) {
       console.error(error);

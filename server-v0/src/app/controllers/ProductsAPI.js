@@ -1,6 +1,6 @@
 const _ = require('lodash');
 const { Types } = require('mongoose');
-const { Product, INVENTORY_STATUS } = require('../models/Product');
+const { Product, FLASH_SALE_GROUP, INVENTORY_STATUS } = require('../models/Product');
 const { upload, destroy } = require('../../utils/cloudinaryUpload');
 const { requireFieldSatisfied } = require('../../utils/validate');
 const { findOnGoingFlashSale } = require('./FlashSaleAPI');
@@ -19,13 +19,26 @@ class ProductsAPI {
   /*
     = Body =
     flash_sale_id: String as ObjectId,
+    flash_sale_group: FLASH_SALE_GROUP,
+    upsert?: Boolean, // Default false
     product_ids: [String as ObjectId],
-
+    limit?: Number,
+    original_price?: Number,
+    price?: Number,
+    price_hidden?: String,
+    sold?: Number,
   */
   async markFlashSale(req, res, next) {
     try {
-      let { flash_sale_id, product_ids, ...rest } = req.body;
-      if (!requireFieldSatisfied(flash_sale_id, product_ids)) {
+      let { flash_sale_id, flash_sale_group, upsert, product_ids, ...rest } = req.body;
+      upsert = upsert ? upsert : false;
+      const requiredFields = [
+        flash_sale_id,
+        product_ids,
+        ...(upsert ? [rest?.limit, rest?.original_price, rest?.price] : []),
+      ];
+
+      if (!requireFieldSatisfied(...requiredFields)) {
         next({ status: 400, msg: 'Require fields are missing!' });
         return;
       }
@@ -34,37 +47,56 @@ class ProductsAPI {
       product_ids = product_ids.map((product_id) => ObjectId(product_id));
 
       const payload = {};
-      const availableMarkFields = {
+      const markFields = {
         limit: 'limit',
         original_price: 'original_price',
         price: 'price',
+        price_hidden: 'price_hidden',
         sold: 'sold',
       };
-      for (const field in rest) {
-        if (availableMarkFields[field]) {
-          payload[`flash_sale.$[flashSale].${field}`] = rest[field];
-        }
+
+      switch (flash_sale_group) {
+        case FLASH_SALE_GROUP.on_going:
+          payload[`flash_sale.${FLASH_SALE_GROUP.on_going}.flash_sale_id`] = flash_sale_id;
+          for (const field in rest) {
+            if (markFields[field]) {
+              payload[`flash_sale.${FLASH_SALE_GROUP.on_going}.${field}`] = rest[field];
+            }
+          }
+          break;
+        case FLASH_SALE_GROUP.up_coming:
+          // for (const field in rest) {
+          //   if (availableMarkFields[field]) {
+          //     payload[`flash_sale.$[flashSale].${field}`] = rest[field];
+          //   }
+          // }
+          // {
+          //   $set: payload,
+          // },
+          // {
+          //   arrayFilters: [{ 'flashSale.flash_sale_id': flash_sale_id }],
+          // }
+          break;
+        default:
+          next({ status: 400, msg: `Flash sale group: ${flash_sale_group} not found!` });
+          return;
       }
 
       await Product.updateMany(
         {
           _id: { $in: product_ids },
-          'flash_sale.flash_sale_id': flash_sale_id,
         },
-        {
-          $set: payload,
-        },
-        {
-          arrayFilters: [{ 'flashSale.flash_sale_id': flash_sale_id }],
-        }
+        payload
       );
 
       res.status(200).json({
         msg: 'Mark flash sale items successfully!',
         flash_sale_id,
+        flash_sale_group,
         product_ids,
         payload: rest,
       });
+      // res.status(200).json(payload);
     } catch (error) {
       console.error(error);
       next({ status: 500, msg: error.message });

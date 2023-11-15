@@ -3,11 +3,6 @@ const slug = require('mongoose-slug-generator');
 
 const { ObjectId } = Types;
 
-const FLASH_SALE_GROUP = {
-  on_going: 'on_going',
-  up_coming: 'up_coming',
-};
-
 const INVENTORY_STATUS = {
   available: 'available',
   out_of_stock: 'out_of_stock',
@@ -24,36 +19,18 @@ const Product = new Schema(
     ads_id: { type: ObjectId },
     is_official: { type: Boolean, default: false },
     flash_sale: {
-      type: {
-        _id: false,
-        [FLASH_SALE_GROUP.on_going]: {
-          type: {
-            _id: false,
-            flash_sale_id: { type: ObjectId, required: true },
-            limit: { type: Number, min: 0, default: 0 },
-            original_price: { type: Number, min: 0, default: 0 },
-            price: { type: Number, min: 0, default: 0 },
-            price_hidden: { type: String, default: '?' },
-            sold: { type: Number, min: 0, default: 0 },
-          },
-          default: null,
+      type: [
+        {
+          _id: false,
+          flash_sale_id: { type: ObjectId, required: true },
+          limit: { type: Number, min: 0, default: 0 },
+          original_price: { type: Number, min: 0, default: 0 },
+          price: { type: Number, min: 0, default: 0 },
+          price_hidden: { type: String, default: '?' },
+          sold: { type: Number, min: 0, default: 0 },
         },
-        [FLASH_SALE_GROUP.up_coming]: {
-          type: [
-            {
-              _id: false,
-              flash_sale_id: { type: ObjectId, required: true },
-              limit: { type: Number, min: 0, default: 0 },
-              original_price: { type: Number, min: 0, default: 0 },
-              price: { type: Number, min: 0, default: 0 },
-              price_hidden: { type: String, default: '?' },
-              sold: { type: Number, min: 0, default: 0 },
-            },
-          ],
-          default: [],
-        },
-      },
-      default: null,
+      ],
+      default: [],
     },
     attributes: {
       type: [
@@ -144,6 +121,5 @@ Product.index({
 
 module.exports = {
   Product: model('Product', Product),
-  FLASH_SALE_GROUP,
   INVENTORY_STATUS,
 };

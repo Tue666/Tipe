@@ -1,5 +1,6 @@
-import { Attribute, FlashSale, FlashSaleSchema, ProductSchema } from '../schema';
+import { Attribute, FlashSale, ProductSchema } from '../schema';
 import { Pagination, PaginationQuery } from '../common';
+import { FlashSaleSession } from '../flash-sale';
 
 export interface Product extends ProductSchema {}
 
@@ -12,7 +13,8 @@ export interface Breadcrumb {
   slug: string;
 }
 
-export interface NestedProduct extends Product {
+export interface NestedProduct extends Omit<Product, 'flash_sale'> {
+  flash_sale: FlashSale & Pick<FlashSaleSession, 'start_time' | 'end_time'>;
   breadcrumbs: Breadcrumb[];
 }
 
@@ -48,7 +50,7 @@ export interface FindForFlashSaleQuery extends PaginationQuery {
 
 export interface FindForFlashSaleResponse extends Pagination {
   products: (Pick<ProductCard, '_id' | 'name' | 'images' | 'slug'> & { flash_sale: FlashSale })[];
-  next_flash_sale?: FlashSaleSchema['start_time'];
+  session: Pick<FlashSaleSession, '_id' | 'start_time' | 'end_time'>;
 }
 
 export interface FindForSuggestionQuery extends PaginationQuery {}

@@ -162,6 +162,33 @@ const FlashSale = () => {
                 (() => {
                   const { products, pagination } = flashSaleProducts;
                   const { currentPage, totalPage } = pagination;
+                  if (products.length <= 0) {
+                    return (
+                      <Stack
+                        alignItems="center"
+                        spacing={1}
+                        sx={{ p: 5, backgroundColor: (theme) => theme.palette.background.paper }}
+                      >
+                        <Image
+                          src={`${PATH_IMAGE.root}buy-more.png`}
+                          alt="buy-more"
+                          sx={{
+                            width: STYLE.DESKTOP.CART.EMPTY_IMAGE_WIDTH,
+                            height: STYLE.DESKTOP.CART.EMPTY_IMAGE_HEIGHT,
+                          }}
+                        />
+                        <Typography variant="subtitle2">
+                          There are no products for this Flash Sale session, please come back later.
+                        </Typography>
+                        <Link href={PATH_MAIN.home}>
+                          <Button color="warning" variant="contained" disableElevation>
+                            BUY SOMETHING ELSE
+                          </Button>
+                        </Link>
+                      </Stack>
+                    );
+                  }
+
                   return (
                     <Fragment>
                       <ProductWrapper>

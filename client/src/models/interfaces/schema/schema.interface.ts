@@ -49,6 +49,7 @@ export type FlashSaleStatus = 'active' | 'in_active';
 export interface FlashSaleSchema {
   _id: string;
   start_time: number;
+  end_time: number;
   banners: string[];
   description: string;
   status: FlashSaleStatus;
@@ -59,6 +60,7 @@ export interface FlashSale {
   limit: number;
   original_price: number;
   price: number;
+  price_hidden: string;
   sold: number;
 }
 

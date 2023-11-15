@@ -8,13 +8,13 @@ import FlipCountdownTimer from '../FlipCountdownTimer.component';
 import { PATH_IMAGE } from '@/configs/routers';
 import { IProduct } from '@/models/interfaces';
 
-interface FlashSaleProps
-  extends Pick<IProduct.FindForFlashSaleResponse, 'products' | 'next_flash_sale'> {
+interface FlashSaleProps extends Pick<IProduct.FindForFlashSaleResponse, 'products' | 'session'> {
   id: string;
 }
 
 const FlashSale = (props: FlashSaleProps) => {
-  const { id, products, next_flash_sale } = props;
+  const { id, products, session } = props;
+  const { end_time } = session;
   const theme = useTheme();
   const isMdDown = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -32,7 +32,7 @@ const FlashSale = (props: FlashSaleProps) => {
               height: '23px',
             }}
           />
-          <FlipCountdownTimer targetTime={next_flash_sale} />
+          <FlipCountdownTimer targetTime={end_time} />
         </Stack>
       </Stack>
       <Carousel

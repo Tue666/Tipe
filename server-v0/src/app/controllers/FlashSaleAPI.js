@@ -4,34 +4,39 @@ const { upload } = require('../../utils/cloudinaryUpload');
 
 const LIMIT_TOTAL_UP_COMING_SESSIONS = 4;
 
-const findOnGoingFlashSale = async () => {
+const findFlashSaleSessions = async () => {
   const currentTime = new Date().getTime();
-  const onGoingFlashSale = await FlashSale.aggregate([
+  const sessions = await FlashSale.aggregate([
     { $match: { status: { $nin: [FLASH_SALE_STATUS.inactive] } } },
     {
       $project: {
         start_time: 1,
+        end_time: 1,
         banners: 1,
+        description: 1,
       },
     },
     {
       $facet: {
-        previous: [
-          { $match: { start_time: { $lte: currentTime } } },
-          { $sort: { start_time: -1 } },
+        onGoing: [
+          {
+            $match: {
+              $and: [{ start_time: { $lte: currentTime } }, { end_time: { $gte: currentTime } }],
+            },
+          },
           { $addFields: { on_going: true } },
-          { $limit: 1 },
         ],
-        next: [
+        upComing: [
           { $match: { start_time: { $gte: currentTime } } },
           { $sort: { start_time: 1 } },
           { $addFields: { on_going: false } },
-          { $limit: LIMIT_TOTAL_SESSIONS - 1 },
+          { $limit: LIMIT_TOTAL_UP_COMING_SESSIONS - 1 },
         ],
       },
     },
   ]);
-  return onGoingFlashSale[0];
+
+  return sessions[0];
 };
 
 class FlashSaleAPI {
@@ -126,41 +131,7 @@ class FlashSaleAPI {
   // [GET] /flash-sale/sessions
   async findForSessions(req, res, next) {
     try {
-      const currentTime = new Date().getTime();
-      const sessions = await FlashSale.aggregate([
-        { $match: { status: { $nin: [FLASH_SALE_STATUS.inactive] } } },
-        {
-          $project: {
-            start_time: 1,
-            end_time: 1,
-            banners: 1,
-            description: 1,
-          },
-        },
-        {
-          $facet: {
-            onGoing: [
-              {
-                $match: {
-                  $and: [
-                    { start_time: { $lte: currentTime } },
-                    { end_time: { $gte: currentTime } },
-                  ],
-                },
-              },
-              { $addFields: { on_going: true } },
-            ],
-            upComing: [
-              { $match: { start_time: { $gte: currentTime } } },
-              { $sort: { start_time: 1 } },
-              { $addFields: { on_going: false } },
-              { $limit: LIMIT_TOTAL_UP_COMING_SESSIONS - 1 },
-            ],
-          },
-        },
-      ]);
-
-      const { onGoing, upComing } = sessions?.[0];
+      const { onGoing, upComing } = await findFlashSaleSessions();
       res.status(200).json({
         sessions: [...onGoing, ...upComing],
       });
@@ -173,5 +144,5 @@ class FlashSaleAPI {
 
 module.exports = {
   flashSaleAPI: new FlashSaleAPI(),
-  findOnGoingFlashSale,
+  findFlashSaleSessions,
 };

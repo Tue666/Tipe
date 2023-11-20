@@ -15,13 +15,20 @@ export interface FindResponse extends Pagination {
 
 export interface InsertBody
   extends PartialBy<
-    Omit<Order, '_id' | 'customer_id' | keyof TimestampsSchema | keyof SoftDeleteSchema>,
+    Omit<Order, '_id' | 'customer_id' | 'items' | keyof TimestampsSchema | keyof SoftDeleteSchema>,
     'tracking_info' | 'note'
-  > {}
+  > {
+  items: Pick<Product, '_id' | 'quantity'>[];
+}
 
 export interface InsertResponse {
   _id: Order['_id'];
   orderedItems: Product['_id'][];
 }
 
-export interface TrackingOrderBody {}
+export interface TrackingOrderBody {
+  _id: Order['_id'];
+  status: OrderStatus;
+  tracking_description?: Order['tracking_info']['status_text'];
+  note?: Order['note'];
+}

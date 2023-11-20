@@ -59,10 +59,11 @@ const calculateStatistics = (calculateStatisticsProps: CalculateStatisticsProps)
       case 'guess':
         const { items } = calculateStatisticsProps[group]!;
         const selectedItems = getSelectedItems(items);
-        const totalGuess = selectedItems.reduce(
-          (sum, item) => sum + item.quantity * item.product.price,
-          0
-        );
+        const totalGuess = selectedItems.reduce((sum, item) => {
+          const { quantity, product } = item;
+          const { price, flash_sale } = product;
+          return sum + quantity * (flash_sale?.price ?? price);
+        }, 0);
         statistics[group] = {
           value: totalGuess,
           sign: 1,

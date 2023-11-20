@@ -1,4 +1,5 @@
 import { FocusEvent, useState } from 'react';
+import { useRouter } from 'next/router';
 import { Stack, Typography, TextField, Button } from '@mui/material';
 import { ModalParams } from '@/redux/slices/modal.slice';
 import { IOrder } from '@/models/interfaces';
@@ -16,6 +17,7 @@ const CancelOrder = (params: ModalParams) => {
   const { _id } = props as CancelOrderParams;
   const [note, setNote] = useState('');
   const { closeModal } = useModal();
+  const { reload } = useRouter();
 
   const handleChangeNote = (e: FocusEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -23,7 +25,11 @@ const CancelOrder = (params: ModalParams) => {
   };
   const handleConfirm = async () => {
     try {
-      await orderApi.trackingOrder({});
+      await orderApi.trackingOrder({
+        _id,
+        status: 'canceled',
+        note,
+      });
       enqueueNotify('Order has been canceled', {
         variant: 'success',
         anchorOrigin: {
@@ -31,6 +37,7 @@ const CancelOrder = (params: ModalParams) => {
           horizontal: 'right',
         },
       });
+      reload();
     } catch (error) {
       enqueueNotify((error as AxiosError)?.response?.statusText ?? 'Something went wrong', {
         variant: 'error',

@@ -31,7 +31,9 @@ export interface ProductCard
     | 'quantity_sold'
     | 'ratings'
     | 'slug'
-  > {}
+  > {
+  flash_sale: FlashSale;
+}
 
 export type WidgetGroup = 'top_selling' | 'top_favorite' | 'top_view' | 'related';
 

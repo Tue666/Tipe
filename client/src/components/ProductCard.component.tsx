@@ -1,6 +1,15 @@
-import { Card, CardContent, Stack, styled, Tooltip, Typography, useTheme } from '@mui/material';
+import {
+  Box,
+  Card,
+  CardContent,
+  Stack,
+  styled,
+  Tooltip,
+  Typography,
+  useTheme,
+} from '@mui/material';
 import { Image, Link } from './overrides';
-import { Stars, Ellipsis } from '@/components';
+import { Stars, Ellipsis, FlashSaleIconSvg } from '@/components';
 import { STYLE } from '@/configs/constants';
 import { PATH_MAIN } from '@/configs/routers';
 import { IProduct } from '@/models/interfaces';
@@ -16,10 +25,11 @@ interface ProductCardProps {
 
 const ProductCard = (props: ProductCardProps) => {
   const { product } = props;
-  const {
+  let {
     _id,
     name,
     images,
+    flash_sale,
     discount,
     discount_rate,
     original_price,
@@ -30,6 +40,11 @@ const ProductCard = (props: ProductCardProps) => {
   } = product;
   const theme = useTheme();
   const { rating_average } = ratings;
+
+  discount = flash_sale?.discount ?? discount;
+  discount_rate = flash_sale?.discount_rate ?? discount_rate;
+  original_price = flash_sale?.original_price ?? original_price;
+  price = flash_sale?.price ?? price;
   return (
     <Root>
       <Link href={PATH_MAIN.product(slug, _id)}>
@@ -83,6 +98,7 @@ const ProductCard = (props: ProductCardProps) => {
                 <SaleTag>-{Math.round(discount_rate)}%</SaleTag>
               </Tooltip>
             )}
+            {flash_sale && <FlashSaleIconSvg />}
           </Stack>
         </CardContent>
       </Link>

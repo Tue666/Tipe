@@ -67,10 +67,13 @@ const Order = new Schema(
         _id: { type: ObjectId, required: true },
         name: { type: String, required: true },
         images: [{ type: String, required: true }],
+        quantity: { type: Number, required: true },
+        flash_sale_id: { type: ObjectId, default: null },
+        limit: { type: Number, required: true },
+        discount: { type: Number, min: 0 },
+        discount_rate: { type: Number, min: 0, max: 100 },
         original_price: { type: Number, required: true },
         price: { type: Number, required: true },
-        limit: { type: Number, required: true },
-        quantity: { type: Number, required: true },
         inventory_status: {
           type: String,
           enum: Object.values(INVENTORY_STATUS),
@@ -90,21 +93,27 @@ const Order = new Schema(
       default: [],
     },
     tracking_info: {
-      status: {
-        type: String,
-        enum: Object.values(ORDER_STATUS),
-        default: ORDER_STATUS.processing.status,
+      type: {
+        _id: false,
+        status: {
+          type: String,
+          enum: Object.values(ORDER_STATUS),
+        },
+        status_text: { type: String },
+        tracking_list: {
+          type: [
+            {
+              _id: false,
+              description: { type: String, required: true },
+              time: { type: Date },
+            },
+          ],
+        },
       },
-      status_text: { type: String, default: ORDER_STATUS.processing.status_text },
-      tracking_list: {
-        type: [
-          {
-            _id: false,
-            description: { type: String, required: true },
-            time: { type: Date, default: Date.now },
-          },
-        ],
-        default: [
+      default: {
+        status: ORDER_STATUS.processing.status,
+        status_text: ORDER_STATUS.processing.status_text,
+        tracking_list: [
           {
             description: 'Order placed',
             time: Date.now(),

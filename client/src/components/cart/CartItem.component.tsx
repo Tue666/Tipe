@@ -1,7 +1,7 @@
 import { Stack, Checkbox, IconButton, Typography, styled } from '@mui/material';
 import { DeleteForeverOutlined, Favorite } from '@mui/icons-material';
 import { Image, Link } from '../overrides';
-import { Hidden, QuantityInput } from '@/components';
+import { FlashSaleIconSvg, Hidden, QuantityInput } from '@/components';
 import { STYLE } from '@/configs/constants';
 import { ICart, IProduct } from '@/models/interfaces';
 import { PATH_MAIN } from '@/configs/routers';
@@ -21,11 +21,12 @@ interface CartItemProps {
 const CartItem = (props: CartItemProps) => {
   const { item, handleChangeQuantity, handleCheckCartItem, handleRemoveCartItem } = props;
   const { _id, quantity, selected, product } = item;
-  const {
+  let {
     _id: productId,
     name,
     images,
     quantity: productQuantity,
+    flash_sale,
     limit,
     discount_rate,
     original_price,
@@ -34,6 +35,12 @@ const CartItem = (props: CartItemProps) => {
     inventory_status,
   } = product;
   const link = PATH_MAIN.product(slug, productId);
+
+  limit = flash_sale ? flash_sale.limit - flash_sale.sold : limit;
+  discount_rate = flash_sale?.discount_rate ?? discount_rate;
+  original_price = flash_sale?.original_price ?? original_price;
+  price = flash_sale?.price ?? price;
+
   return (
     <Root
       sx={{
@@ -66,9 +73,12 @@ const CartItem = (props: CartItemProps) => {
           </Link>
           <Hidden breakpoint="md" type="Up">
             <Stack spacing={1} direction="row" alignItems="center">
-              <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
-                {toVND(price)}
-              </Typography>
+              <Stack direction="row" spacing={1}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
+                  {toVND(price)}
+                </Typography>
+                {flash_sale && <FlashSaleIconSvg />}
+              </Stack>
               {discount_rate > 0 && (
                 <Typography variant="caption" sx={{ textDecoration: 'line-through' }}>
                   {toVND(original_price)}
@@ -88,9 +98,12 @@ const CartItem = (props: CartItemProps) => {
       </ItemGroup>
       <Hidden breakpoint="md" type="Down">
         <div>
-          <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
-            {toVND(price)}
-          </Typography>
+          <Stack direction="row" spacing={1}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
+              {toVND(price)}
+            </Typography>
+            {flash_sale && <FlashSaleIconSvg />}
+          </Stack>
           {discount_rate > 0 && (
             <Typography variant="caption" sx={{ textDecoration: 'line-through' }}>
               {toVND(original_price)}

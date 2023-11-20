@@ -1,4 +1,4 @@
-import { CartSchema } from '../schema';
+import { CartSchema, FlashSale } from '../schema';
 import { Product } from '../product';
 import { MessageReponse } from '../common';
 
@@ -8,7 +8,7 @@ export interface FreeShippingPoint {
 }
 
 export interface CartItem extends Pick<CartSchema, '_id' | 'quantity' | 'selected'> {
-  product: Product;
+  product: Omit<Product, 'flash_sale'> & { flash_sale: FlashSale };
 }
 
 export interface AddCartBody {

@@ -1,6 +1,7 @@
 const { Types } = require('mongoose');
 const { Cart } = require('../models/Cart');
 const { Product } = require('../models/Product');
+const { findOnGoingFlashSale } = require('./FlashSaleAPI');
 
 const { ObjectId } = Types;
 
@@ -151,9 +152,38 @@ class CartsAPI {
       let { product_id, quantity } = req.body;
       product_id = ObjectId(product_id);
 
-      const originalProduct = await Product.findOne({ _id: product_id }).select(
-        '_id name images quantity original_price price limit inventory_status slug'
-      );
+      const onGoing = await findOnGoingFlashSale({ _id: 1 });
+
+      const product = await Product.aggregate([
+        { $match: { _id: product_id } },
+        {
+          $project: {
+            name: 1,
+            images: 1,
+            quantity: 1,
+            flash_sale: {
+              $arrayElemAt: [
+                {
+                  $filter: {
+                    input: '$flash_sale',
+                    as: 'sale',
+                    cond: {
+                      $eq: ['$$sale.flash_sale_id', onGoing?._id ?? null],
+                    },
+                  },
+                },
+                0,
+              ],
+            },
+            original_price: 1,
+            price: 1,
+            limit: 1,
+            inventory_status: 1,
+            slug: 1,
+          },
+        },
+      ]);
+      const originalProduct = product[0];
       if (!originalProduct) {
         next({ status: 400, msg: 'Product to be added could not be found!' });
         return;
@@ -161,6 +191,9 @@ class CartsAPI {
 
       let cartItem = await Cart.findOne({ customer_id, product_id });
       let newQuantity = cartItem?.quantity + quantity || quantity;
+      let limit = originalProduct.flash_sale
+        ? originalProduct.flash_sale.limit - originalProduct.flash_sale.sold
+        : originalProduct.limit;
 
       if (newQuantity > originalProduct.quantity) {
         next({
@@ -169,10 +202,10 @@ class CartsAPI {
         });
         return;
       }
-      if (newQuantity > originalProduct.limit) {
+      if (newQuantity > limit) {
         next({
           status: 400,
-          msg: `Maximum purchase quantity for this product is ${originalProduct.limit}`,
+          msg: `Maximum purchase quantity for this product is ${limit}`,
         });
         return;
       }
@@ -227,6 +260,8 @@ class CartsAPI {
       let { _id: customer_id } = req.account;
       customer_id = ObjectId(customer_id);
 
+      const onGoing = await findOnGoingFlashSale({ _id: 1 });
+
       const cart = await Cart.aggregate([
         {
           $match: { customer_id },
@@ -253,9 +288,25 @@ class CartsAPI {
             'product.name': 1,
             'product.images': 1,
             'product.quantity': 1,
+            'product.flash_sale': {
+              $arrayElemAt: [
+                {
+                  $filter: {
+                    input: '$product.flash_sale',
+                    as: 'sale',
+                    cond: {
+                      $eq: ['$$sale.flash_sale_id', onGoing?._id ?? null],
+                    },
+                  },
+                },
+                0,
+              ],
+            },
+            'product.limit': 1,
+            'product.discount': 1,
+            'product.discount_rate': 1,
             'product.original_price': 1,
             'product.price': 1,
-            'product.limit': 1,
             'product.inventory_status': 1,
             'product.slug': 1,
           },

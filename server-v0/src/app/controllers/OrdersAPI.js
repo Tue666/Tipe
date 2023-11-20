@@ -1,9 +1,10 @@
 const _ = require('lodash');
 const { Types } = require('mongoose');
-const { Order, ORDER_STATUS } = require('../models/Order');
+const { Order, PAYMENT_METHODS, ORDER_STATUS } = require('../models/Order');
 const { Cart } = require('../models/Cart');
-const { Product } = require('../models/Product');
+const { Product, INVENTORY_STATUS } = require('../models/Product');
 const { fNumberWithSuffix } = require('../../utils/formatNumber');
+const { findOnGoingFlashSale } = require('./FlashSaleAPI');
 
 const { ObjectId } = Types;
 
@@ -31,30 +32,66 @@ class OrdersAPI {
           break;
         case ORDER_STATUS.canceled.status:
           // Canceled only when not yet transported
-          const cancelOrder = await Order.findOne({
+          const canceledOrder = await Order.findOne({
             _id,
             customer_id,
-          }).select('tracking_info items');
-          if (cancelOrder.tracking_info.status !== ORDER_STATUS.processing.status) {
-            next({ status: 400, msg: 'Canceled only when not yet transported!' });
+          }).select('payment_method tracking_info items');
+
+          const { payment_method, tracking_info, items } = canceledOrder;
+          if (
+            tracking_info.status !==
+            (ORDER_STATUS.awaiting_payment.status && ORDER_STATUS.processing.status)
+          ) {
+            next({ status: 400, msg: 'Canceled only when not yet processed!' });
             return;
           }
 
+          switch (payment_method.method_key) {
+            case PAYMENT_METHODS.momo:
+            case PAYMENT_METHODS.vnpay:
+            case PAYMENT_METHODS.international:
+              // Refund goes here...
+              break;
+            case PAYMENT_METHODS.cash:
+              break;
+            default:
+              break;
+          }
+
+          const onGoing = await findOnGoingFlashSale({ _id: 1 });
+
           // Return product quantity
           await Promise.all(
-            cancelOrder.items.map(async (item) => {
-              const { _id, quantity } = item;
-              const product = await Product.findOne({
+            items.map(async (item) => {
+              const { _id, quantity, flash_sale_id } = item;
+
+              const updateQueries = {
+                $inc: {
+                  quantity,
+                  'quantity_sold.value': quantity * -1,
+                },
+              };
+
+              const updateOptions = {
+                new: true,
+              };
+
+              if (!_.isNil(flash_sale_id) && flash_sale_id.equals(onGoing?._id)) {
+                updateQueries['$inc']['flash_sale.$[flashSale].sold'] = quantity * -1;
+                updateOptions['arrayFilters'] = [{ 'flashSale.flash_sale_id': flash_sale_id }];
+              }
+
+              const updatedItem = await Product.findByIdAndUpdate(
                 _id,
-              }).select('quantity quantity_sold');
-              const newQuantity = product.quantity + quantity;
-              const newQuantitySold = product.quantity_sold.value - quantity;
-              product.quantity = newQuantity;
-              product.quantity_sold.value = newQuantitySold;
-              product.quantity_sold.text = fNumberWithSuffix(newQuantitySold, 1) + ' Sold';
-              await product.save();
+                updateQueries,
+                updateOptions
+              );
+              updatedItem.quantity_sold.text =
+                fNumberWithSuffix(updatedItem.quantity_sold.value, 1) + ' Sold';
+              await updatedItem.save();
             })
           );
+
           break;
         default:
           break;
@@ -122,14 +159,7 @@ class OrdersAPI {
 		items: [
 			{
 				_id: String as ObjectId,
-				name: String,
-				images: [String],
-				original_price: Number,
-				price: Number,
-				limit: Number,
-				quantity: String,
-				inventory_status: String, // One of INVENTORY_STATUS
-				slug: String,
+				quantity: Number,
 			}
 		],
 		price_summary: [
@@ -152,56 +182,139 @@ class OrdersAPI {
     try {
       let { _id: customer_id } = req.account;
       customer_id = ObjectId(customer_id);
-      let { items, ...rest } = req.body;
-      items = items.map((item) => ({ ...item, _id: ObjectId(item._id) }));
+      let { items, ...restOrder } = req.body;
 
-      if (items.length < 1) {
+      const itemIds = items.map((item) => ObjectId(item._id));
+      const onGoing = await findOnGoingFlashSale({ _id: 1 });
+      const queries = {
+        _id: { $in: itemIds },
+        inventory_status: { $nin: [INVENTORY_STATUS.hidden] },
+      };
+      const products = await Product.aggregate([
+        { $match: queries },
+        {
+          $project: {
+            name: 1,
+            images: 1,
+            quantity: 1,
+            flash_sale: {
+              $arrayElemAt: [
+                {
+                  $filter: {
+                    input: '$flash_sale',
+                    as: 'sale',
+                    cond: {
+                      $eq: ['$$sale.flash_sale_id', onGoing?._id ?? null],
+                    },
+                  },
+                },
+                0,
+              ],
+            },
+            limit: 1,
+            discount: 1,
+            discount_rate: 1,
+            original_price: 1,
+            price: 1,
+            inventory_status: 1,
+            slug: 1,
+          },
+        },
+      ]);
+
+      const orderItems = [];
+      const productMapping = {};
+      products.map((product) => {
+        const { _id, ...rest } = product;
+        productMapping[_id] = {
+          _id: ObjectId(_id),
+          ...rest,
+        };
+      });
+
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        const { _id, quantity } = item;
+        const product = productMapping[_id];
+        if (!_.isNil(product)) {
+          const newQuantity = product.quantity - quantity;
+
+          // Only process item is in stock
+          if (newQuantity >= 0) {
+            product.limit = product.flash_sale?.limit ?? product.limit;
+            product.discount = product.flash_sale?.discount ?? product.discount;
+            product.discount_rate = product.flash_sale?.discount_rate ?? product.discount_rate;
+            product.original_price = product.flash_sale?.original_price ?? product.original_price;
+            product.price = product.flash_sale?.price ?? product.price;
+
+            if (!_.isNil(product.flash_sale)) {
+              product.flash_sale_id = ObjectId(product.flash_sale.flash_sale_id);
+            }
+
+            orderItems.push({
+              ...product,
+              quantity,
+              newQuantity,
+            });
+          }
+        }
+      }
+
+      if (orderItems.length < 1) {
         next({ status: 400, msg: 'You have not selected any products to order yet!' });
         return;
       }
 
       const order = new Order({
-        ...rest,
+        ...restOrder,
         customer_id,
-        items,
+        items: orderItems,
       });
       await order.save();
 
       // Remove ordered items & update product quantity
-      let orderedItems = [];
+      const orderedItems = [];
       await Promise.all(
-        items.map(async (item) => {
-          const { _id, quantity } = item;
+        orderItems.map(async (orderItem) => {
+          const { _id, flash_sale_id, quantity, newQuantity } = orderItem;
 
-          const product = await Product.findOne({
-            _id,
-          }).select('quantity quantity_sold');
+          const updateQueries = {
+            $inc: {
+              quantity: quantity * -1,
+              'quantity_sold.value': quantity,
+            },
+            $set: {},
+          };
 
-          const newQuantity = product.quantity - quantity;
-          const newQuantitySold = product.quantity_sold.value + quantity;
-          if (newQuantity >= 0) {
-            product.quantity = newQuantity;
-            product.quantity_sold.value = newQuantitySold;
-            product.quantity_sold.text = fNumberWithSuffix(newQuantitySold, 1) + ' Sold';
-            if (newQuantity <= 0) {
-              product.inventory_status = 'out_of_stock';
-            }
+          const updateOptions = {
+            new: true,
+          };
 
-            await product.save();
-            await Cart.deleteOne({
-              customer_id,
-              product_id: _id,
-            });
+          if (newQuantity === 0) updateQueries['$set']['inventory_status'] = 'out_of_stock';
 
-            orderedItems.push(_id);
+          if (!_.isNil(flash_sale_id)) {
+            updateQueries['$inc']['flash_sale.$[flashSale].sold'] = quantity;
+            updateOptions['arrayFilters'] = [{ 'flashSale.flash_sale_id': flash_sale_id }];
           }
+
+          const updatedItem = await Product.findByIdAndUpdate(_id, updateQueries, updateOptions);
+          updatedItem.quantity_sold.text =
+            fNumberWithSuffix(updatedItem.quantity_sold.value, 1) + ' Sold';
+          await updatedItem.save();
+
+          orderedItems.push(_id);
         })
       );
+
+      await Cart.deleteMany({
+        customer_id,
+        product_id: { $in: orderedItems },
+      });
 
       res.status(201).json({
         msg: 'Order is successful, please review the invoice while waiting for processing',
         _id: order._id,
-        orderedItems,
+        orderedItems: orderedItems.map((orderedItem) => orderedItem._id.toString()),
       });
     } catch (error) {
       console.error(error);

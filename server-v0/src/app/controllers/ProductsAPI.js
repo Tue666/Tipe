@@ -1,10 +1,11 @@
 const _ = require('lodash');
 const { Types } = require('mongoose');
+const { findOnGoingFlashSale } = require('./FlashSaleAPI');
 const { FlashSale, FLASH_SALE_STATUS } = require('../models/FlashSale');
 const { Product, INVENTORY_STATUS } = require('../models/Product');
 const { upload, destroy } = require('../../utils/cloudinaryUpload');
 const { requireFieldSatisfied } = require('../../utils/validate');
-const { findFlashSaleSessions } = require('./FlashSaleAPI');
+const { calculateDiscount } = require('../../utils/calculate');
 
 const { ObjectId } = Types;
 
@@ -38,10 +39,41 @@ class ProductsAPI {
       flash_sale_id = ObjectId(flash_sale_id);
       product_id = ObjectId(product_id);
 
-      const flashSale = await Product.findOne({
-        _id: product_id,
-        flash_sale: { $elemMatch: { flash_sale_id } },
-      }).select({ _id: 1 });
+      const matchProduct = await Product.aggregate([
+        {
+          $match: {
+            _id: product_id,
+            flash_sale: { $elemMatch: { flash_sale_id } },
+          },
+        },
+        {
+          $project: {
+            flash_sale: {
+              $arrayElemAt: [
+                {
+                  $filter: {
+                    input: '$flash_sale',
+                    as: 'sale',
+                    cond: {
+                      $eq: ['$$sale.flash_sale_id', flash_sale_id],
+                    },
+                  },
+                },
+                0,
+              ],
+            },
+          },
+        },
+      ]);
+      const flashSale = matchProduct?.[0]?.flash_sale;
+      let mode = 'upsert';
+      if (_.isNil(flashSale)) {
+        mode = 'insert';
+        if (!requireFieldSatisfied(rest?.original_price, rest?.price)) {
+          next({ status: 400, msg: 'Require fields are missing!' });
+          return;
+        }
+      }
 
       const payload = {};
       const availableMarkFields = {
@@ -54,18 +86,32 @@ class ProductsAPI {
 
       for (const field in rest) {
         if (availableMarkFields[field]) {
-          if (_.isNil(flashSale)) {
+          if (mode === 'insert') {
+            const { discount, discount_rate } = calculateDiscount(
+              rest?.original_price,
+              rest?.price
+            );
+
             payload[field] = rest[field];
+            payload['discount'] = discount;
+            payload['discount_rate'] = discount_rate;
           } else {
+            const { original_price, price } = flashSale;
+            const { discount, discount_rate } = calculateDiscount(
+              rest.original_price || original_price,
+              rest.price || price
+            );
+
             payload[`flash_sale.$[flashSale].${field}`] = rest[field];
+            payload['flash_sale.$[flashSale].discount'] = discount;
+            payload['flash_sale.$[flashSale].discount_rate'] = discount_rate;
           }
         }
       }
 
-      console.log(payload);
       await Product.findByIdAndUpdate(
         product_id,
-        ...(_.isNil(flashSale)
+        ...(mode === 'insert'
           ? [
               {
                 $push: {
@@ -249,6 +295,7 @@ class ProductsAPI {
       limit = limit ? parseInt(limit) : 1;
 
       const GRAVITY = 1.8;
+      const onGoing = await findOnGoingFlashSale({ _id: 1 });
       const queries = {
         inventory_status: { $nin: [INVENTORY_STATUS.hidden] },
       };
@@ -291,6 +338,20 @@ class ProductsAPI {
                 $project: {
                   name: 1,
                   images: 1,
+                  flash_sale: {
+                    $arrayElemAt: [
+                      {
+                        $filter: {
+                          input: '$flash_sale',
+                          as: 'sale',
+                          cond: {
+                            $eq: ['$$sale.flash_sale_id', onGoing?._id ?? null],
+                          },
+                        },
+                      },
+                      0,
+                    ],
+                  },
                   discount: 1,
                   discount_rate: 1,
                   original_price: 1,
@@ -366,10 +427,11 @@ class ProductsAPI {
     try {
       let { flash_sale_id, newest, limit } = req.query;
       let session = null;
+      const sessionFields = { start_time: 1, end_time: 1 };
       if (!requireFieldSatisfied(flash_sale_id)) {
-        const { onGoing } = await findFlashSaleSessions();
-        if (onGoing.length > 0) {
-          const { _id, start_time, end_time } = onGoing[0];
+        const onGoing = await findOnGoingFlashSale(sessionFields);
+        if (!_.isNil(onGoing)) {
+          const { _id, start_time, end_time } = onGoing;
           session = {
             _id,
             start_time,
@@ -381,7 +443,7 @@ class ProductsAPI {
         session = await FlashSale.findOne({
           _id: flash_sale_id,
           status: { $nin: [FLASH_SALE_STATUS.inactive] },
-        }).select({ start_time: 1, end_time: 1 });
+        }).select(sessionFields);
       }
       newest = newest ? parseInt(newest) : 0;
       limit = limit ? parseInt(limit) : 1;
@@ -472,6 +534,7 @@ class ProductsAPI {
       newest = newest ? parseInt(newest) : 0;
       limit = limit ? parseInt(limit) : 1;
 
+      const onGoing = await findOnGoingFlashSale({ _id: 1 });
       const queries = {
         inventory_status: { $nin: [INVENTORY_STATUS.hidden] },
       };
@@ -485,6 +548,20 @@ class ProductsAPI {
                 $project: {
                   name: 1,
                   images: 1,
+                  flash_sale: {
+                    $arrayElemAt: [
+                      {
+                        $filter: {
+                          input: '$flash_sale',
+                          as: 'sale',
+                          cond: {
+                            $eq: ['$$sale.flash_sale_id', onGoing?._id ?? null],
+                          },
+                        },
+                      },
+                      0,
+                    ],
+                  },
                   discount: 1,
                   discount_rate: 1,
                   original_price: 1,
@@ -842,7 +919,7 @@ class ProductsAPI {
         _id,
         inventory_status: { $nin: [INVENTORY_STATUS.hidden] },
       };
-      const { onGoing } = await findFlashSaleSessions();
+      const onGoing = await findOnGoingFlashSale({ start_time: 1, end_time: 1 });
 
       const product = await Product.aggregate([
         { $match: queries },
@@ -858,25 +935,40 @@ class ProductsAPI {
         {
           $addFields: {
             flash_sale: {
-              $arrayElemAt: [
+              $mergeObjects: [
                 {
-                  $filter: {
-                    input: '$flash_sale',
-                    as: 'flashSale',
-                    cond: {
-                      $eq: ['$$flashSale.flash_sale_id', onGoing?.[0]?._id ?? null],
+                  $arrayElemAt: [
+                    {
+                      $filter: {
+                        input: '$flash_sale',
+                        as: 'flashSale',
+                        cond: {
+                          $eq: ['$$flashSale.flash_sale_id', onGoing?._id ?? null],
+                        },
+                      },
                     },
+                    0,
+                  ],
+                },
+                {
+                  $cond: {
+                    if: { $gt: ['$flash_sale.flash_sale_id', null] },
+                    then: {
+                      start_time: onGoing.start_time,
+                      end_time: onGoing.end_time,
+                    },
+                    else: {},
                   },
                 },
-                0,
               ],
             },
           },
         },
         {
           $addFields: {
-            'flash_sale.start_time': onGoing?.[0]?.start_time ?? null,
-            'flash_sale.end_time': onGoing?.[0]?.end_time ?? null,
+            flash_sale: {
+              $cond: [{ $eq: ['$flash_sale', {}] }, null, '$flash_sale'],
+            },
           },
         },
       ]);

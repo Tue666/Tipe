@@ -24,6 +24,8 @@ const Product = new Schema(
           _id: false,
           flash_sale_id: { type: ObjectId, required: true },
           limit: { type: Number, min: 0, default: 0 },
+          discount: { type: Number, min: 0, default: 0 },
+          discount_rate: { type: Number, min: 0, max: 100, default: 0 },
           original_price: { type: Number, min: 0, default: 0 },
           price: { type: Number, min: 0, default: 0 },
           price_hidden: { type: String, default: '?' },

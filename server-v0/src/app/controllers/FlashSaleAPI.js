@@ -2,41 +2,39 @@ const _ = require('lodash');
 const { FlashSale, FLASH_SALE_STATUS } = require('../models/FlashSale');
 const { upload } = require('../../utils/cloudinaryUpload');
 
+const SESSION_FIELDS = {
+  start_time: 1,
+  end_time: 1,
+  banners: 1,
+  description: 1,
+  on_going: 1,
+};
 const LIMIT_TOTAL_UP_COMING_SESSIONS = 4;
 
-const findFlashSaleSessions = async () => {
+const findOnGoingFlashSale = async (fields = null) => {
   const currentTime = new Date().getTime();
-  const sessions = await FlashSale.aggregate([
-    { $match: { status: { $nin: [FLASH_SALE_STATUS.inactive] } } },
-    {
-      $project: {
-        start_time: 1,
-        end_time: 1,
-        banners: 1,
-        description: 1,
-      },
-    },
-    {
-      $facet: {
-        onGoing: [
-          {
-            $match: {
-              $and: [{ start_time: { $lte: currentTime } }, { end_time: { $gte: currentTime } }],
-            },
-          },
-          { $addFields: { on_going: true } },
-        ],
-        upComing: [
-          { $match: { start_time: { $gte: currentTime } } },
-          { $sort: { start_time: 1 } },
-          { $addFields: { on_going: false } },
-          { $limit: LIMIT_TOTAL_UP_COMING_SESSIONS - 1 },
-        ],
-      },
-    },
-  ]);
+  const onGoingFlashSale = await FlashSale.findOne({
+    on_going: { $eq: true },
+    start_time: { $lte: currentTime },
+    end_time: { $gte: currentTime },
+    status: { $nin: [FLASH_SALE_STATUS.inactive] },
+  }).select(fields || SESSION_FIELDS);
 
-  return sessions[0];
+  return onGoingFlashSale;
+};
+
+const findUpComingFlashSale = async (fields = null) => {
+  const currentTime = new Date().getTime();
+  const upComingFlashSale = await FlashSale.find({
+    on_going: { $eq: false },
+    start_time: { $gte: currentTime },
+    status: { $nin: [FLASH_SALE_STATUS.inactive] },
+  })
+    .sort({ start_time: 1 })
+    .limit(LIMIT_TOTAL_UP_COMING_SESSIONS - 1)
+    .select(fields || SESSION_FIELDS);
+
+  return upComingFlashSale;
 };
 
 class FlashSaleAPI {
@@ -131,9 +129,17 @@ class FlashSaleAPI {
   // [GET] /flash-sale/sessions
   async findForSessions(req, res, next) {
     try {
-      const { onGoing, upComing } = await findFlashSaleSessions();
+      const onGoing = await findOnGoingFlashSale();
+      const upComing = await findUpComingFlashSale();
+      if (_.isNil(onGoing)) {
+        res.status(200).json({
+          sessions: upComing,
+        });
+        return;
+      }
+
       res.status(200).json({
-        sessions: [...onGoing, ...upComing],
+        sessions: [onGoing, ...upComing],
       });
     } catch (error) {
       console.error(error);
@@ -144,5 +150,6 @@ class FlashSaleAPI {
 
 module.exports = {
   flashSaleAPI: new FlashSaleAPI(),
-  findFlashSaleSessions,
+  findOnGoingFlashSale,
+  findUpComingFlashSale,
 };

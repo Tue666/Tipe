@@ -123,7 +123,7 @@ const PaymentSection = (props: PaymentSectionProps) => {
         {paymentItems?.length > 0 &&
           paymentItems.map((item) => {
             const { _id, quantity, product } = item;
-            const { name, images, price } = product;
+            const { name, images, price, flash_sale } = product;
             return (
               <DeliveryItem key={_id}>
                 <Image
@@ -137,7 +137,7 @@ const PaymentSection = (props: PaymentSectionProps) => {
                 <Stack sx={{ flex: 1, ml: '10px' }}>
                   <Ellipsis variant="body2" text={name} />
                   <Typography variant="subtitle2">
-                    {toVND(price)} | x{quantity}
+                    {toVND(flash_sale?.price ?? price)} | x{quantity}
                   </Typography>
                 </Stack>
               </DeliveryItem>

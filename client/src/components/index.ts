@@ -2,6 +2,8 @@ export { default as Breadcrumbs } from './Breadcrumbs.component';
 export { default as Collapse } from './Collapse.component';
 export { default as ContentToggle } from './ContentToggle.component';
 export { default as Ellipsis } from './Ellipsis.component';
+export { default as FlashSaleIconSvg } from './FlashSaleIconSvg.component';
+export { default as FlashSaleSvg } from './FlashSaleSvg.component';
 export { default as Hidden } from './Hidden.component';
 export { default as LightBox } from './LightBox.component';
 export { default as Loading } from './Loading.component';

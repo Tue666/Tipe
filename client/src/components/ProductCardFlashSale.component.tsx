@@ -18,7 +18,7 @@ interface ProductCardFlashSaleProps {
 const ProductCardFlashSale = (props: ProductCardFlashSaleProps) => {
   const { product } = props;
   const { _id, name, images, flash_sale, slug } = product;
-  const { flash_sale_id, limit, price, sold } = flash_sale;
+  const { flash_sale_id, limit, price, price_hidden, sold } = flash_sale;
   const theme = useTheme();
   const { pathname } = useRouter();
   const isInFlashSalePage =
@@ -47,7 +47,7 @@ const ProductCardFlashSale = (props: ProductCardFlashSaleProps) => {
         />
         <Stack alignItems="center" spacing={1}>
           <Typography variant="h6" color="primary.main">
-            {toVND(price)}
+            {price_hidden !== '' ? `${price_hidden} ₫` : toVND(price)}
           </Typography>
           <Range limit={limit} sold={sold}>
             {sold / limit >= 0.5 && (

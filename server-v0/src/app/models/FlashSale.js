@@ -11,6 +11,7 @@ const FlashSale = new Schema(
     end_time: { type: Number, required: true },
     banners: { type: [String], default: [] },
     description: { type: String, default: '' },
+    on_going: { type: Boolean, default: false },
     status: {
       type: String,
       enum: Object.values(FLASH_SALE_STATUS),

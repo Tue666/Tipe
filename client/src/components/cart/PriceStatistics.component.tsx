@@ -101,7 +101,7 @@ const PriceStatistics = (props: PriceStatisticsProps) => {
       const orderItems = getSelectedItems(items).map((item) => {
         const { quantity, product } = item;
         return {
-          ...product,
+          _id: product._id,
           quantity,
         };
       });

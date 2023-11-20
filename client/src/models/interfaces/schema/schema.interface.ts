@@ -58,6 +58,8 @@ export interface FlashSaleSchema {
 export interface FlashSale {
   flash_sale_id: string;
   limit: number;
+  discount: number;
+  discount_rate: number;
   original_price: number;
   price: number;
   price_hidden: string;
@@ -188,18 +190,20 @@ export interface OrderSchema extends TimestampsSchema, SoftDeleteSchema {
     ward: LocationSchema['name'];
   };
   payment_method: Payment;
-  items: Pick<
+  items: (Pick<
     ProductSchema,
     | '_id'
     | 'name'
     | 'images'
+    | 'quantity'
+    | 'limit'
+    | 'discount'
+    | 'discount_rate'
     | 'original_price'
     | 'price'
-    | 'limit'
-    | 'quantity'
     | 'inventory_status'
     | 'slug'
-  >[];
+  > & { flash_sale_id: FlashSaleSchema['_id'] })[];
   price_summary: PriceSummary[];
   tracking_info: {
     status: OrderStatus;

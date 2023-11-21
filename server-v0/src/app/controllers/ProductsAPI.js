@@ -427,15 +427,16 @@ class ProductsAPI {
     try {
       let { flash_sale_id, newest, limit } = req.query;
       let session = null;
-      const sessionFields = { start_time: 1, end_time: 1 };
+      const sessionFields = { start_time: 1, end_time: 1, on_going: 1 };
       if (!requireFieldSatisfied(flash_sale_id)) {
         const onGoing = await findOnGoingFlashSale(sessionFields);
         if (!_.isNil(onGoing)) {
-          const { _id, start_time, end_time } = onGoing;
+          const { _id, start_time, end_time, on_going } = onGoing;
           session = {
             _id,
             start_time,
             end_time,
+            on_going,
           };
         }
       } else {
@@ -470,9 +471,7 @@ class ProductsAPI {
           $facet: {
             products: [
               {
-                $project: {
-                  name: 1,
-                  images: 1,
+                $addFields: {
                   flash_sale: {
                     $arrayElemAt: [
                       {
@@ -487,6 +486,25 @@ class ProductsAPI {
                       0,
                     ],
                   },
+                },
+              },
+              {
+                $project: {
+                  name: 1,
+                  images: 1,
+                  'flash_sale.flash_sale_id': 1,
+                  'flash_sale.limit': 1,
+                  'flash_sale.original_price': 1,
+                  'flash_sale.sold': 1,
+                  ...(session.on_going
+                    ? {
+                        'flash_sale.discount': 1,
+                        'flash_sale.discount_rate': 1,
+                        'flash_sale.price': 1,
+                      }
+                    : {
+                        'flash_sale.price_hidden': 1,
+                      }),
                   slug: 1,
                 },
               },
@@ -642,6 +660,7 @@ class ProductsAPI {
       newest = newest ? parseInt(newest) : 0;
       limit = limit ? parseInt(limit) : 1;
 
+      const onGoing = await findOnGoingFlashSale({ _id: 1 });
       const queries = {
         inventory_status: { $nin: [INVENTORY_STATUS.hidden] },
       };
@@ -688,6 +707,7 @@ class ProductsAPI {
                 _id: '$_id',
                 name: '$name',
                 images: '$images',
+                flash_sale: '$flash_sale',
                 discount: '$discount',
                 discount_rate: '$discount_rate',
                 original_price: '$original_price',
@@ -711,6 +731,33 @@ class ProductsAPI {
               {
                 $replaceRoot: {
                   newRoot: '$products',
+                },
+              },
+              {
+                $project: {
+                  name: 1,
+                  images: 1,
+                  flash_sale: {
+                    $arrayElemAt: [
+                      {
+                        $filter: {
+                          input: '$flash_sale',
+                          as: 'sale',
+                          cond: {
+                            $eq: ['$$sale.flash_sale_id', onGoing?._id ?? null],
+                          },
+                        },
+                      },
+                      0,
+                    ],
+                  },
+                  discount: 1,
+                  discount_rate: 1,
+                  original_price: 1,
+                  price: 1,
+                  quantity_sold: 1,
+                  ratings: 1,
+                  slug: 1,
                 },
               },
               { $sort: { [sort]: direction } },

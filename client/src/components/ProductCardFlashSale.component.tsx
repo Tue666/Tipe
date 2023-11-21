@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { useRouter } from 'next/router';
 import { Card, Stack, Typography, styled, useTheme } from '@mui/material';
 import { Image, Link } from './overrides';
@@ -47,7 +48,7 @@ const ProductCardFlashSale = (props: ProductCardFlashSaleProps) => {
         />
         <Stack alignItems="center" spacing={1}>
           <Typography variant="h6" color="primary.main">
-            {price_hidden !== '' ? `${price_hidden} ₫` : toVND(price)}
+            {!_.isNil(price_hidden) ? `${price_hidden} ₫` : toVND(price)}
           </Typography>
           <Range limit={limit} sold={sold}>
             {sold / limit >= 0.5 && (

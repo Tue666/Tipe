@@ -5,7 +5,7 @@ import { Stack } from '@mui/material';
 import { Page, Teleport, ProductSection, ProductList } from '@/components';
 import { Banners, FlashSale, Categories } from '@/components/home';
 import { HOME_TELEPORTS } from '@/configs/teleport';
-import { categoryApi, productApi } from '@/apis';
+import { categoryApi, flashSaleApi, productApi } from '@/apis';
 import { ICategory, IProduct } from '@/models/interfaces';
 import { LIMIT_FLASH_SALE_NUMBER, LIMIT_WIDGET_NUMBER } from '@/configs/constants';
 
@@ -46,6 +46,16 @@ const Home = (props: HomeProps) => {
 
     findWidgets();
   }, []);
+
+  const onCountdownExpired = async () => {
+    await flashSaleApi.nextFlashSale();
+    const flashSale = await productApi.findForFlashSale({
+      limit: LIMIT_FLASH_SALE_NUMBER,
+    });
+    if (!_.isNil(widgets)) {
+      setWidgets({ ...widgets, flashSale });
+    }
+  };
   return (
     <Page title="Tipe Shop - Buy online, good price, good quality, fast shipping">
       <Teleport actions={actions} />
@@ -54,7 +64,9 @@ const Home = (props: HomeProps) => {
         {!_.isNil(widgets?.flashSale) &&
           (() => {
             const { pagination, ...rest } = widgets!.flashSale!;
-            return <FlashSale id={ids['flash-sale']} {...rest} />;
+            return (
+              <FlashSale id={ids['flash-sale']} {...rest} onCountdownExpired={onCountdownExpired} />
+            );
           })()}
         <Categories
           id={ids['categories']}

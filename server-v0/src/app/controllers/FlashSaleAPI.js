@@ -38,6 +38,44 @@ const findUpComingFlashSale = async (fields = null) => {
 };
 
 class FlashSaleAPI {
+  // [PATCH] /next-flash-sale
+  async nextFlashSale(req, res, next) {
+    try {
+      await FlashSale.updateOne(
+        {
+          on_going: { $eq: true },
+        },
+        {
+          on_going: false,
+        }
+      );
+
+      const currentTime = new Date().getTime();
+      const nextFlashSale = await FlashSale.findOneAndUpdate(
+        {
+          on_going: { $eq: false },
+          start_time: { $lte: currentTime },
+          end_time: { $gte: currentTime },
+          status: { $nin: [FLASH_SALE_STATUS.inactive] },
+        },
+        {
+          on_going: true,
+        },
+        {
+          new: true,
+        }
+      );
+
+      res.status(201).json({
+        msg: 'Next flash sale successfully!',
+        flashSale: nextFlashSale,
+      });
+    } catch (error) {
+      console.error(error);
+      next({ status: 500, msg: error.message });
+    }
+  }
+
   // [POST] /flash-sale
   /*
     = Body =

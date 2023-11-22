@@ -3,7 +3,6 @@ import { Stack, Box, useTheme } from '@mui/material';
 import { Carousel } from '../_external_/react-slick';
 import { Image } from '../overrides';
 import { STYLE } from '@/configs/constants';
-import { PATH_MAIN } from '@/configs/routers';
 
 interface Banner {
   src: string;
@@ -15,57 +14,57 @@ const BANNERS: Banner[] = [
   {
     src: 'https://cf.shopee.vn/file/vn-50009109-84b6dbb942b411b06e260b2534a52ab1',
     alt: 'banner',
-    target_src: PATH_MAIN.home,
+    target_src: 'https://www.facebook.com/exe.shiro',
   },
   {
     src: 'https://cf.shopee.vn/file/vn-50009109-2131179d9a1f447ab57cf071281ff05e',
     alt: 'banner',
-    target_src: PATH_MAIN.home,
+    target_src: 'https://www.facebook.com/exe.shiro',
   },
   {
     src: 'https://cf.shopee.vn/file/vn-50009109-809133920d280dbe21aa0da35856cd27',
     alt: 'banner',
-    target_src: PATH_MAIN.home,
+    target_src: 'https://www.facebook.com/exe.shiro',
   },
   {
     src: 'https://cf.shopee.vn/file/vn-50009109-3f3306f3b0005a027b3e4aa9363bd158',
     alt: 'banner',
-    target_src: PATH_MAIN.home,
+    target_src: 'https://www.facebook.com/exe.shiro',
   },
   {
     src: 'https://cf.shopee.vn/file/vn-50009109-751e3aaee689b67bf62dce69a4ce7423',
     alt: 'banner',
-    target_src: PATH_MAIN.home,
+    target_src: 'https://www.facebook.com/exe.shiro',
   },
   {
     src: 'https://cf.shopee.vn/file/vn-50009109-c6cf7674a2d50b77e6f1f5276b201936',
     alt: 'banner',
-    target_src: PATH_MAIN.home,
+    target_src: 'https://www.facebook.com/exe.shiro',
   },
   {
     src: 'https://cf.shopee.vn/file/vn-50009109-bd458cb7863667ff3fedc591191d3b2b',
     alt: 'banner',
-    target_src: PATH_MAIN.home,
+    target_src: 'https://www.facebook.com/exe.shiro',
   },
   {
     src: 'https://cf.shopee.vn/file/vn-50009109-2e8f9f98d9a74f74ac4b690d9498c528',
     alt: 'banner',
-    target_src: PATH_MAIN.home,
+    target_src: 'https://www.facebook.com/exe.shiro',
   },
   {
     src: 'https://cf.shopee.vn/file/vn-50009109-a7234d9499cfd616dc8ae50dd7aa13ad',
     alt: 'banner',
-    target_src: PATH_MAIN.home,
+    target_src: 'https://www.facebook.com/exe.shiro',
   },
   {
     src: 'https://cf.shopee.vn/file/vn-50009109-ee3f3603e4a58268310ca2c01bf9bdfe',
     alt: 'banner',
-    target_src: PATH_MAIN.home,
+    target_src: 'https://www.facebook.com/exe.shiro',
   },
   {
     src: 'https://cf.shopee.vn/file/vn-50009109-41887f4bf32b9c393c65382ac41552a6',
     alt: 'banner',
-    target_src: PATH_MAIN.home,
+    target_src: 'https://www.facebook.com/exe.shiro',
   },
 ];
 
@@ -73,12 +72,12 @@ const SUB_BANNERS: Banner[] = [
   {
     src: 'https://cf.shopee.vn/file/vn-50009109-bb3bbd8e96e28c1fe53bfa5cdb720494',
     alt: 'banner',
-    target_src: PATH_MAIN.home,
+    target_src: 'https://www.facebook.com/exe.shiro',
   },
   {
     src: 'https://cf.shopee.vn/file/vn-50009109-66e02eaf7d1860a767bef0306f52d80a',
     alt: 'banner',
-    target_src: PATH_MAIN.home,
+    target_src: 'https://www.facebook.com/exe.shiro',
   },
 ];
 

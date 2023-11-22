@@ -10,7 +10,7 @@ export type NullableBy<T, K extends keyof T> = Omit<T, K> & Record<K, T[K] | nul
 
 export type Country = 'VN';
 
-export interface MessageReponse {
+export interface MessageResponse {
   msg: string;
 }
 

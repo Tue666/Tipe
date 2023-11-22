@@ -3,11 +3,18 @@ import useTimer from '@/hooks/useTimer.hook';
 
 interface FlipCountdownTimerProps {
   targetTime?: number;
+  onExpired?: () => Promise<void>;
 }
 
 const FlipCountdownTimer = (props: FlipCountdownTimerProps) => {
-  const { targetTime = 0 } = props;
-  const [days, hours, minutes, seconds] = useTimer(targetTime);
+  const { targetTime = 0, onExpired } = props;
+  const { isExpired, count } = useTimer(targetTime);
+  const [days, hours, minutes, seconds] = count;
+  if (isExpired) {
+    onExpired && (async () => await onExpired())();
+    return null;
+  }
+
   return (
     <Stack direction="row" spacing={1}>
       <Timer>

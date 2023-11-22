@@ -1,4 +1,4 @@
-import { MessageReponse } from '../common';
+import { MessageResponse } from '../common';
 import {
   AccountSchema,
   AdministratorSchema,
@@ -41,21 +41,21 @@ export interface InitCustomerResponse {
 export interface InsertAddressBody
   extends Omit<AddressSchema, '_id' | 'customer_id' | 'country' | 'created_at' | 'updated_at'> {}
 
-export interface InsertAddressResponse extends MessageReponse {
+export interface InsertAddressResponse extends MessageResponse {
   address: Address;
 }
 
 export interface EditAddressBody
   extends Omit<AddressSchema, 'customer_id' | 'country' | 'created_at' | 'updated_at'> {}
 
-export interface EditAddressResponse extends MessageReponse {
+export interface EditAddressResponse extends MessageResponse {
   address: Address;
 }
 
-export interface SwitchDefaultResponse extends MessageReponse {
+export interface SwitchDefaultResponse extends MessageResponse {
   _id: Address['_id'];
 }
 
-export interface RemoveAddressResponse extends MessageReponse {
+export interface RemoveAddressResponse extends MessageResponse {
   _id: Address['_id'];
 }

@@ -1,7 +1,17 @@
 import _ from 'lodash';
 import { ChangeEvent, Fragment, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { Button, Pagination, Skeleton, Stack, Typography, styled, useTheme } from '@mui/material';
+import {
+  Alert,
+  Button,
+  Pagination,
+  Skeleton,
+  Stack,
+  Typography,
+  styled,
+  useTheme,
+} from '@mui/material';
+import { useConfirm } from 'material-ui-confirm';
 import { Page } from '@/components';
 import { Carousel } from '@/components/_external_/react-slick';
 import { Image, Link } from '@/components/overrides';
@@ -20,7 +30,8 @@ interface SessionProps {
 
 const HEADER_HEIGHT = '60px';
 
-interface Time extends Pick<IFlashSale.FlashSaleSession, '_id' | 'start_time' | 'on_going'> {}
+interface Time
+  extends Pick<IFlashSale.FlashSaleSession, '_id' | 'start_time' | 'end_time' | 'on_going'> {}
 
 type SessionMapping = {
   [K: IFlashSale.FlashSaleSession['_id']]: Omit<IFlashSale.FlashSaleSession, '_id'>;
@@ -37,6 +48,7 @@ const FlashSale = () => {
   const [flashSaleProducts, setFlashSaleProducts] =
     useState<IProduct.FindForFlashSaleResponse | null>(null);
   const theme = useTheme();
+  const confirm = useConfirm();
   const { query, isReady, push } = useRouter();
   const { flash_sale_id, newest } = query;
 
@@ -53,8 +65,8 @@ const FlashSale = () => {
       const sessionMapping = {};
       sessions.forEach((session) => {
         const { _id, ...rest } = session;
-        const { start_time, on_going } = rest;
-        times.push({ _id, start_time, on_going });
+        const { start_time, end_time, on_going } = rest;
+        times.push({ _id, start_time, end_time, on_going });
         (sessionMapping as SessionMapping)[_id] = rest;
       });
       setSessions({
@@ -83,15 +95,37 @@ const FlashSale = () => {
       `${PATH_MAIN.flashSale(flash_sale_id as IFlashSale.FlashSaleSession['_id'])}&newest=${newest}`
     );
   };
+  const onCountdownExpired = async () => {
+    try {
+      await confirm({
+        title: 'Expired',
+        content: <Alert severity="error">This flash sale has expired, let's try another one</Alert>,
+        confirmationButtonProps: {
+          color: 'error',
+        },
+        allowClose: false,
+        hideCancelButton: true,
+      });
+
+      const { flashSale } = await flashSaleApi.nextFlashSale();
+      if (_.isNil(flashSale)) {
+        window.location.href = PATH_MAIN.flashSale('').split('?')[0];
+        return;
+      }
+
+      window.location.href = PATH_MAIN.flashSale(flashSale._id);
+    } catch (error) {
+      if (error === undefined) return;
+      console.log('Confirm error:', error);
+    }
+  };
   return (
     <Page title="Flash Sale - Good Prices, Great Deals | Tipe Shop">
       {(sessions?.times ?? []).length > 0 &&
         (() => {
           const { currentSelected, times, sessionMapping } = sessions;
           const session = sessionMapping[currentSelected];
-          const { banners } = session;
-          const nextFlashSale = times.filter((time) => !time.on_going)[0];
-          const { start_time } = nextFlashSale;
+          const onGoingFlashSale = times.filter((time) => time.on_going);
           return (
             <Fragment>
               <Header justifyContent="center" alignItems="center">
@@ -104,13 +138,20 @@ const FlashSale = () => {
                       height: '23px',
                     }}
                   />
-                  <Typography sx={{ textTransform: 'uppercase' }}>
-                    <i className="bi bi-stopwatch" /> End In
-                  </Typography>
-                  <FlipCountdownTimer targetTime={start_time} />
+                  {onGoingFlashSale.length > 0 && (
+                    <Fragment>
+                      <Typography sx={{ textTransform: 'uppercase' }}>
+                        <i className="bi bi-stopwatch" /> End In
+                      </Typography>
+                      <FlipCountdownTimer
+                        targetTime={onGoingFlashSale[0].end_time}
+                        onExpired={onCountdownExpired}
+                      />
+                    </Fragment>
+                  )}
                 </Stack>
               </Header>
-              {banners && banners.length > 0 && (
+              {(session?.banners ?? []).length > 0 && (
                 <Carousel
                   settings={{
                     infinite: STYLE.DESKTOP.BANNERS.SLIDE_INFINITE,
@@ -121,7 +162,7 @@ const FlashSale = () => {
                     autoplaySpeed: STYLE.DESKTOP.BANNERS.SLIDE_AUTOPLAY_SPEED,
                   }}
                 >
-                  {banners.map((banner, index) => {
+                  {session.banners.map((banner, index) => {
                     return (
                       <Image
                         key={index}

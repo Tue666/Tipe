@@ -1001,8 +1001,8 @@ class ProductsAPI {
                   $cond: {
                     if: { $gt: ['$flash_sale.flash_sale_id', null] },
                     then: {
-                      start_time: onGoing.start_time,
-                      end_time: onGoing.end_time,
+                      start_time: onGoing?.start_time ?? null,
+                      end_time: onGoing?.end_time ?? null,
                     },
                     else: {},
                   },

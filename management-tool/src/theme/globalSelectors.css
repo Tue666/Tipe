@@ -1,0 +1,34 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
+
+html {
+    scroll-behavior: smooth;
+}
+
+::-webkit-scrollbar {
+    display: none;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Quicksand';
+    list-style: none;
+}
+
+.caption {
+    font-size: 12px;
+}
+
+.ant-space {
+    width: 100%;
+}
+
+.ant-image {
+    width: 100%;
+    height: 100%;
+}
+
+.ant-collapse-no-header-padding .ant-collapse-header {
+    padding: 0 !important;
+}

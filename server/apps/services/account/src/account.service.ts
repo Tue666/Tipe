@@ -1,8 +1,12 @@
-import { BadRequestException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConfigService,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+  RpcException,
+} from '@pihe-core/common';
 import { AccountModel, AdministratorModel, CustomerModel, Types } from './models';
-import { ConfigService } from '@pihe-core/common';
-import { IAccount } from '@pihe-server/common';
-import { RpcException } from '@nestjs/microservices';
 import bcrypt from 'bcrypt';
 import { AccountConfig, CONFIG_KEY } from './account.config';
 
@@ -14,7 +18,7 @@ export class AccountService {
     return new AccountConfig(this.configService.get(CONFIG_KEY));
   }
 
-  async signIn(data: IAccount.SignInPayload) {
+  async signIn(data: any) {
     const { phone_number, password } = data;
     const account = await AccountModel.findOne({ phone_number });
     if (!account) {
@@ -37,7 +41,7 @@ export class AccountService {
     };
   }
 
-  async signUp(data: IAccount.SignUpPayload) {
+  async signUp(data: any) {
     const { phone_number, password, passwordConfirm, account_type, ...rest } = data;
     let account = await AccountModel.findOne({ phone_number });
     if (account) {

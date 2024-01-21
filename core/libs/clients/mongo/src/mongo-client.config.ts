@@ -18,8 +18,9 @@ export class MongoClientConfig extends ClientConfig {
   autoCreate?: boolean;
   retryTimeout: number;
 
-  constructor(props) {
+  constructor(props: MongoClientConfig) {
     super(props);
+
     this.url = props.url;
     this.database = props?.database;
     this.auth = props?.auth;

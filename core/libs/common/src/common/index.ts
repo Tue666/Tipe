@@ -1,22 +1,5 @@
-export {
-  Injectable,
-  Inject,
-  Controller,
-  Global,
-  DynamicModule,
-  Module,
-  Get,
-  Post,
-  Put,
-  Delete,
-  Param,
-  Body,
-  Headers,
-  OnModuleInit,
-  OnModuleDestroy,
-  Query,
-  HttpException,
-  UseInterceptors,
-  UsePipes,
-  Scope,
-} from '@nestjs/common';
+export * from '@nestjs/common';
+export * from '@nestjs/config';
+export * from '@nestjs/core';
+export * from '@nestjs/microservices';
+export * from '@nestjs/platform-express';

@@ -1,13 +1,8 @@
-import { Module } from '@nestjs/common';
-import { CommonModule as CoreCommonModule } from '@pihe-core/common';
-import { CommonModule } from '@pihe-server/common';
-import { AccountController } from './account.controller';
-import { MongoClientModule } from '@pihe-core/mongo-client';
-import { AccountService } from './account.service';
+import { Module } from '@pihe-core/common';
 
 @Module({
-  imports: [CoreCommonModule, CommonModule, MongoClientModule],
-  controllers: [AccountController],
-  providers: [AccountService],
+  imports: [],
+  controllers: [],
+  providers: [],
 })
 export class AccountModule {}

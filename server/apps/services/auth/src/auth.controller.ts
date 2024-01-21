@@ -1,5 +1,4 @@
-import { Controller } from '@nestjs/common';
-import { Ctx, MessagePattern, Payload, RmqContext } from '@nestjs/microservices';
+import { Controller, Ctx, MessagePattern, Payload, RmqContext } from '@pihe-core/common';
 import { AuthService } from './auth.service';
 
 @Controller()

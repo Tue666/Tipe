@@ -13,6 +13,10 @@
     "start": "node dist/main.js"
   },
   "dependencies": {
-    "@pihe-core/common": "^0.0.15-alpha.0"
+    "@pihe-core/common": "^0.0.15-alpha.0",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.202"
   }
 }

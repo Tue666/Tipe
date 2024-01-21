@@ -1,5 +1,11 @@
-import { ArgumentsHost, Catch, ExceptionFilter, HttpAdapterHost, HttpStatus } from '@nestjs/common';
-import { RpcException } from '@nestjs/microservices';
+import {
+  ArgumentsHost,
+  Catch,
+  ExceptionFilter,
+  HttpAdapterHost,
+  HttpStatus,
+  RpcException,
+} from '@pihe-core/common';
 
 interface RpcExceptionResponse {
   statusCode: number;

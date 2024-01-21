@@ -1,5 +1,5 @@
 {
-  "packages": ["libs/**/*"],
+  "packages": ["examples/**/*", "libs/**/*"],
   "useWorkspaces": true,
   "version": "independent"
 }

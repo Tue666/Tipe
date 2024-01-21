@@ -1,7 +1,9 @@
+export const DEFAULT_CON_ID = 'default';
+
 export class ClientConfig {
-  id?: string;
+  conId: string;
 
   constructor(props: ClientConfig) {
-    this.id = props?.id;
+    this.conId = props.conId;
   }
 }

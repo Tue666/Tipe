@@ -1,15 +1,11 @@
-import { ClientsProviderAsyncOptions, Transport } from '@nestjs/microservices';
-import { ServerConfigService } from '@pihe-server/common';
+import { ClientsProviderAsyncOptions } from '@pihe-core/common';
+import { ApiGatewayConfig, SERVICE_NAMES } from '../config';
 
 export const AuthConfig: ClientsProviderAsyncOptions = {
-  name: 'AUTH_SERVICE',
-  useFactory: (configService: ServerConfigService) => {
-    const configs = configService.getServicesConfig();
-    const { auth } = configs;
-    return {
-      transport: Transport.RMQ,
-      options: auth.options,
-    };
+  name: SERVICE_NAMES.auth.name,
+  inject: [ApiGatewayConfig],
+  useFactory: (apiGatewayConfig: ApiGatewayConfig) => {
+    const { transport, options } = apiGatewayConfig.getServiceConfig(SERVICE_NAMES.auth.service);
+    return { transport, options };
   },
-  inject: [ServerConfigService],
 };

@@ -1,0 +1,21 @@
+{
+  "name": "@pihe-core/example-clients",
+  "version": "0.0.1",
+  "main": "dist/main.js",
+  "author": "Pihe",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc && node dist/main.js",
+    "start": "node dist/main.js"
+  },
+  "dependencies": {
+    "@pihe-core/common": "^0.0.15-alpha.0",
+    "@pihe-core/mongo-client": "^0.0.15-alpha.0",
+    "@pihe-core/rabbit-client": "^0.0.1",
+    "@pihe-core/redis-client": "^0.0.1"
+  }
+}

@@ -1,8 +1,5 @@
 import { readFileSync, existsSync } from 'fs';
-import { ConfigService as NestConfigService } from '@nestjs/config';
 import * as yaml from 'js-yaml';
-
-export class ConfigService extends NestConfigService {}
 
 const YAML_CONFIG_FILENAME_DEVELOPMENT = 'config.development.yml';
 const YAML_CONFIG_FILENAME_STAGING = 'config.staging.yml';

@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common';
+import { Controller } from '@pihe-core/common';
 
 @Controller('auth')
 export class AuthController {}

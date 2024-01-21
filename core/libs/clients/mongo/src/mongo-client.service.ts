@@ -11,7 +11,8 @@ export class MongoClientService extends AbstractClientCore<MongoClientConfig, Co
 
   private connect(config: MongoClientConfig) {
     const { url, database, auth, autoIndex, autoCreate } = config;
-    const connectionString = `mongodb://${url}?authSource=admin`;
+
+    const connectionString = `mongodb://${url}`;
     const connectOptions = {};
     if (auth) {
       connectOptions['user'] = auth.username;
@@ -26,7 +27,8 @@ export class MongoClientService extends AbstractClientCore<MongoClientConfig, Co
     if (autoCreate) {
       connectOptions['autoCreate'] = autoCreate;
     }
-    return connect(connectionString, connectOptions);
+
+    connect(connectionString, connectOptions);
   }
 
   protected async init(config: MongoClientConfig): Promise<Connection> {
@@ -52,7 +54,7 @@ export class MongoClientService extends AbstractClientCore<MongoClientConfig, Co
     return connection;
   }
 
-  protected async start(client: Connection, id?: string): Promise<void> {}
+  protected async start(client: Connection, conId?: string): Promise<void> {}
 
-  protected async stop(client: Connection, id?: string): Promise<void> {}
+  protected async stop(client: Connection, conId?: string): Promise<void> {}
 }

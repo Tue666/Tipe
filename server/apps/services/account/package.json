@@ -10,12 +10,7 @@
     "start": "node dist/main.js"
   },
   "dependencies": {
-    "@nestjs/common": "^9.3.12",
-    "@nestjs/core": "^9.3.12",
-    "@nestjs/microservices": "^9.3.12",
-    "@pihe-core/common": "^0.0.15-alpha.0",
-    "@pihe-core/mongo-client": "^0.0.15-alpha.0",
-    "@pihe-server/common": "^0.0.0",
+    "@pihe-server/api-gateway": "^0.0.0",
     "bcrypt": "^5.1.0"
   },
   "devDependencies": {

@@ -1,5 +1,4 @@
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@pihe-core/common';
+import { ConfigService, Injectable } from '@pihe-core/common';
 import jwt from 'jsonwebtoken';
 import { AuthConfig, CONFIG_KEY } from './auth.config';
 

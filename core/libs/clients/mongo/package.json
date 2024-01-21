@@ -14,7 +14,6 @@
   },
   "dependencies": {
     "@pihe-core/client-core": "^0.0.15-alpha.0",
-    "@pihe-core/common": "^0.0.15-alpha.0",
     "mongoose": "^7.0.3"
   }
 }

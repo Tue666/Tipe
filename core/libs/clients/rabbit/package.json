@@ -1,21 +1,22 @@
 {
-  "name": "@pihe-server/common",
-  "version": "0.0.0",
+  "name": "@pihe-core/rabbit-client",
+  "version": "0.0.1",
   "main": "dist/main.js",
   "author": "Pihe",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc",
     "dev": "tsc && node dist/main.js",
     "start": "node dist/main.js"
   },
   "dependencies": {
-    "@nestjs/common": "^9.3.12",
-    "@nestjs/config": "^2.3.1",
-    "js-yaml": "^4.1.0"
+    "@pihe-core/client-core": "^0.0.15-alpha.0",
+    "amqplib": "^0.10.3"
   },
   "devDependencies": {
-    "@types/js-yaml": "^4.0.5",
-    "@types/node": "^18.15.11"
+    "@types/amqplib": "^0.10.4"
   }
 }

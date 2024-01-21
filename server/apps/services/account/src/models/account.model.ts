@@ -1,12 +1,11 @@
 import { Schema, model } from '@pihe-core/mongo-client';
-import { IAccount } from '@pihe-server/common';
 
-export const Types: IAccount.Type = {
+export const Types: any = {
   customer: 'CUSTOMER',
   administrator: 'ADMINISTRATOR',
 };
 
-export const AccountSchema = new Schema<IAccount.Account>(
+export const AccountSchema = new Schema<any>(
   {
     phone_number: { type: String, required: true, unique: true },
     is_phone_verified: { type: Boolean, default: false },
@@ -27,7 +26,7 @@ const AccountModel = model('Account', AccountSchema);
 
 const CustomerModel = AccountModel.discriminator(
   Types.customer,
-  new Schema<IAccount.Customer>({
+  new Schema<any>({
     gender: { type: String, default: '' },
     social: [
       {
@@ -39,9 +38,6 @@ const CustomerModel = AccountModel.discriminator(
   })
 );
 
-const AdministratorModel = AccountModel.discriminator(
-  Types.administrator,
-  new Schema<IAccount.Administrator>({})
-);
+const AdministratorModel = AccountModel.discriminator(Types.administrator, new Schema<any>({}));
 
 export { AccountModel, CustomerModel, AdministratorModel };

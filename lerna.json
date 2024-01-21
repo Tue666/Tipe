@@ -1,0 +1,5 @@
+{
+  "packages": ["core/**/**/*", "server/**/**/*"],
+  "useWorkspaces": true,
+  "version": "independent"
+}

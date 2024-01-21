@@ -1,17 +1,15 @@
-import { NestFactory } from '@nestjs/core';
+import { MicroserviceOptions, NestFactory } from '@pihe-core/common';
+import { ApiGatewayConfig, SERVICE_NAMES } from '@pihe-server/api-gateway';
 import { AccountModule } from './account.module';
-import { ServerConfigService } from '@pihe-server/common';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
 const bootstrap = async () => {
   const app = await NestFactory.create(AccountModule);
-  const configService = app.get(ServerConfigService);
-  const configs = configService.getServicesConfig();
-  const { account } = configs;
-  const PORT = account.port;
+  const config = app.get(ApiGatewayConfig);
+  const accountConfig = config.getServiceConfig(SERVICE_NAMES.account.service);
+  const PORT = accountConfig.port;
   await app.connectMicroservice<MicroserviceOptions>({
-    transport: Transport.RMQ,
-    options: account.options,
+    transport: accountConfig.transport,
+    options: accountConfig.options,
   });
   await app.startAllMicroservices();
   await app.listen(PORT, () => {

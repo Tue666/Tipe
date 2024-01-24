@@ -1,5 +1,5 @@
 import { ClientsModule, CommonModule, Module } from '@pihe-core/common';
-import { ApiGatewayConfigModule, ApiGatewayConfig } from './config';
+import { ApiGatewayConfigModule } from './config';
 import { AuthConfig, AuthController, AuthService } from './auth';
 import { AccountConfig, AccountController, AccountService } from './account';
 
@@ -10,6 +10,6 @@ import { AccountConfig, AccountController, AccountService } from './account';
     ClientsModule.registerAsync([AuthConfig, AccountConfig]),
   ],
   controllers: [AuthController, AccountController],
-  providers: [ApiGatewayConfig, AuthService, AccountService],
+  providers: [AuthService, AccountService],
 })
 export class ApiGatewayModule {}

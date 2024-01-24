@@ -1,7 +1,8 @@
 import { Module } from '@pihe-core/common';
+import { ApiGatewayConfigModule } from '@pihe-server/api-gateway';
 
 @Module({
-  imports: [],
+  imports: [ApiGatewayConfigModule],
   controllers: [],
   providers: [],
 })

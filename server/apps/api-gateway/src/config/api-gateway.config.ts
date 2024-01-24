@@ -37,14 +37,22 @@ export class ApiGatewayConfig {
 
   buildRMQConfig(config) {
     const rabbit = this.configService.get('rabbit');
+    const rabbitConfig = {
+      protocol: rabbit?.protocol ?? 'amqp',
+      host: rabbit?.host ?? 'localhost',
+      port: rabbit?.port ?? '5672',
+    };
+    const rabbitUrl = `${rabbitConfig.protocol}://${rabbitConfig.host}:${rabbitConfig.port}`;
     return {
       port: parseInt(config.port),
       transport: Transport.RMQ,
       options: {
-        urls: [rabbit?.host ?? 'amqp://localhost'],
+        urls: [rabbitUrl],
         queue: config?.queue ?? '',
         prefetchCount: parseInt(config?.prefetchCount ?? 1),
         noAck: JSON.parse(config?.noAck ?? false),
+        queueOptions: config?.queueOptions ?? {},
+        socketOptions: config?.socketOptions ?? {},
       },
     };
   }

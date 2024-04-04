@@ -5,8 +5,8 @@ const cors = require('cors');
 
 // config
 const db = require('./config/db');
-const corsOptions = require('./config/cors');
-const { corsConfig } = require('./config/config');
+// const corsOptions = require('./config/cors');
+// const { corsConfig } = require('./config/config');
 // handlers
 const errorsHandling = require('./handlers/errorsHandler');
 const liveChatHandler = require('./handlers/socket/liveChatHandler');
@@ -17,7 +17,8 @@ const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server, {
   cors: {
-    origin: corsConfig.whiteList,
+    // origin: corsConfig.whiteList,
+    origin: '*',
   },
 });
 const PORT = process.env.PORT || 5000;
@@ -32,7 +33,8 @@ db.connect();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.use(cors(corsOptions));
+// app.use(cors(corsOptions));
+app.use(cors());
 
 app.use('/images', express.static(path.join(__dirname, '../uploads')));
 

@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@pihe-server/api-gateway": "^0.0.0",
+    "@pihe-server/models": "^0.0.0",
     "bcrypt": "^5.1.0"
   },
   "devDependencies": {

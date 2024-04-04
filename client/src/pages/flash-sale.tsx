@@ -99,7 +99,9 @@ const FlashSale = () => {
     try {
       await confirm({
         title: 'Expired',
-        content: <Alert severity="error">This flash sale has expired, let's try another one</Alert>,
+        content: (
+          <Alert severity="error">This flash sale has expired, let&apos;s try another one</Alert>
+        ),
         confirmationButtonProps: {
           color: 'error',
         },

@@ -1,0 +1,12 @@
+{
+  "name": "@pihe-server/models",
+  "version": "0.0.0",
+  "main": "dist/main.js",
+  "author": "Pihe",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc && node dist/main.js",
+    "start": "node dist/main.js"
+  }
+}

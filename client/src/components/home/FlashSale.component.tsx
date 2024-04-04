@@ -15,11 +15,10 @@ interface FlashSaleProps extends Pick<IProduct.FindForFlashSaleResponse, 'produc
 
 const FlashSale = (props: FlashSaleProps) => {
   const { id, products, session, onCountdownExpired } = props;
-  if ((products?.length ?? 0) <= 0) return null;
-
-  const { end_time } = session;
   const theme = useTheme();
   const isMdDown = useMediaQuery(theme.breakpoints.down('md'));
+
+  if ((products?.length ?? 0) <= 0 || !session) return null;
   return (
     <Root id={id} spacing={1}>
       <Stack direction="row" justifyContent="space-between" alignItems="center">
@@ -32,7 +31,7 @@ const FlashSale = (props: FlashSaleProps) => {
               height: '23px',
             }}
           />
-          <FlipCountdownTimer targetTime={end_time} onExpired={onCountdownExpired} />
+          <FlipCountdownTimer targetTime={session.end_time} onExpired={onCountdownExpired} />
         </Stack>
       </Stack>
       <Carousel

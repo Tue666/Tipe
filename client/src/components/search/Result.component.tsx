@@ -83,7 +83,7 @@ const Result = (props: ResultProps) => {
     <Root>
       <Typography variant="body1" m={2}>
         <i className="bi bi-binoculars" /> Found <strong>{totalProduct}</strong> products matching
-        keyword "
+        keyword &quot;
         {
           <Typography
             variant="subtitle2"
@@ -94,7 +94,7 @@ const Result = (props: ResultProps) => {
             {keyword}
           </Typography>
         }
-        "
+        &quot;
       </Typography>
       <Wrapper sx={{ position: 'relative' }}>
         <Hidden breakpoint="md" type="Down">

@@ -1,3 +1,5 @@
+The server takes about 1-2 minutes to warm up after a period of inactivity, please be patient <3
+<br />
 [Live](https://tipe-phi.vercel.app/)
 <br />
 [Short demo](https://www.youtube.com/watch?v=V0ZruIffDvM)
